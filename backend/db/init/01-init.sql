@@ -84,36 +84,36 @@ CREATE INDEX IF NOT EXISTS idx_activity_logs_action ON audit_logs(action);
 CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON audit_logs(created_at);
 
 -- Create Admin User
--- Password: admin123 (bcrypt hash)
+-- Password: Admin@123456 (bcrypt hash)
 INSERT INTO users (name, email, password, role, created_at, updated_at)
 VALUES (
   'Admin User',
   'admin@example.com',
-  '$2b$10$3euPcmQFCiblsZB8jpqCIO7OHY0p1JFuID/JImxR4YbFgwjV2aHUe',
+  '$2a$12$hZ1T7Ws0BWn9PR3rF90arO.oRGMsfMkOIDmZtVE7yXqipIkDZl6.a',
   'admin',
   CURRENT_TIMESTAMP,
   CURRENT_TIMESTAMP
 ) ON CONFLICT (email) DO NOTHING;
 
 -- Create Manager User
--- Password: manager123 (bcrypt hash)
+-- Password: Manager@123456 (bcrypt hash)
 INSERT INTO users (name, email, password, role, created_at, updated_at)
 VALUES (
   'Manager User',
   'manager@example.com',
-  '$2b$10$RnJNTbdlokLnUIxO07G4y.2yCwcuSHXo0QbNAFcK6kPNz0GcyXtw.',
+  '$2a$12$AUGsMroR4aaqXZMt.zbi4.PsOKltaKWDbGG3Ld.c8jXaCJzOyYo72',
   'manager',
   CURRENT_TIMESTAMP,
   CURRENT_TIMESTAMP
 ) ON CONFLICT (email) DO NOTHING;
 
 -- Create Regular User
--- Password: user123 (bcrypt hash)
+-- Password: User@123456 (bcrypt hash)
 INSERT INTO users (name, email, password, role, created_at, updated_at)
 VALUES (
   'Regular User',
   'user@example.com',
-  '$2b$10$oLXJiW0.Fp/V7xVZA1wRzuthw16Eiaj5cbJEwRDXkPOhcJoz0voy.',
+  '$2a$12$m6XIUzcTcfIr3CzZ31csBe6lG.Wgkyb9XmAdAlBrPMTYqF0owqPZW',
   'user',
   CURRENT_TIMESTAMP,
   CURRENT_TIMESTAMP

@@ -130,7 +130,10 @@ const Login: React.FC<LoginProps> = ({ onLogin, isLoading = false, error = null 
               {isLoading ? <CircularProgress size={24} /> : 'Sign In'}
             </Button>
             
-            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+              <Link href="/register" variant="body2">
+                Don't have an account? Sign up
+              </Link>
               <Link href="#" variant="body2">
                 Forgot password?
               </Link>

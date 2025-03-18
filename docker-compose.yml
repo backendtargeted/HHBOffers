@@ -8,5 +8,39 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=direct_mail_dev
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
     volumes:
-      - ./backend/logs:/app/dist/logs
+      - ./backend/logs:/app/logs
+    depends_on:
+      - redis
+      - postgres
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=direct_mail_dev
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/db/init:/docker-entrypoint-initdb.d
+
+volumes:
+  redis_data:
+  postgres_data:

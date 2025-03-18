@@ -2,21 +2,15 @@ FROM node:18 AS builder
 
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package files and install dependencies for frontend
 COPY frontend/package*.json ./frontend/
 RUN cd frontend && npm install
 
-# Copy the entire frontend directory
+# Copy frontend source and build it
 COPY frontend ./frontend
-
-# Debug: Verify files are present
-RUN cd frontend && ls -la
-RUN cd frontend/public && ls -la
-
-# Build the app
 RUN cd frontend && npm run build
 
-# Copy backend package files and install dependencies
+# Copy package files and install dependencies for backend
 COPY backend/package*.json ./backend/
 RUN cd backend && npm install
 
@@ -29,17 +23,26 @@ FROM node:18
 
 WORKDIR /app
 
+# Copy package files for production install
+COPY backend/package*.json ./
+RUN npm install --only=production
+
 # Copy backend build output
-COPY --from=builder /app/backend/dist ./dist
+COPY --from=builder /app/backend/dist ./
 
-# Copy frontend build output to backend's public directory
-COPY --from=builder /app/frontend/build ./dist/public
+# Copy frontend build output to public directory
+COPY --from=builder /app/frontend/build ./public
 
-# Set working directory to backend dist
-WORKDIR /app/dist
+# Debug: Verify file structure
+RUN echo "=== Checking file structure ===" && \
+    ls -la && \
+    echo "=== Checking public directory ===" && \
+    ls -la public && \
+    echo "=== Checking node_modules ===" && \
+    ls -la node_modules
 
 # Expose port 3000
 EXPOSE 3000
 
 # Start the backend server
-CMD ["node", "index.js"]
+CMD ["node", "server.js"]

@@ -14,6 +14,7 @@ import { blue, green } from '@mui/material/colors';
 
 // Import components
 import Login from './components/auth/Login';
+import Registration from './components/auth/Registration';
 import Dashboard from './components/dashboard/Dashboard';
 import PropertySearch from './components/property/PropertySearch';
 import PropertyDetail from './components/property/PropertyDetail';
@@ -279,6 +280,10 @@ function App() {
                 <Route 
                   path="/login" 
                   element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLogin={login} />} 
+                />
+                <Route 
+                  path="/register" 
+                  element={isAuthenticated ? <Navigate to="/dashboard" /> : <Registration />} 
                 />
                 <Route 
                   path="/dashboard" 
