@@ -3,18 +3,18 @@ FROM node:18 AS builder
 WORKDIR /app
 
 # Copy package files and install dependencies
-COPY frontend/frontend/package*.json ./frontend/
+COPY frontend/package*.json ./frontend/
 RUN cd frontend && npm install
 
 # Copy the entire frontend directory
-COPY frontend/frontend ./frontend
+COPY frontend ./frontend
 
 # Debug: Verify files are present
 RUN cd frontend && ls -la
 RUN cd frontend/public && ls -la
 
 # Build the app
-RUN cd frontend && REACT_APP_API_URL=/api npm run build
+RUN cd frontend && npm run build
 
 # Copy backend package files and install dependencies
 COPY backend/package*.json ./backend/
@@ -33,7 +33,7 @@ WORKDIR /app
 COPY --from=builder /app/backend/dist ./dist
 
 # Copy frontend build output to backend's public directory
-COPY --from=builder /app/frontend/frontend/build ./dist/public
+COPY --from=builder /app/frontend/build ./dist/public
 
 # Set working directory to backend dist
 WORKDIR /app/dist
@@ -42,4 +42,4 @@ WORKDIR /app/dist
 EXPOSE 3000
 
 # Start the backend server
-CMD ["node", "server.js"]
+CMD ["node", "index.js"]
