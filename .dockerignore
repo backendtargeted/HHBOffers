@@ -1,0 +1,84 @@
+# Dependency directories
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build output directories
+dist/
+build/
+out/
+
+# Frontend build
+frontend/frontend/build/
+frontend/frontend/node_modules/
+
+# Backend build
+backend/dist/
+backend/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Version control
+.git
+.gitignore
+
+# Testing
+coverage/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# IDE and editor folders
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+# Documentation and memory bank
+README.md
+memory-bank/
+docs/
+
+# Development scripts and configs
+nodemon.json
+tsconfig.json
+.eslintrc.js
+.prettierrc
+config-overrides.js
+
+# Docker related
+Dockerfile*
+docker-compose*
+
+# Backup and cache files
+*.bak
+*.cache
+.cache/
+
+# Security and sensitive info
+*.pem
+*.key
+
+# Backend uploads and processed files (optional - depends on your needs)
+backend/uploads/temp/
+backend/uploads/processed/
+
+# Others
+.dockerignore
+.travis.yml
+.gitlab-ci.yml

@@ -1,0 +1,664 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Direct Mail Offer Lookup System API",
+      "description": "API documentation for the Direct Mail Offer Lookup System",
+      "version": "1.0.0",
+      "contact": {
+        "email": "admin@example.com"
+      }
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000/api",
+        "description": "Development server"
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      },
+      "schemas": {
+        "Error": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "example": false
+            },
+            "message": {
+              "type": "string",
+              "example": "Error message"
+            }
+          }
+        },
+        "LoginRequest": {
+          "type": "object",
+          "required": ["email", "password"],
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email",
+              "example": "admin@example.com"
+            },
+            "password": {
+              "type": "string",
+              "format": "password",
+              "example": "securePassword123"
+            }
+          }
+        },
+        "LoginResponse": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "example": true
+            },
+            "token": {
+              "type": "string",
+              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            },
+            "user": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "name": {
+                  "type": "string",
+                  "example": "Admin User"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "admin@example.com"
+                },
+                "role": {
+                  "type": "string",
+                  "example": "admin"
+                }
+              }
+            }
+          }
+        },
+        "Property": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "example": 1
+            },
+            "firstName": {
+              "type": "string",
+              "example": "John"
+            },
+            "lastName": {
+              "type": "string",
+              "example": "Smith"
+            },
+            "propertyAddress": {
+              "type": "string",
+              "example": "123 Main St"
+            },
+            "propertyCity": {
+              "type": "string",
+              "example": "New York"
+            },
+            "propertyState": {
+              "type": "string",
+              "example": "NY"
+            },
+            "propertyZip": {
+              "type": "string",
+              "example": "10001"
+            },
+            "offer": {
+              "type": "number",
+              "format": "float",
+              "example": 450000
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "PropertyCreate": {
+          "type": "object",
+          "required": ["propertyAddress", "propertyCity", "propertyState", "propertyZip", "offer"],
+          "properties": {
+            "firstName": {
+              "type": "string",
+              "example": "John"
+            },
+            "lastName": {
+              "type": "string",
+              "example": "Smith"
+            },
+            "propertyAddress": {
+              "type": "string",
+              "example": "123 Main St"
+            },
+            "propertyCity": {
+              "type": "string",
+              "example": "New York"
+            },
+            "propertyState": {
+              "type": "string",
+              "example": "NY"
+            },
+            "propertyZip": {
+              "type": "string",
+              "example": "10001"
+            },
+            "offer": {
+              "type": "number",
+              "format": "float",
+              "example": 450000
+            }
+          }
+        },
+        "PropertyBatchUpdate": {
+          "type": "object",
+          "required": ["properties"],
+          "properties": {
+            "properties": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "firstName": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "example": "Smith"
+                  },
+                  "propertyAddress": {
+                    "type": "string",
+                    "example": "123 Main St"
+                  },
+                  "propertyCity": {
+                    "type": "string",
+                    "example": "New York"
+                  },
+                  "propertyState": {
+                    "type": "string",
+                    "example": "NY"
+                  },
+                  "propertyZip": {
+                    "type": "string",
+                    "example": "10001"
+                  },
+                  "offer": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 450000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "SystemStats": {
+          "type": "object",
+          "properties": {
+            "users": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "example": 10
+                },
+                "active": {
+                  "type": "integer",
+                  "example": 5
+                }
+              }
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "example": 1000
+                },
+                "addedToday": {
+                  "type": "integer",
+                  "example": 50
+                },
+                "updatedToday": {
+                  "type": "integer",
+                  "example": 20
+                }
+              }
+            },
+            "uploads": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "example": 15
+                },
+                "completed": {
+                  "type": "integer",
+                  "example": 10
+                },
+                "failed": {
+                  "type": "integer",
+                  "example": 2
+                },
+                "pending": {
+                  "type": "integer",
+                  "example": 3
+                },
+                "recordsProcessed": {
+                  "type": "integer",
+                  "example": 5000
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "paths": {
+      "/auth/login": {
+        "post": {
+          "summary": "Authenticate user",
+          "description": "Log in a user and obtain a JWT token",
+          "tags": ["Authentication"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful login",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/LoginResponse"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Invalid credentials",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/auth/logout": {
+        "post": {
+          "summary": "Logout user",
+          "description": "Invalidate the current JWT token",
+          "tags": ["Authentication"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successfully logged out",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Logged out successfully"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/properties": {
+        "get": {
+          "summary": "Get all properties",
+          "description": "Get all properties with pagination",
+          "tags": ["Properties"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "page",
+              "schema": {
+                "type": "integer",
+                "default": 1
+              },
+              "description": "Page number"
+            },
+            {
+              "in": "query",
+              "name": "limit",
+              "schema": {
+                "type": "integer",
+                "default": 20
+              },
+              "description": "Number of items per page"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of properties",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "rows": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Property"
+                        }
+                      },
+                      "count": {
+                        "type": "integer",
+                        "example": 100
+                      },
+                      "totalPages": {
+                        "type": "integer",
+                        "example": 5
+                      },
+                      "currentPage": {
+                        "type": "integer",
+                        "example": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Create a new property",
+          "description": "Create a new property record",
+          "tags": ["Properties"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyCreate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Property created",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "property": {
+                        "$ref": "#/components/schemas/Property"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/properties/batch": {
+        "post": {
+          "summary": "Batch update properties",
+          "description": "Update multiple properties in a single request",
+          "tags": ["Properties"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyBatchUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Batch update results",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "results": {
+                        "type": "object",
+                        "properties": {
+                          "total": {
+                            "type": "integer",
+                            "example": 10
+                          },
+                          "updated": {
+                            "type": "integer",
+                            "example": 8
+                          },
+                          "failed": {
+                            "type": "integer",
+                            "example": 2
+                          },
+                          "errors": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer",
+                                  "example": 5
+                                },
+                                "error": {
+                                  "type": "string",
+                                  "example": "Property not found"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/stats/system": {
+        "get": {
+          "summary": "Get system statistics",
+          "description": "Get system-wide statistics for the dashboard",
+          "tags": ["Statistics"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "System statistics",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "stats": {
+                        "$ref": "#/components/schemas/SystemStats"
+                      },
+                      "fromCache": {
+                        "type": "boolean",
+                        "example": true
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
