@@ -9,13 +9,15 @@ import {
   Button,
   Chip,
   TextField,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  CircularProgress
+  CircularProgress,
+  Alert
 } from '@mui/material';
-import { Edit as EditIcon, Save as SaveIcon, Cancel as CancelIcon } from '@mui/icons-material';
+import { 
+  Edit as EditIcon, 
+  Save as SaveIcon, 
+  Cancel as CancelIcon,
+  ArrowBack as ArrowBackIcon
+} from '@mui/icons-material';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -23,8 +25,8 @@ import * as yup from 'yup';
 // Define validation schema
 const propertyUpdateSchema = yup.object({
   id: yup.number().required('ID is required'),
-  firstName: yup.string().optional(),
-  lastName: yup.string().optional(),
+  firstName: yup.string().optional().nullable(),
+  lastName: yup.string().optional().nullable(),
   propertyAddress: yup.string().required('Address is required'),
   propertyCity: yup.string().required('City is required'),
   propertyState: yup
@@ -39,27 +41,28 @@ const propertyUpdateSchema = yup.object({
     .number()
     .required('Offer is required')
     .min(0, 'Offer cannot be negative'),
-  createdAt: yup.string().optional(),
-  updatedAt: yup.string().optional()
+  createdAt: yup.string().optional().nullable(),
+  updatedAt: yup.string().optional().nullable()
 }).required();
 
 // Define TypeScript interfaces
 export interface Property {
   id: number;
-  firstName?: string;
-  lastName?: string;
+  firstName?: string | null;
+  lastName?: string | null;
   propertyAddress: string;
   propertyCity: string;
   propertyState: string;
   propertyZip: string;
   offer: number;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: string | null;
+  updatedAt?: string | null;
 }
 
 interface PropertyDetailProps {
-  property: Property;
+  property: Property | any; // Accept any to handle both snake_case and camelCase
   onUpdate?: (id: number, data: Partial<Property>) => Promise<Property>;
+  onBack?: () => void;
   editable?: boolean;
   isLoading?: boolean;
 }
@@ -67,16 +70,42 @@ interface PropertyDetailProps {
 const PropertyDetail: React.FC<PropertyDetailProps> = ({
   property,
   onUpdate,
+  onBack,
   editable = false,
   isLoading = false
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
+  const [updateSuccess, setUpdateSuccess] = useState<boolean>(false);
+
+  // Check if object is in snake_case and convert to camelCase if needed
+  const normalizeProperty = (prop: any): Property => {
+    // If the property has snake_case properties, convert to camelCase
+    if (prop.property_address || prop.first_name) {
+      return {
+        id: prop.id,
+        firstName: prop.first_name || null,
+        lastName: prop.last_name || null,
+        propertyAddress: prop.property_address || '',
+        propertyCity: prop.property_city || '',
+        propertyState: prop.property_state || '',
+        propertyZip: prop.property_zip || '',
+        offer: prop.offer || 0,
+        createdAt: prop.created_at || null,
+        updatedAt: prop.updated_at || null
+      };
+    }
+    // Return already camelCase properties
+    return property as Property;
+  };
+
+  // Make sure property values are defined before using them
+  const safeProperty = normalizeProperty(property);
 
   // Setup form
   const { control, handleSubmit, formState: { errors } } = useForm<Property>({
     resolver: yupResolver(propertyUpdateSchema),
-    defaultValues: property
+    defaultValues: safeProperty
   });
 
   // Handle form submission
@@ -84,22 +113,70 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     if (!onUpdate) return;
     
     setUpdateError(null);
+    setUpdateSuccess(false);
+    
     try {
-      await onUpdate(property.id, data);
+      await onUpdate(safeProperty.id, data);
       setIsEditing(false);
+      setUpdateSuccess(true);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       setUpdateError(errorMessage);
     }
   };
 
+  // Format currency
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+
+  if (!property || !property.id) {
+    return (
+      <Card elevation={3}>
+        <CardContent>
+          <Typography variant="h5" component="h2">
+            Property Details
+          </Typography>
+          <Typography color="textSecondary" mt={2}>
+            No property selected or property data is invalid.
+          </Typography>
+          {onBack && (
+            <Button 
+              startIcon={<ArrowBackIcon />} 
+              onClick={onBack}
+              sx={{ mt: 2 }}
+            >
+              Back to Properties
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card elevation={3}>
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h5" component="h2">
-            Property Details
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {onBack && (
+              <Button 
+                startIcon={<ArrowBackIcon />} 
+                onClick={onBack}
+                sx={{ mr: 2 }}
+                variant="outlined"
+              >
+                Back
+              </Button>
+            )}
+            <Typography variant="h5" component="h2">
+              Property Details
+            </Typography>
+          </Box>
           
           {editable && !isEditing && (
             <Button 
@@ -112,6 +189,14 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
             </Button>
           )}
         </Box>
+        
+        {updateSuccess && (
+          <Box sx={{ mb: 2 }}>
+            <Alert severity="success">
+              Property updated successfully!
+            </Alert>
+          </Box>
+        )}
         
         {/* Edit Mode */}
         {isEditing ? (
@@ -129,6 +214,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       margin="normal"
                       error={!!errors.firstName}
                       helperText={errors.firstName?.message}
+                      value={field.value || ''}
                     />
                   )}
                 />
@@ -146,6 +232,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       margin="normal"
                       error={!!errors.lastName}
                       helperText={errors.lastName?.message}
+                      value={field.value || ''}
                     />
                   )}
                 />
@@ -164,6 +251,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       margin="normal"
                       error={!!errors.propertyAddress}
                       helperText={errors.propertyAddress?.message}
+                      value={field.value || ''}
                     />
                   )}
                 />
@@ -182,6 +270,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       margin="normal"
                       error={!!errors.propertyCity}
                       helperText={errors.propertyCity?.message}
+                      value={field.value || ''}
                     />
                   )}
                 />
@@ -201,6 +290,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       inputProps={{ maxLength: 2 }}
                       error={!!errors.propertyState}
                       helperText={errors.propertyState?.message}
+                      value={field.value || ''}
                     />
                   )}
                 />
@@ -219,6 +309,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       margin="normal"
                       error={!!errors.propertyZip}
                       helperText={errors.propertyZip?.message}
+                      value={field.value || ''}
                     />
                   )}
                 />
@@ -241,6 +332,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       }}
                       error={!!errors.offer}
                       helperText={errors.offer?.message}
+                      value={field.value || 0}
                     />
                   )}
                 />
@@ -280,10 +372,10 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <Typography variant="h6">
-                {property.propertyAddress}
+                {safeProperty.propertyAddress}
               </Typography>
               <Typography variant="body1" color="textSecondary">
-                {property.propertyCity}, {property.propertyState} {property.propertyZip}
+                {safeProperty.propertyCity}, {safeProperty.propertyState} {safeProperty.propertyZip}
               </Typography>
             </Grid>
             
@@ -296,8 +388,9 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                 Owner
               </Typography>
               <Typography variant="body1">
-                {property.firstName || ''} {property.lastName || ''}
-                {!property.firstName && !property.lastName && 'N/A'}
+                {(safeProperty.firstName || safeProperty.lastName) ? 
+                  `${safeProperty.firstName || ''} ${safeProperty.lastName || ''}`.trim() : 
+                  'N/A'}
               </Typography>
             </Grid>
             
@@ -306,13 +399,13 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                 Offer Amount
               </Typography>
               <Chip
-                label={`$${property.offer.toLocaleString()}`}
+                label={formatCurrency(safeProperty.offer)}
                 color="primary"
                 sx={{ fontWeight: 'bold', fontSize: '1rem' }}
               />
             </Grid>
             
-            {property.createdAt && (
+            {safeProperty.createdAt && (
               <>
                 <Grid item xs={12}>
                   <Divider />
@@ -323,7 +416,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                     Created
                   </Typography>
                   <Typography variant="body2">
-                    {new Date(property.createdAt).toLocaleDateString()}
+                    {new Date(safeProperty.createdAt).toLocaleDateString()}
                   </Typography>
                 </Grid>
                 
@@ -332,7 +425,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                     Last Updated
                   </Typography>
                   <Typography variant="body2">
-                    {property.updatedAt ? new Date(property.updatedAt).toLocaleDateString() : 'N/A'}
+                    {safeProperty.updatedAt ? new Date(safeProperty.updatedAt).toLocaleDateString() : 'N/A'}
                   </Typography>
                 </Grid>
               </>

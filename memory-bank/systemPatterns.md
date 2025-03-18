@@ -35,11 +35,20 @@ The application follows a layered architecture with well-defined components:
 - Retry Pattern: Implements exponential backoff for database operations.
 - Middleware Pattern: Processes requests through validation and auth checks.
 - Async Handler Pattern: Standardizes error handling in async routes.
+- Response Handler Pattern: Ensures consistent camelCase transformation and response formatting.
+
+**API Response Pattern:**
+
+- Standardized response handler utility
+- Automatic snake_case to camelCase transformation
+- Consistent success/failure wrapping
+- Redis cache transformation on retrieval
+- Type-safe response structures
 
 **Data Access Patterns:**
 
 - Connection Pool Pattern: Manages database connections efficiently.
-- Cache-Aside Pattern: Implements Redis caching for frequent data.
+- Cache-Aside Pattern: Implements Redis caching with automatic case transformation.
 - Query Optimization Pattern: Uses proper indexing and execution plans.
 - Specification Pattern: Validates data before processing.
 
@@ -74,20 +83,15 @@ The application follows a layered architecture with well-defined components:
 
 ## Scalability and Performance
 
-- Redis caching improves response times for frequently accessed data.
-- Connection pooling optimizes database performance.
-- Batch processing handles large file uploads efficiently.
-- Docker containers enable horizontal scaling.
+- Redis caching with automatic case transformation improves response times
+- Connection pooling optimizes database performance
+- Batch processing handles large file uploads efficiently
+- Docker containers enable horizontal scaling
 
 ## Type Safety Patterns
 
-- Request Handler Pattern: Ensures type safety in Express route handlers.
-- Controller Pattern: Standardizes async/await error handling.
-- Repository Pattern: Provides type-safe data access methods.
-- Validation Pattern: Type-safe request body validation.
-
-### Async Error Handling Pattern
-
-- All async controllers must use try/catch blocks
-- Errors must be passed via next() to centralized handler
-- Route wrappers ensure proper type compliance
+- Request Handler Pattern: Ensures type safety in Express route handlers
+- Controller Pattern: Standardizes async/await error handling
+- Repository Pattern: Provides type-safe data access methods
+- Validation Pattern: Type-safe request body validation
+- Response Pattern: Type-safe API response structures

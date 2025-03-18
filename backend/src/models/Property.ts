@@ -1,5 +1,6 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../config/database';
+import logger from '../logger';
 
 // Property attributes interface
 export interface PropertyAttributes {
@@ -120,5 +121,7 @@ Property.init(
     },
   }
 );
+
+logger.info(`Property model initialized with: ${JSON.stringify(Property.getAttributes())}`);
 
 export default Property;

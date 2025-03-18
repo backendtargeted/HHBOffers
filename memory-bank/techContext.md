@@ -27,7 +27,7 @@
 **Database:**
 
 - PostgreSQL
-- Redis
+- Redis: 6.2.6 (caching layer with snake_case-to-camelCase transformation)
 
 **Deployment:**
 

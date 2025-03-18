@@ -26,7 +26,7 @@ interface Property {
 
 // Props interface
 interface PropertySearchProps {
-  onSearch: (query: string) => Promise<Property[]>;
+  onSearch: (query: string) => Promise<any[]>;
   onSelectProperty: (property: Property | null) => void;
   placeholder?: string;
   minSearchLength?: number;
@@ -37,13 +37,31 @@ const PropertySearch: React.FC<PropertySearchProps> = ({
   onSelectProperty,
   placeholder = "Search by address, city, state, zip, or owner name",
   minSearchLength = 2
-}: PropertySearchProps) => {
+}) => {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState<Property[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const theme = useTheme();
+
+  // Normalize property data (handle snake_case to camelCase conversion)
+  const normalizeProperty = (prop: any): Property => {
+    // Check if the property has snake_case fields
+    if (prop.property_address || prop.first_name) {
+      return {
+        id: prop.id,
+        firstName: prop.first_name || null,
+        lastName: prop.last_name || null,
+        propertyAddress: prop.property_address || '',
+        propertyCity: prop.property_city || '',
+        propertyState: prop.property_state || '',
+        propertyZip: prop.property_zip || '',
+        offer: prop.offer || 0
+      };
+    }
+    return prop as Property;
+  };
 
   // Perform search with debounce
   useEffect(() => {
@@ -58,8 +76,20 @@ const PropertySearch: React.FC<PropertySearchProps> = ({
     const searchProperties = async () => {
       try {
         const results = await onSearch(searchQuery);
+        console.log('Search results:', results);
+        
         if (active) {
-          setOptions(results);
+          // Make sure we handle empty results gracefully
+          if (!Array.isArray(results)) {
+            console.log('Search results are not an array:', results);
+            setOptions([]);
+            return;
+          }
+          
+          // Normalize the data - handle both camelCase and snake_case
+          const normalizedResults = results.map(normalizeProperty);
+          console.log('Normalized search results:', normalizedResults);
+          setOptions(normalizedResults);
         }
       } catch (error) {
         console.error('Error searching properties:', error);
@@ -91,6 +121,15 @@ const PropertySearch: React.FC<PropertySearchProps> = ({
     debouncedSetSearchQuery(newInputValue);
   };
 
+  // Make sure we handle the Autocomplete option correctly
+  const getOptionLabel = (option: Property | string) => {
+    // Handle both string inputs and Property objects
+    if (typeof option === 'string') {
+      return option;
+    }
+    return `${option.propertyAddress}, ${option.propertyCity}, ${option.propertyState} ${option.propertyZip}`;
+  };
+
   return (
     <Autocomplete
       id="property-search-autocomplete"
@@ -99,14 +138,18 @@ const PropertySearch: React.FC<PropertySearchProps> = ({
       onClose={() => setOpen(false)}
       options={options}
       loading={loading}
-      filterOptions={(x: any) => x} // Disable client-side filtering
-      getOptionLabel={(option: Property) => `${option.propertyAddress}, ${option.propertyCity}, ${option.propertyState} ${option.propertyZip}`}
-      onChange={(_event: React.SyntheticEvent, newValue: Property | null) => onSelectProperty(newValue)}
+      filterOptions={(x) => x} // Disable client-side filtering
+      getOptionLabel={getOptionLabel}
+      isOptionEqualToValue={(option, value) => option.id === value.id}
+      onChange={(_event: React.SyntheticEvent, newValue: Property | null) => {
+        console.log('Selected property:', newValue);
+        onSelectProperty(newValue);
+      }}
       onInputChange={handleInputChange}
       inputValue={inputValue}
       noOptionsText={inputValue.length < minSearchLength ? "Type to search..." : "No properties found"}
-      renderOption={(props: React.DetailedHTMLProps<React.LiHTMLAttributes<HTMLLIElement>, HTMLLIElement>, option: Property) => (
-        <li {...props}>
+      renderOption={(props, option) => (
+        <li {...props} key={option.id}>
           <Paper
             elevation={0}
             sx={{
@@ -132,10 +175,12 @@ const PropertySearch: React.FC<PropertySearchProps> = ({
               <Grid item xs={12}>
                 <Box display="flex" justifyContent="space-between" alignItems="center" mt={0.5}>
                   <Typography variant="body2" color="text.secondary">
-                    {option.firstName} {option.lastName}
+                    {(option.firstName || option.lastName) ? 
+                      `${option.firstName || ''} ${option.lastName || ''}`.trim() : 
+                      'N/A'}
                   </Typography>
                   <Chip
-                    label={`$${option.offer.toLocaleString()}`}
+                    label={`$${option.offer ? option.offer.toLocaleString() : 0}`}
                     size="small"
                     color="primary"
                   />
@@ -145,7 +190,7 @@ const PropertySearch: React.FC<PropertySearchProps> = ({
           </Paper>
         </li>
       )}
-      renderInput={(params: any) => (
+      renderInput={(params) => (
         <TextField
           {...params}
           label="Search Properties"
@@ -164,6 +209,6 @@ const PropertySearch: React.FC<PropertySearchProps> = ({
       )}
     />
   );
-}
+};
 
 export default PropertySearch;

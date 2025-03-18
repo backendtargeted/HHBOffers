@@ -338,11 +338,13 @@ async processCsvFile(filePath: string, jobId: string, userId: number): Promise<P
     // Process each record in the batch
     for (const row of batch) {
       try {
+        logger.info(`[Job ${jobId}] Processing row: ${JSON.stringify(row)}`);
         const propertyData = this.transformRowToPropertyData(row);
-        
+        logger.info(`[Job ${jobId}] Transformed property data: ${JSON.stringify(propertyData)}`);
+
         // Create or update property using the repository's createOrUpdate method
         const [property, isNew] = await propertyRepository.createOrUpdate(propertyData);
-        
+
         if (isNew) {
           stats.newRecords++;
         } else {
@@ -354,10 +356,10 @@ async processCsvFile(filePath: string, jobId: string, userId: number): Promise<P
         logger.error(`[Job ${jobId}] Error processing record: ${JSON.stringify(row)}`, errorMessage);
       }
     }
-    
+
     return stats;
   }
-  
+
   /**
    * Transform a raw data row into a PropertyCreationAttributes object
    * This method handles data normalization and validation
@@ -365,8 +367,9 @@ async processCsvFile(filePath: string, jobId: string, userId: number): Promise<P
    * @returns Transformed PropertyCreationAttributes object
    */
   private transformRowToPropertyData(row: any): PropertyCreationAttributes {
+    logger.info(`Transforming row data: ${JSON.stringify(row)}`);
     // Extract and normalize property data
-    return {
+    const propertyData: PropertyCreationAttributes = {
       first_name: row.firstName || row.first_name || null,
       last_name: row.lastName || row.last_name || null,
       property_address: this.normalizeAddress(row.propertyAddress || row.property_address || row.address || ''),
@@ -377,8 +380,10 @@ async processCsvFile(filePath: string, jobId: string, userId: number): Promise<P
       created_at: new Date(),
       updated_at: new Date()
     };
+    logger.info(`Transformed property data: ${JSON.stringify(propertyData)}`);
+    return propertyData;
   }
-  
+
   /**
    * Update the overall statistics with batch statistics
    * @param stats Overall statistics to update

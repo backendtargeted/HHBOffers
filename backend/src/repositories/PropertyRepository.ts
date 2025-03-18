@@ -2,6 +2,7 @@ import { Transaction, Op, WhereOptions, Sequelize, QueryTypes } from 'sequelize'
 import BaseRepository from './BaseRepository';
 import Property, { PropertyAttributes, PropertyCreationAttributes } from '../models/Property';
 import sequelize from '../config/database';
+import logger from '../logger';
 
 /**
  * Repository class for Property model
@@ -27,12 +28,15 @@ export default class PropertyRepository extends BaseRepository<Property> {
     propertyState: string,
     propertyZip: string
   ): Promise<Property | null> {
-    return this.findOne({
+    logger.info(`[PropertyRepository] Finding property by address combination: ${propertyAddress}, ${propertyCity}, ${propertyState}, ${propertyZip}`);
+    const property = await this.findOne({
       property_address: propertyAddress,
       property_city: propertyCity,
       property_state: propertyState,
       property_zip: propertyZip,
     });
+    logger.info(`[PropertyRepository] Found property: ${JSON.stringify(property)}`);
+    return property;
   }
 
   /**
@@ -73,6 +77,7 @@ export default class PropertyRepository extends BaseRepository<Property> {
     propertyData: PropertyCreationAttributes,
     transaction?: Transaction
   ): Promise<[Property, boolean]> {
+    logger.info(`[PropertyRepository] createOrUpdate called with propertyData: ${JSON.stringify(propertyData)}`);
     // Check if property already exists based on address
     const existingProperty = await this.findByAddressCombination(
       propertyData.property_address,
@@ -82,6 +87,7 @@ export default class PropertyRepository extends BaseRepository<Property> {
     );
 
     if (existingProperty) {
+      logger.info(`[PropertyRepository] Found existing property: ${JSON.stringify(existingProperty)}`);
       // Update the offer amount if it changed
       if (existingProperty.offer !== propertyData.offer) {
         const [, updatedProperties] = await this.update(
@@ -94,6 +100,7 @@ export default class PropertyRepository extends BaseRepository<Property> {
       return [existingProperty, false];
     }
 
+    logger.info(`[PropertyRepository] Creating new property: ${JSON.stringify(propertyData)}`);
     // Create new property if it doesn't exist
     const newProperty = await this.create(propertyData, transaction);
     return [newProperty, true];
@@ -238,6 +245,34 @@ export default class PropertyRepository extends BaseRepository<Property> {
       limit,
       offset,
       order: [['updated_at', 'DESC']]
+    });
+  }
+
+  /**
+   * Count search results for a query string
+   * @param query - Search query string
+   * @returns Number of matching properties
+   */
+  async countSearchResults(query: string): Promise<number> {
+    const searchTerms = query.split(' ').filter((term: string) => term.length > 0);
+    
+    const whereConditions: any[] = [];
+    
+    for (const term of searchTerms) {
+      whereConditions.push({
+        [Op.or]: [
+          { property_address: { [Op.iLike]: `%${term}%` } },
+          { property_city: { [Op.iLike]: `%${term}%` } },
+          { first_name: { [Op.iLike]: `%${term}%` } },
+          { last_name: { [Op.iLike]: `%${term}%` } }
+        ]
+      });
+    }
+    
+    return this.count({
+      where: {
+        [Op.and]: whereConditions
+      }
     });
   }
 

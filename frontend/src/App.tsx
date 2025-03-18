@@ -8,7 +8,8 @@ import {
   Container, 
   Snackbar,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Typography
 } from '@mui/material';
 import { blue, green } from '@mui/material/colors';
 
@@ -20,6 +21,7 @@ import PropertySearch from './components/property/PropertySearch';
 import PropertyDetail from './components/property/PropertyDetail';
 import FileUpload from './components/upload/FileUpload';
 import Navigation from './components/layout/Navigation';
+import PropertyTableList from './components/property/PropertyTableList';
 
 // Import API services
 import { authAPI, propertyAPI, uploadAPI, statsAPI, handleApiError } from './services/api';
@@ -61,6 +63,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [notification, setNotification] = useState<{message: string; type: 'success' | 'error' | 'info'} | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Check if user is logged in
   useEffect(() => {
@@ -176,13 +179,15 @@ function App() {
   // Update property
   const updateProperty = async (id: number, data: any) => {
     try {
+      setIsLoading(true);
       const response = await propertyAPI.updateProperty(id, data);
-      if (response.success && response.property) {
+      if (response && response.id) {
+        setSelectedProperty(response);
         setNotification({
           message: 'Property updated successfully',
           type: 'success'
         });
-        return response.property;
+        return response;
       }
     } catch (error) {
       console.error('Failed to update property:', error);
@@ -191,6 +196,8 @@ function App() {
         type: 'error'
       });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
     return null;
   };
@@ -275,20 +282,22 @@ function App() {
               <Routes>
                 <Route 
                   path="/" 
-                  element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLogin={login} />} 
+                  element={isAuthenticated ? <Navigate to="/search" /> : <Login onLogin={login} />} 
                 />
                 <Route 
                   path="/login" 
-                  element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLogin={login} />} 
+                  element={isAuthenticated ? <Navigate to="/search" /> : <Login onLogin={login} />} 
                 />
                 <Route 
                   path="/register" 
-                  element={isAuthenticated ? <Navigate to="/dashboard" /> : <Registration />} 
+                  element={isAuthenticated ? <Navigate to="/search" /> : <Registration />} 
                 />
                 <Route 
                   path="/dashboard" 
                   element={isAuthenticated ? <Dashboard fetchStats={fetchSystemStats} /> : <Navigate to="/login" />} 
                 />
+
+
                 <Route 
                   path="/search" 
                   element={
@@ -298,12 +307,23 @@ function App() {
                           onSearch={searchProperties} 
                           onSelectProperty={handlePropertySelect} 
                         />
-                        {selectedProperty && (
+                        
+                        {selectedProperty ? (
                           <Box mt={4}>
                             <PropertyDetail 
                               property={selectedProperty} 
                               onUpdate={updateProperty}
+                              onBack={() => setSelectedProperty(null)} // Add back button functionality
                               editable={user?.role === 'admin' || user?.role === 'manager'} 
+                              isLoading={isLoading}
+                            />
+                          </Box>
+                        ) : (
+                          <Box mt={4}>
+                            <PropertyTableList 
+                              getAllProperties={propertyAPI.getAllProperties}
+                              onSelectProperty={handlePropertySelect}
+                              limit={20}
                             />
                           </Box>
                         )}

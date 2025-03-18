@@ -89,28 +89,113 @@ export const authAPI = {
 // Property API calls
 export const propertyAPI = {
   getAllProperties: async (page: number = 1, limit: number = 20) => {
-    return fetchWithTimeout(`${API_BASE_URL}/properties?page=${page}&limit=${limit}`, {
-      method: 'GET',
-      headers: getAuthHeaders()
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/properties?page=${page}&limit=${limit}`, {
+        method: 'GET',
+        headers: getAuthHeaders()
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          message: response.statusText
+        }));
+        throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("Raw API Response:", data);
+      
+      // Format the response properly
+      return {
+        success: true,
+        rows: data.rows || data.properties || data,
+        count: data.count || (data.rows ? data.rows.length : 0) || (data.properties ? data.properties.length : 0) || (Array.isArray(data) ? data.length : 0),
+        totalPages: data.totalPages || Math.ceil((data.count || 1) / limit),
+        currentPage: page
+      };
+    } catch (error) {
+      console.error('Error fetching properties:', error);
+      throw error;
+    }
   },
   
   getPropertyById: async (id: number) => {
-    return fetchWithTimeout(`${API_BASE_URL}/properties/${id}`, {
-      method: 'GET',
-      headers: getAuthHeaders()
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
+        method: 'GET',
+        headers: getAuthHeaders()
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          message: response.statusText
+        }));
+        throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("Raw property data:", data);
+      
+      // Check if response contains property directly or in a property field
+      let propertyData;
+      if (data.property) {
+        propertyData = data.property;
+      } else if (data.id) {
+        propertyData = data;
+      } else {
+        throw new Error('Invalid property data received');
+      }
+      
+      return {
+        success: true,
+        property: propertyData
+      };
+    } catch (error) {
+      console.error(`Error fetching property with ID ${id}:`, error);
+      throw error;
+    }
   },
   
-  searchProperties: async (query: string, limit: number = 10) => {
-    const response = await fetchWithTimeout(
+// For searchProperties function in api.ts
+searchProperties: async (query: string, limit: number = 10) => {
+  try {
+    const response = await fetch(
       `${API_BASE_URL}/properties/search?q=${encodeURIComponent(query)}&limit=${limit}`, {
         method: 'GET',
         headers: getAuthHeaders()
       }
     );
-    return response.results || [];
-  },
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({
+        message: response.statusText
+      }));
+      throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Raw search API response:', data);
+    
+    // Handle different response formats (with results or directly as array)
+    let searchResults = [];
+    
+    if (data.results && Array.isArray(data.results)) {
+      searchResults = data.results;
+    } else if (Array.isArray(data)) {
+      searchResults = data;
+    } else {
+      console.error('Unexpected search results format:', data);
+      return [];
+    }
+    
+    console.log('Search results before returning:', searchResults);
+    return searchResults;
+  } catch (error) {
+    console.error('Error searching properties:', error);
+    // Return empty array instead of throwing to prevent UI crashes
+    return [];
+  }
+},
   
   createProperty: async (propertyData: any) => {
     return fetchWithTimeout(`${API_BASE_URL}/properties`, {
@@ -121,11 +206,50 @@ export const propertyAPI = {
   },
   
   updateProperty: async (id: number, propertyData: any) => {
-    return fetchWithTimeout(`${API_BASE_URL}/properties/${id}`, {
-      method: 'PUT',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(propertyData)
-    });
+    try {
+      // Properly format the property data
+      const formattedData = {
+        ...(propertyData.firstName !== undefined && { firstName: propertyData.firstName }),
+        ...(propertyData.lastName !== undefined && { lastName: propertyData.lastName }),
+        ...(propertyData.propertyAddress !== undefined && { propertyAddress: propertyData.propertyAddress }),
+        ...(propertyData.propertyCity !== undefined && { propertyCity: propertyData.propertyCity }),
+        ...(propertyData.propertyState !== undefined && { propertyState: propertyData.propertyState }),
+        ...(propertyData.propertyZip !== undefined && { propertyZip: propertyData.propertyZip }),
+        ...(propertyData.offer !== undefined && { offer: Number(propertyData.offer) })
+      };
+  
+      const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
+        method: 'PUT',
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formattedData)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          message: response.statusText
+        }));
+        throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Check for different response formats and normalize
+      if (data.property) {
+        return data.property;
+      } else if (data.id) {
+        return data;
+      } else if (data.success) {
+        return data.property || data;
+      }
+      
+      throw new Error('Invalid property data received');
+    } catch (error) {
+      console.error(`Error updating property with ID ${id}:`, error);
+      throw error;
+    }
   },
   
   deleteProperty: async (id: number) => {
