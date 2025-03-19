@@ -52,8 +52,13 @@ volumes:
   postgres_data:
 
 networks:
-  app_net:
-    driver: bridge
+  easypanel:
+    driver: overlay
     ipam:
       config:
-        - subnet: 172.20.0.0/24
+        - subnet: 10.11.0.0/16
+  easypanel-mail:
+    driver: overlay
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
