@@ -23,9 +23,10 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'", "http://localhost:3001", "ws://localhost:3001"]
+      connectSrc: ["'self'"]
     }
   }
 }));
@@ -56,14 +57,6 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
 // API routes
 app.use('/api', apiRoutes);
 
-// Root route
-app.get('/', (_req: Request, res: Response) => {
-  res.status(200).json({
-    message: 'Direct Mail Offer Lookup System API',
-    version: '1.0.0',
-    status: 'online'
-  });
-});
 
 // Global error handler - fixed type declaration
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {

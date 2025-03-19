@@ -10,7 +10,7 @@ const sequelize = new Sequelize(
   process.env.DB_USER || 'postgres',
   process.env.DB_PASSWORD || 'postgres',
   {
-    host: process.env.DB_HOST || 'localhost',
+    host: process.env.DB_HOST || 'postgres', // Use 'postgres' as the host instead of 'localhost'
     port: parseInt(process.env.DB_PORT || '5432'),
     dialect: 'postgres',
     logging: process.env.NODE_ENV === 'development' ? (msg: string) => logger.debug(msg) : false,

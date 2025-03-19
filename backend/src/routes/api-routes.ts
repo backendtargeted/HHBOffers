@@ -10,7 +10,7 @@ import logger from '../logger';
 const router = Router();
 
 // Health check endpoint
-router.get('/health', (_req: Request, res: Response) => {
+router.get('/api/health', (_req: Request, res: Response) => {
   return res.status(200).json({
     status: 'UP',
     timestamp: new Date(),
