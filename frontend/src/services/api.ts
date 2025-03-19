@@ -1,5 +1,5 @@
 // Base URL for API
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
 // Timeout duration in milliseconds
 const TIMEOUT_DURATION = 30000; // 30 seconds

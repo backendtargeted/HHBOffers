@@ -18,7 +18,17 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Apply middlewares
-app.use(helmet()); // Security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'", "http://localhost:3001", "ws://localhost:3001"]
+    }
+  }
+}));
 app.use(cors()); // Enable CORS
 app.use(compression()); // Compress responses
 app.use(express.json()); // Parse JSON bodies
