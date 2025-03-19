@@ -129,9 +129,9 @@ INSERT INTO properties (
   ('Gandalf', 'The Grey', 'Orthanc Tower', 'Isengard', 'NY', '11111', 1000000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
   ('Legolas', 'Greenleaf', 'Thranduil’s Halls', 'Mirkwood', 'NY', '22222', 350000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
   ('Gimli', 'Son of Glóin', 'Glittering Caves', 'Helm’s Deep', 'NY', '33333', 450000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  ('Saruman', 'The White', 'Orthanc Tower', 'Isengard', 'NY', '44444', 666666, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
+  ('Saruman', 'The White', 'Orthanc Tower', 'Isengard', 'NY', '44444', 666666, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT (property_address, property_city, property_state, property_zip) DO NOTHING;
+
 
 -- Create a function to automatically update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_timestamp_column()
