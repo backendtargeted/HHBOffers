@@ -207,16 +207,18 @@ searchProperties: async (query: string, limit: number = 10) => {
   
   updateProperty: async (id: number, propertyData: any) => {
     try {
-      // Properly format the property data
+      // Convert camelCase to snake_case for backend
       const formattedData = {
-        ...(propertyData.firstName !== undefined && { firstName: propertyData.firstName }),
-        ...(propertyData.lastName !== undefined && { lastName: propertyData.lastName }),
-        ...(propertyData.propertyAddress !== undefined && { propertyAddress: propertyData.propertyAddress }),
-        ...(propertyData.propertyCity !== undefined && { propertyCity: propertyData.propertyCity }),
-        ...(propertyData.propertyState !== undefined && { propertyState: propertyData.propertyState }),
-        ...(propertyData.propertyZip !== undefined && { propertyZip: propertyData.propertyZip }),
+        ...(propertyData.firstName !== undefined && { first_name: propertyData.firstName }),
+        ...(propertyData.lastName !== undefined && { last_name: propertyData.lastName }),
+        ...(propertyData.propertyAddress !== undefined && { property_address: propertyData.propertyAddress }),
+        ...(propertyData.propertyCity !== undefined && { property_city: propertyData.propertyCity }),
+        ...(propertyData.propertyState !== undefined && { property_state: propertyData.propertyState }),
+        ...(propertyData.propertyZip !== undefined && { property_zip: propertyData.propertyZip }),
         ...(propertyData.offer !== undefined && { offer: Number(propertyData.offer) })
       };
+  
+      console.log("Sending formatted data to backend:", formattedData);
   
       const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
         method: 'PUT',
@@ -235,6 +237,7 @@ searchProperties: async (query: string, limit: number = 10) => {
       }
       
       const data = await response.json();
+      console.log("Update response from backend:", data);
       
       // Check for different response formats and normalize
       if (data.property) {

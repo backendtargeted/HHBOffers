@@ -33,7 +33,7 @@ interface NavigationProps {
   title?: string;
 }
 
-const Navigation: React.FC<NavigationProps> = ({ title = 'Direct Mail Offer System' }) => {
+const Navigation: React.FC<NavigationProps> = ({ title = 'Direct Mail Offers' }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const authContext = useContext(AuthContext);

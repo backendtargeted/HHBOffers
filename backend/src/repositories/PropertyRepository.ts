@@ -73,6 +73,22 @@ export default class PropertyRepository extends BaseRepository<Property> {
    * @param transaction - Optional transaction
    * @returns Created or updated property instance and a boolean indicating if it was created
    */
+  async startTransaction(): Promise<Transaction> {
+    return sequelize.transaction();
+  }
+
+  override async bulkCreate(
+    records: PropertyCreationAttributes[],
+    transaction?: Transaction,
+    updateOnDuplicate?: (keyof PropertyAttributes)[]
+  ): Promise<Property[]> {
+    return this.model.bulkCreate(records, {
+      transaction,
+      updateOnDuplicate,
+      returning: true
+    });
+  }
+
   async createOrUpdate(
     propertyData: PropertyCreationAttributes,
     transaction?: Transaction

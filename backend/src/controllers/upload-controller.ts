@@ -10,6 +10,9 @@ import logger from '../logger';
 // Initialize file processor service
 const fileProcessorService = new FileProcessorService();
 
+// Keep track of active processing jobs
+const activeJobs: Set<string> = new Set();
+
 class UploadController {
   /**
    * Upload a file (CSV or XLSX)
@@ -81,14 +84,79 @@ class UploadController {
         ip_address: req.ip
       });
       
-      // Start processing in the background
-      this.processFileInBackground(filePath, fileType, jobId, userId);
-      
       // Return response immediately with job ID
-      return res.status(202).json({
+      // This allows the user to continue using the application
+      const response = {
         success: true,
         jobId,
         message: 'File upload started. You can check the status using the job ID.'
+      };
+      
+      res.status(202).json(response);
+      
+      // Start processing in the background, after response has been sent
+      // Using setImmediate to ensure this runs in the next event loop iteration
+      setImmediate(async () => {
+        try {
+          // Add job to active jobs
+          activeJobs.add(jobId);
+          
+          // Update job status to processing
+          await uploadJobRepository.updateStatus(jobId, 'processing');
+          
+          // Process the file based on type
+          if (fileType === 'csv') {
+            await fileProcessorService.processCsvFile(filePath, jobId, userId);
+          } else if (fileType === 'xlsx') {
+            await fileProcessorService.processXlsxFile(filePath, jobId, userId);
+          }
+          
+          // Move file to processed directory
+          const fileName = path.basename(filePath);
+          const processedDir = path.join(path.dirname(path.dirname(filePath)), 'processed');
+          
+          // Ensure processed directory exists
+          if (!fs.existsSync(processedDir)) {
+            fs.mkdirSync(processedDir, { recursive: true });
+          }
+          
+          const processedFilePath = path.join(processedDir, fileName);
+          
+          fs.renameSync(filePath, processedFilePath);
+          
+          logger.info(`File ${fileName} processed successfully and moved to ${processedFilePath}`);
+          
+          // Remove job from active jobs
+          activeJobs.delete(jobId);
+        } catch (error) {
+          logger.error(`Error processing file for job ${jobId}:`, error);
+          
+          // Update job status to failed
+          await uploadJobRepository.updateStatus(jobId, 'failed');
+          
+          // Log error
+          await activityLogRepository.log({
+            user_id: userId,
+            action: 'upload_failed',
+            entity_type: 'uploadjob',
+            entity_id: jobId,
+            details: {
+              error: error instanceof Error ? error.message : 'Unknown error'
+            }
+          });
+          
+          // Try to delete the file
+          try {
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+            }
+          } catch (deleteError) {
+            logger.error(`Error deleting file ${filePath}:`, deleteError);
+          }
+          
+          // Remove job from active jobs
+          activeJobs.delete(jobId);
+        }
       });
     } catch (error) {
       logger.error('Error uploading file:', error);
@@ -96,69 +164,6 @@ class UploadController {
         success: false,
         message: 'Error uploading file'
       });
-    }
-  }
-  
-  /**
-   * Process file in the background
-   * @param filePath Path to the uploaded file
-   * @param fileType Type of file (csv or xlsx)
-   * @param jobId Unique job ID
-   * @param userId User ID
-   */
-  private async processFileInBackground(
-    filePath: string,
-    fileType: string,
-    jobId: string,
-    userId: number
-  ) {
-    try {
-      // Process the file based on type
-      if (fileType === 'csv') {
-        await fileProcessorService.processCsvFile(filePath, jobId, userId);
-      } else if (fileType === 'xlsx') {
-        await fileProcessorService.processXlsxFile(filePath, jobId, userId);
-      }
-      
-      // Move file to processed directory
-      const fileName = path.basename(filePath);
-      const processedDir = path.join(path.dirname(path.dirname(filePath)), 'processed');
-      
-      // Ensure processed directory exists
-      if (!fs.existsSync(processedDir)) {
-        fs.mkdirSync(processedDir, { recursive: true });
-      }
-      
-      const processedFilePath = path.join(processedDir, fileName);
-      
-      fs.renameSync(filePath, processedFilePath);
-      
-      logger.info(`File ${fileName} processed successfully and moved to ${processedFilePath}`);
-    } catch (error) {
-      logger.error(`Error processing file for job ${jobId}:`, error);
-      
-      // Update job status to failed
-      await uploadJobRepository.updateStatus(jobId, 'failed');
-      
-      // Log error
-      await activityLogRepository.log({
-        user_id: userId,
-        action: 'upload_failed',
-        entity_type: 'uploadjob',
-        entity_id: jobId,
-        details: {
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }
-      });
-      
-      // Try to delete the file
-      try {
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
-      } catch (deleteError) {
-        logger.error(`Error deleting file ${filePath}:`, deleteError);
-      }
     }
   }
   
@@ -192,6 +197,9 @@ class UploadController {
         });
       }
       
+      // Determine if job is currently being processed
+      const isActive = activeJobs.has(jobId);
+      
       // Return job status
       return res.status(200).json({
         success: true,
@@ -208,7 +216,8 @@ class UploadController {
           updatedRecords: job.updated_records,
           errorRecords: job.error_records,
           createdAt: job.created_at,
-          completedAt: job.completed_at
+          completedAt: job.completed_at,
+          isActive: isActive
         }
       });
     } catch (error) {
@@ -258,6 +267,9 @@ class UploadController {
         });
       }
       
+      // Remove job from active jobs
+      activeJobs.delete(jobId);
+      
       // Cancel the job
       await uploadJobRepository.cancelJob(jobId);
       
@@ -297,9 +309,15 @@ class UploadController {
       // Get jobs from database
       const result = await uploadJobRepository.findByUserId(userId, page, limit);
       
+      // Add active status to each job
+      const jobs = result.rows.map(job => ({
+        ...job.toJSON(),
+        isActive: activeJobs.has(job.id)
+      }));
+      
       return res.status(200).json({
         success: true,
-        jobs: result.rows,
+        jobs,
         total: result.count,
         page: result.currentPage,
         totalPages: result.totalPages
@@ -314,4 +332,5 @@ class UploadController {
   }
 }
 
-export default new UploadController();
+const uploadController = new UploadController();
+export default uploadController;
