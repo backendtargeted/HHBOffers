@@ -123,11 +123,14 @@ VALUES (
 INSERT INTO properties (
   first_name, last_name, property_address, property_city, property_state, property_zip, offer, created_at, updated_at
 ) VALUES
-  ('John', 'Smith', '123 Main St', 'New York', 'NY', '10001', 450000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  ('Jane', 'Doe', '456 Park Ave', 'Boston', 'MA', '02115', 385000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  ('Robert', 'Johnson', '789 Oak Dr', 'Los Angeles', 'CA', '90001', 725000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  ('Sarah', 'Williams', '321 Pine St', 'Chicago', 'IL', '60601', 295000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  ('Michael', 'Brown', '654 Maple Rd', 'Houston', 'TX', '77001', 312000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+  ('Sauron', 'The Dark Lord', 'Barad-dûr', 'Mordor', 'HI', '66666', 9999999, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('Frodo', 'Baggins', 'Bag End', 'The Shire', 'NY', '12345', 500, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('Aragorn', 'Son of Arathorn', 'The Citadel', 'Minas Tirith', 'NY', '56789', 750000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('Gandalf', 'The Grey', 'Orthanc Tower', 'Isengard', 'NY', '11111', 1000000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('Legolas', 'Greenleaf', 'Thranduil’s Halls', 'Mirkwood', 'NY', '22222', 350000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('Gimli', 'Son of Glóin', 'Glittering Caves', 'Helm’s Deep', 'NY', '33333', 450000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('Saruman', 'The White', 'Orthanc Tower', 'Isengard', 'NY', '44444', 666666, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
 ON CONFLICT (property_address, property_city, property_state, property_zip) DO NOTHING;
 
 -- Create a function to automatically update updated_at timestamp
