@@ -42,7 +42,7 @@ RUN echo "=== Checking file structure ===" && \
     ls -la node_modules
 
 # Expose port 3000
-EXPOSE 3000
+EXPOSE 3001
 
 # Start the backend server
 CMD ["node", "server.js"]
