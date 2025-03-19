@@ -2,3 +2,437 @@
 {"level":"info","message":"Server running on port 3000","timestamp":"2025-03-19T00:33:24.330Z"}
 {"level":"info","message":"Connected to Redis","timestamp":"2025-03-19T00:33:24.341Z"}
 {"level":"info","message":"Database connection has been established successfully.","timestamp":"2025-03-19T00:33:24.461Z"}
+{"level":"info","message":"GET /search","timestamp":"2025-03-19T00:33:46.556Z"}
+{"level":"info","message":"GET /static/js/main.801f1354.js","timestamp":"2025-03-19T00:33:46.699Z"}
+{"level":"info","message":"GET /static/css/main.e6c13ad2.css","timestamp":"2025-03-19T00:33:46.754Z"}
+{"level":"info","message":"GET /api/auth/profile","timestamp":"2025-03-19T00:33:47.032Z"}
+{"level":"info","message":"GET /api/properties?page=1&limit=20","timestamp":"2025-03-19T00:33:47.188Z"}
+{"level":"info","message":"[PropertyController] getAllProperties result: {\"rows\":[{\"id\":9228,\"first_name\":\"Nancy\",\"last_name\":\"Caina\",\"property_address\":\"Waverly Ave\",\"property_city\":\"Patchogue\",\"property_state\":\"NY\",\"property_zip\":\"11772\",\"offer\":\"433000.00\",\"created_at\":\"2025-03-18T23:37:34.515Z\",\"updated_at\":\"2025-03-18T23:56:11.085Z\"},{\"id\":5,\"first_name\":\"Michael\",\"last_name\":\"Brown\",\"property_address\":\"654 Maple Rd\",\"property_city\":\"Houston\",\"property_state\":\"TX\",\"property_zip\":\"77001\",\"offer\":\"312000.00\",\"created_at\":\"2025-03-18T17:04:21.092Z\",\"updated_at\":\"2025-03-18T17:04:21.092Z\"},{\"id\":11951,\"first_name\":\"John\",\"last_name\":\"Smiarowski\",\"property_address\":\"Wad River Mnrvl Rd\",\"property_city\":\"Wading river\",\"property_state\":\"NY\",\"property_zip\":\"11792\",\"offer\":\"641000.00\",\"created_at\":\"2025-03-18T23:56:11.089Z\",\"updated_at\":\"2025-03-18T23:56:11.105Z\"},{\"id\":3,\"first_name\":\"Robert\",\"last_name\":\"Johnson\",\"property_address\":\"789 Oak Dr\",\"property_city\":\"Los Angeles\",\"property_state\":\"CA\",\"property_zip\":\"90001\",\"offer\":\"800000.00\",\"created_at\":\"2025-03-18T17:04:21.092Z\",\"updated_at\":\"2025-03-18T22:48:14.286Z\"},{\"id\":2,\"first_name\":\"Bilbo\",\"last_name\":\"Baggins\",\"property_address\":\"123 Hobbit Town\",\"property_city\":\"The Shire\",\"property_state\":\"NY\",\"property_zip\":\"12345\",\"offer\":\"385000.00\",\"created_at\":\"2025-03-18T17:04:21.092Z\",\"updated_at\":\"2025-03-18T22:49:15.030Z\"},{\"id\":4,\"first_name\":\"Harry\",\"last_name\":\"Potter\",\"property_address\":\"4 privet dr\",\"property_city\":\"Essex\",\"property_state\":\"IL\",\"property_zip\":\"60601\",\"offer\":\"295000.00\",\"created_at\":\"2025-03-18T17:04:21.092Z\",\"updated_at\":\"2025-03-18T23:00:57.552Z\"},{\"id\":1,\"first_name\":\"Atadulfo\",\"last_name\":\"Maria\",\"property_address\":\"123 does tres\",\"property_city\":\"New New York\",\"property_state\":\"NY\",\"property_zip\":\"12345\",\"offer\":\"450000.00\",\"created_at\":\"2025-03-18T17:04:21.092Z\",\"updated_at\":\"2025-03-18T23:01:37.965Z\"},{\"id\":11952,\"first_name\":null,\"last_name\":\"Bsi Tiffany Ii Llc\",\"property_address\":\"Tiffany Rd\",\"property_city\":\"Oyster Bay\",\"property_state\":\"NY\",\"property_zip\":\"11771\",\"offer\":\"1209000.00\",\"created_at\":\"2025-03-18T23:56:11.108Z\",\"updated_at\":\"2025-03-18T23:56:11.108Z\"},{\"id\":11953,\"first_name\":null,\"last_name\":\"347 Building Company Llc\",\"property_address\":\"RR 111\",\"property_city\":\"Hauppauge\",\"property_state\":\"NY\",\"property_zip\":\"11788\",\"offer\":\"436370.00\",\"created_at\":\"2025-03-18T23:56:11.121Z\",\"updated_at\":\"2025-03-18T23:56:11.121Z\"},{\"id\":11954,\"first_name\":null,\"last_name\":\"E & B Realty Inc\",\"property_address\":\"Ridge Rd\",\"property_city\":\"Laurel hollow\",\"property_state\":\"NY\",\"property_zip\":\"11791\",\"offer\":\"1189000.00\",\"created_at\":\"2025-03-18T23:56:11.129Z\",\"updated_at\":\"2025-03-18T23:56:11.129Z\"},{\"id\":11955,\"first_name\":\"Emmett\",\"last_name\":\"Laffey\",\"property_address\":\"Owen St\",\"property_city\":\"Westbury\",\"property_state\":\"NY\",\"property_zip\":\"11590\",\"offer\":\"946000.00\",\"created_at\":\"2025-03-18T23:56:11.139Z\",\"updated_at\":\"2025-03-18T23:56:11.139Z\"},{\"id\":11956,\"first_name\":null,\"last_name\":\"Hamlet Est@st James Home Assoc\",\"property_address\":\"Monterrey Dr\",\"property_city\":\"Saint james\",\"property_state\":\"NY\",\"property_zip\":\"11780\",\"offer\":\"0.00\",\"created_at\":\"2025-03-18T23:56:11.148Z\",\"updated_at\":\"2025-03-18T23:56:11.148Z\"},{\"id\":11957,\"first_name\":\"John\",\"last_name\":\"Prudenti\",\"property_address\":\"Meadow Ct\",\"property_city\":\"Manorville\",\"property_state\":\"NY\",\"property_zip\":\"11949\",\"offer\":\"0.00\",\"created_at\":\"2025-03-18T23:56:11.157Z\",\"updated_at\":\"2025-03-18T23:56:11.157Z\"},{\"id\":11958,\"first_name\":\"Doreen\",\"last_name\":\"Lostritto\",\"property_address\":\"Lattingtown Rd\",\"property_city\":\"Glen cove\",\"property_state\":\"NY\",\"property_zip\":\"11542\",\"offer\":\"0.00\",\"created_at\":\"2025-03-18T23:56:11.166Z\",\"updated_at\":\"2025-03-18T23:56:11.166Z\"},{\"id\":11959,\"first_name\":null,\"last_name\":\"Club Assoc Lakebridge\",\"property_address\":\"Lakebridge Dr S\",\"property_city\":\"Smithtown\",\"property_state\":\"NY\",\"property_zip\":\"11787\",\"offer\":\"0.00\",\"created_at\":\"2025-03-18T23:56:11.176Z\",\"updated_at\":\"2025-03-18T23:56:11.176Z\"},{\"id\":11960,\"first_name\":null,\"last_name\":\"Hunting Hollow Associates\",\"property_address\":\"Hunting Hollow Ct\",\"property_city\":\"Huntington station\",\"property_state\":\"NY\",\"property_zip\":\"11746\",\"offer\":\"0.00\",\"created_at\":\"2025-03-18T23:56:11.185Z\",\"updated_at\":\"2025-03-18T23:56:11.185Z\"},{\"id\":11961,\"first_name\":null,\"last_name\":\"William G Hubbard\",\"property_address\":\"Hubbard Ave\",\"property_city\":\"Riverhead\",\"property_state\":\"NY\",\"property_zip\":\"11901\",\"offer\":\"366864.00\",\"created_at\":\"2025-03-18T23:56:11.197Z\",\"updated_at\":\"2025-03-18T23:56:11.197Z\"},{\"id\":11962,\"first_name\":\"Richard\",\"last_name\":\"Card\",\"property_address\":\"Hemlock Path\",\"property_city\":\"Port jefferson\",\"property_state\":\"NY\",\"property_zip\":\"11777\",\"offer\":\"325000.00\",\"created_at\":\"2025-03-18T23:56:11.207Z\",\"updated_at\":\"2025-03-18T23:56:11.207Z\"},{\"id\":11963,\"first_name\":\"Joseph\",\"last_name\":\"Viola\",\"property_address\":\"Grove St\",\"property_city\":\"Melville\",\"property_state\":\"NY\",\"property_zip\":\"11747\",\"offer\":\"0.00\",\"created_at\":\"2025-03-18T23:56:11.216Z\",\"updated_at\":\"2025-03-18T23:56:11.216Z\"},{\"id\":11964,\"first_name\":null,\"last_name\":\"Bayport Bay Llc\",\"property_address\":\"Fenimore Rd\",\"property_city\":\"Bayport\",\"property_state\":\"NY\",\"property_zip\":\"11705\",\"offer\":\"241546.00\",\"created_at\":\"2025-03-18T23:56:11.223Z\",\"updated_at\":\"2025-03-18T23:56:11.223Z\"}],\"count\":8426,\"totalPages\":422,\"currentPage\":1}","timestamp":"2025-03-19T00:33:47.234Z"}
+{"level":"info","message":"[PropertyController] Transformed to camelCase: {\"rows\":[{\"id\":9228,\"firstName\":\"Nancy\",\"lastName\":\"Caina\",\"propertyAddress\":\"Waverly Ave\",\"propertyCity\":\"Patchogue\",\"propertyState\":\"NY\",\"propertyZip\":\"11772\",\"offer\":\"433000.00\",\"createdAt\":\"2025-03-18T23:37:34.515Z\",\"updatedAt\":\"2025-03-18T23:56:11.085Z\"},{\"id\":5,\"firstName\":\"Michael\",\"lastName\":\"Brown\",\"propertyAddress\":\"654 Maple Rd\",\"propertyCity\":\"Houston\",\"propertyState\":\"TX\",\"propertyZip\":\"77001\",\"offer\":\"312000.00\",\"createdAt\":\"2025-03-18T17:04:21.092Z\",\"updatedAt\":\"2025-03-18T17:04:21.092Z\"},{\"id\":11951,\"firstName\":\"John\",\"lastName\":\"Smiarowski\",\"propertyAddress\":\"Wad River Mnrvl Rd\",\"propertyCity\":\"Wading river\",\"propertyState\":\"NY\",\"propertyZip\":\"11792\",\"offer\":\"641000.00\",\"createdAt\":\"2025-03-18T23:56:11.089Z\",\"updatedAt\":\"2025-03-18T23:56:11.105Z\"},{\"id\":3,\"firstName\":\"Robert\",\"lastName\":\"Johnson\",\"propertyAddress\":\"789 Oak Dr\",\"propertyCity\":\"Los Angeles\",\"propertyState\":\"CA\",\"propertyZip\":\"90001\",\"offer\":\"800000.00\",\"createdAt\":\"2025-03-18T17:04:21.092Z\",\"updatedAt\":\"2025-03-18T22:48:14.286Z\"},{\"id\":2,\"firstName\":\"Bilbo\",\"lastName\":\"Baggins\",\"propertyAddress\":\"123 Hobbit Town\",\"propertyCity\":\"The Shire\",\"propertyState\":\"NY\",\"propertyZip\":\"12345\",\"offer\":\"385000.00\",\"createdAt\":\"2025-03-18T17:04:21.092Z\",\"updatedAt\":\"2025-03-18T22:49:15.030Z\"},{\"id\":4,\"firstName\":\"Harry\",\"lastName\":\"Potter\",\"propertyAddress\":\"4 privet dr\",\"propertyCity\":\"Essex\",\"propertyState\":\"IL\",\"propertyZip\":\"60601\",\"offer\":\"295000.00\",\"createdAt\":\"2025-03-18T17:04:21.092Z\",\"updatedAt\":\"2025-03-18T23:00:57.552Z\"},{\"id\":1,\"firstName\":\"Atadulfo\",\"lastName\":\"Maria\",\"propertyAddress\":\"123 does tres\",\"propertyCity\":\"New New York\",\"propertyState\":\"NY\",\"propertyZip\":\"12345\",\"offer\":\"450000.00\",\"createdAt\":\"2025-03-18T17:04:21.092Z\",\"updatedAt\":\"2025-03-18T23:01:37.965Z\"},{\"id\":11952,\"firstName\":null,\"lastName\":\"Bsi Tiffany Ii Llc\",\"propertyAddress\":\"Tiffany Rd\",\"propertyCity\":\"Oyster Bay\",\"propertyState\":\"NY\",\"propertyZip\":\"11771\",\"offer\":\"1209000.00\",\"createdAt\":\"2025-03-18T23:56:11.108Z\",\"updatedAt\":\"2025-03-18T23:56:11.108Z\"},{\"id\":11953,\"firstName\":null,\"lastName\":\"347 Building Company Llc\",\"propertyAddress\":\"RR 111\",\"propertyCity\":\"Hauppauge\",\"propertyState\":\"NY\",\"propertyZip\":\"11788\",\"offer\":\"436370.00\",\"createdAt\":\"2025-03-18T23:56:11.121Z\",\"updatedAt\":\"2025-03-18T23:56:11.121Z\"},{\"id\":11954,\"firstName\":null,\"lastName\":\"E & B Realty Inc\",\"propertyAddress\":\"Ridge Rd\",\"propertyCity\":\"Laurel hollow\",\"propertyState\":\"NY\",\"propertyZip\":\"11791\",\"offer\":\"1189000.00\",\"createdAt\":\"2025-03-18T23:56:11.129Z\",\"updatedAt\":\"2025-03-18T23:56:11.129Z\"},{\"id\":11955,\"firstName\":\"Emmett\",\"lastName\":\"Laffey\",\"propertyAddress\":\"Owen St\",\"propertyCity\":\"Westbury\",\"propertyState\":\"NY\",\"propertyZip\":\"11590\",\"offer\":\"946000.00\",\"createdAt\":\"2025-03-18T23:56:11.139Z\",\"updatedAt\":\"2025-03-18T23:56:11.139Z\"},{\"id\":11956,\"firstName\":null,\"lastName\":\"Hamlet Est@st James Home Assoc\",\"propertyAddress\":\"Monterrey Dr\",\"propertyCity\":\"Saint james\",\"propertyState\":\"NY\",\"propertyZip\":\"11780\",\"offer\":\"0.00\",\"createdAt\":\"2025-03-18T23:56:11.148Z\",\"updatedAt\":\"2025-03-18T23:56:11.148Z\"},{\"id\":11957,\"firstName\":\"John\",\"lastName\":\"Prudenti\",\"propertyAddress\":\"Meadow Ct\",\"propertyCity\":\"Manorville\",\"propertyState\":\"NY\",\"propertyZip\":\"11949\",\"offer\":\"0.00\",\"createdAt\":\"2025-03-18T23:56:11.157Z\",\"updatedAt\":\"2025-03-18T23:56:11.157Z\"},{\"id\":11958,\"firstName\":\"Doreen\",\"lastName\":\"Lostritto\",\"propertyAddress\":\"Lattingtown Rd\",\"propertyCity\":\"Glen cove\",\"propertyState\":\"NY\",\"propertyZip\":\"11542\",\"offer\":\"0.00\",\"createdAt\":\"2025-03-18T23:56:11.166Z\",\"updatedAt\":\"2025-03-18T23:56:11.166Z\"},{\"id\":11959,\"firstName\":null,\"lastName\":\"Club Assoc Lakebridge\",\"propertyAddress\":\"Lakebridge Dr S\",\"propertyCity\":\"Smithtown\",\"propertyState\":\"NY\",\"propertyZip\":\"11787\",\"offer\":\"0.00\",\"createdAt\":\"2025-03-18T23:56:11.176Z\",\"updatedAt\":\"2025-03-18T23:56:11.176Z\"},{\"id\":11960,\"firstName\":null,\"lastName\":\"Hunting Hollow Associates\",\"propertyAddress\":\"Hunting Hollow Ct\",\"propertyCity\":\"Huntington station\",\"propertyState\":\"NY\",\"propertyZip\":\"11746\",\"offer\":\"0.00\",\"createdAt\":\"2025-03-18T23:56:11.185Z\",\"updatedAt\":\"2025-03-18T23:56:11.185Z\"},{\"id\":11961,\"firstName\":null,\"lastName\":\"William G Hubbard\",\"propertyAddress\":\"Hubbard Ave\",\"propertyCity\":\"Riverhead\",\"propertyState\":\"NY\",\"propertyZip\":\"11901\",\"offer\":\"366864.00\",\"createdAt\":\"2025-03-18T23:56:11.197Z\",\"updatedAt\":\"2025-03-18T23:56:11.197Z\"},{\"id\":11962,\"firstName\":\"Richard\",\"lastName\":\"Card\",\"propertyAddress\":\"Hemlock Path\",\"propertyCity\":\"Port jefferson\",\"propertyState\":\"NY\",\"propertyZip\":\"11777\",\"offer\":\"325000.00\",\"createdAt\":\"2025-03-18T23:56:11.207Z\",\"updatedAt\":\"2025-03-18T23:56:11.207Z\"},{\"id\":11963,\"firstName\":\"Joseph\",\"lastName\":\"Viola\",\"propertyAddress\":\"Grove St\",\"propertyCity\":\"Melville\",\"propertyState\":\"NY\",\"propertyZip\":\"11747\",\"offer\":\"0.00\",\"createdAt\":\"2025-03-18T23:56:11.216Z\",\"updatedAt\":\"2025-03-18T23:56:11.216Z\"},{\"id\":11964,\"firstName\":null,\"lastName\":\"Bayport Bay Llc\",\"propertyAddress\":\"Fenimore Rd\",\"propertyCity\":\"Bayport\",\"propertyState\":\"NY\",\"propertyZip\":\"11705\",\"offer\":\"241546.00\",\"createdAt\":\"2025-03-18T23:56:11.223Z\",\"updatedAt\":\"2025-03-18T23:56:11.223Z\"}],\"count\":8426,\"totalPages\":422,\"currentPage\":1}","timestamp":"2025-03-19T00:33:47.239Z"}
+{"level":"info","message":"GET /api/properties/search?q=12&limit=10","timestamp":"2025-03-19T00:33:56.509Z"}
+{"level":"info","message":"[PropertyController] Search results transformed to camelCase: [{\"id\":19323,\"firstName\":\"John\",\"lastName\":\"Facompre\",\"propertyAddress\":\"510 N 12th St\",\"propertyCity\":\"New hyde park\",\"propertyState\":\"NY\",\"propertyZip\":\"11040\",\"offer\":\"579000.00\",\"createdAt\":\"2025-03-18T23:57:14.049Z\",\"updatedAt\":\"2025-03-18T23:57:14.049Z\"},{\"id\":19305,\"firstName\":\"Lucio\",\"lastName\":\"Gonzalez\",\"propertyAddress\":\"512 48th St\",\"propertyCity\":\"Lindenhurst\",\"propertyState\":\"NY\",\"propertyZip\":\"11757\",\"offer\":\"583000.00\",\"createdAt\":\"2025-03-18T23:57:13.957Z\",\"updatedAt\":\"2025-03-18T23:57:13.957Z\"},{\"id\":19304,\"firstName\":\"Patrick\",\"lastName\":\"Bishop\",\"propertyAddress\":\"512 Ackerson Blvd\",\"propertyCity\":\"Brightwaters\",\"propertyState\":\"NY\",\"propertyZip\":\"11718\",\"offer\":\"680000.00\",\"createdAt\":\"2025-03-18T23:57:13.949Z\",\"updatedAt\":\"2025-03-18T23:57:13.949Z\"},{\"id\":19303,\"firstName\":\"Philip\",\"lastName\":\"Masiello\",\"propertyAddress\":\"512 Baldwin Ave\",\"propertyCity\":\"North baldwin\",\"propertyState\":\"NY\",\"propertyZip\":\"11510\",\"offer\":\"402000.00\",\"createdAt\":\"2025-03-18T23:57:13.945Z\",\"updatedAt\":\"2025-03-18T23:57:13.945Z\"},{\"id\":19302,\"firstName\":\"Mario\",\"lastName\":\"Maietta\",\"propertyAddress\":\"512 Bell St\",\"propertyCity\":\"West hempstead\",\"propertyState\":\"NY\",\"propertyZip\":\"11552\",\"offer\":\"550000.00\",\"createdAt\":\"2025-03-18T23:57:13.939Z\",\"updatedAt\":\"2025-03-18T23:57:13.939Z\"},{\"id\":19301,\"firstName\":\"Timothy\",\"lastName\":\"Smatlak\",\"propertyAddress\":\"512 Boxwood Dr\",\"propertyCity\":\"Shirley\",\"propertyState\":\"NY\",\"propertyZip\":\"11967\",\"offer\":\"419000.00\",\"createdAt\":\"2025-03-18T23:57:13.935Z\",\"updatedAt\":\"2025-03-18T23:57:13.935Z\"},{\"id\":19300,\"firstName\":\"Edward\",\"lastName\":\"Wahl\",\"propertyAddress\":\"512 Derby Dr N\",\"propertyCity\":\"Oceanside\",\"propertyState\":\"NY\",\"propertyZip\":\"11572\",\"offer\":\"994000.00\",\"createdAt\":\"2025-03-18T23:57:13.930Z\",\"updatedAt\":\"2025-03-18T23:57:13.930Z\"},{\"id\":19299,\"firstName\":\"Andrew\",\"lastName\":\"Moss\",\"propertyAddress\":\"512 E Bay Dr\",\"propertyCity\":\"Long beach\",\"propertyState\":\"NY\",\"propertyZip\":\"11561\",\"offer\":\"786000.00\",\"createdAt\":\"2025-03-18T23:57:13.925Z\",\"updatedAt\":\"2025-03-18T23:57:13.925Z\"},{\"id\":19298,\"firstName\":null,\"lastName\":\"Donovan Louise J Trust\",\"propertyAddress\":\"512 Fairview Ave\",\"propertyCity\":\"Baldwin\",\"propertyState\":\"NY\",\"propertyZip\":\"11510\",\"offer\":\"447000.00\",\"createdAt\":\"2025-03-18T23:57:13.922Z\",\"updatedAt\":\"2025-03-18T23:57:13.922Z\"},{\"id\":19297,\"firstName\":\"Patricia\",\"lastName\":\"Mileo\",\"propertyAddress\":\"512 Madison Ave\",\"propertyCity\":\"West hempstead\",\"propertyState\":\"NY\",\"propertyZip\":\"11552\",\"offer\":\"497000.00\",\"createdAt\":\"2025-03-18T23:57:13.918Z\",\"updatedAt\":\"2025-03-18T23:57:13.918Z\"}]","timestamp":"2025-03-19T00:33:56.592Z"}
+{"level":"info","message":"GET /api/properties/search?q=12&limit=10","timestamp":"2025-03-19T00:33:57.747Z"}
+{"level":"info","message":"GET /api/properties/search?q=510%20N%2012th%20St%2C%20New%20hyde%20park%2C%20NY%2011040&limit=10","timestamp":"2025-03-19T00:33:58.043Z"}
+{"level":"info","message":"[PropertyController] Search results transformed to camelCase: []","timestamp":"2025-03-19T00:33:58.140Z"}
+{"level":"info","message":"PUT /api/properties/19323","timestamp":"2025-03-19T00:34:06.825Z"}
+{"level":"warn","message":"Validation errors: [{\"type\":\"field\",\"msg\":\"Property address is required\",\"path\":\"propertyAddress\",\"location\":\"body\"},{\"type\":\"field\",\"msg\":\"Property city is required\",\"path\":\"propertyCity\",\"location\":\"body\"},{\"type\":\"field\",\"msg\":\"Invalid value\",\"path\":\"propertyState\",\"location\":\"body\"},{\"type\":\"field\",\"msg\":\"Property state must be a valid 2-letter state code\",\"path\":\"propertyState\",\"location\":\"body\"},{\"type\":\"field\",\"msg\":\"Invalid value\",\"path\":\"propertyZip\",\"location\":\"body\"},{\"type\":\"field\",\"value\":\"\",\"msg\":\"Property zip must be a valid 5-digit or 5+4-digit ZIP code\",\"path\":\"propertyZip\",\"location\":\"body\"}]","timestamp":"2025-03-19T00:34:06.840Z"}
+{"level":"info","message":"GET /api/properties/search?q=510%20N%2012th%20St%2C%20New%20hyde%20park%2C%20NY%2011040&limit=10","timestamp":"2025-03-19T00:34:06.845Z"}
+{"level":"info","message":"GET /api/properties/search?q=510%20N%2012th%20St%2C%20New%20hyde%20park%2C%20NY%2011040&limit=10","timestamp":"2025-03-19T00:34:06.881Z"}
+{"level":"info","message":"GET /api/properties/search?q=510%20N%2012th%20St%2C%20New%20hyde%20park%2C%20NY%2011040&limit=10","timestamp":"2025-03-19T00:34:08.583Z"}
+{"level":"info","message":"PUT /api/properties/19323","timestamp":"2025-03-19T00:34:11.544Z"}
+{"level":"warn","message":"Validation errors: [{\"type\":\"field\",\"msg\":\"Property address is required\",\"path\":\"propertyAddress\",\"location\":\"body\"},{\"type\":\"field\",\"msg\":\"Property city is required\",\"path\":\"propertyCity\",\"location\":\"body\"},{\"type\":\"field\",\"msg\":\"Invalid value\",\"path\":\"propertyState\",\"location\":\"body\"},{\"type\":\"field\",\"msg\":\"Property state must be a valid 2-letter state code\",\"path\":\"propertyState\",\"location\":\"body\"},{\"type\":\"field\",\"msg\":\"Invalid value\",\"path\":\"propertyZip\",\"location\":\"body\"},{\"type\":\"field\",\"value\":\"\",\"msg\":\"Property zip must be a valid 5-digit or 5+4-digit ZIP code\",\"path\":\"propertyZip\",\"location\":\"body\"}]","timestamp":"2025-03-19T00:34:11.552Z"}
+{"level":"info","message":"GET /api/properties/search?q=510%20N%2012th%20St%2C%20New%20hyde%20park%2C%20NY%2011040&limit=10","timestamp":"2025-03-19T00:34:11.565Z"}
+{"level":"info","message":"GET /api/properties/search?q=510%20N%2012th%20St%2C%20New%20hyde%20park%2C%20NY%2011040&limit=10","timestamp":"2025-03-19T00:34:11.595Z"}
+{"level":"info","message":"GET /api/properties/search?q=510%20N%2012th%20St%2C%20New%20hyde%20park%2C%20NY%2011040&limit=10","timestamp":"2025-03-19T00:34:17.624Z"}
+{"level":"info","message":"GET /api/properties/search?q=510%20N%2012th%20St%2C%20New%20hyde%20park%2C%20NY%2011040&limit=10","timestamp":"2025-03-19T00:34:21.370Z"}
+{"level":"info","message":"GET /api/properties?page=1&limit=20","timestamp":"2025-03-19T00:34:21.381Z"}
+{"level":"info","message":"POST /api/upload","timestamp":"2025-03-19T00:34:28.589Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:30.641Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 1: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:30.652Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:30.678Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 2: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:30.688Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:30.715Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 3: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:30.721Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:30.748Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 4: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:30.754Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:30.774Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 5: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:30.780Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:30.798Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 6: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:30.806Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:30.826Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 7: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:30.835Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:30.851Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 8: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:30.857Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:30.876Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 9: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:30.882Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:30.902Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 10: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:30.907Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:30.930Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 11: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:30.936Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:30.953Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 12: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:30.959Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:30.976Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 13: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:30.981Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.000Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 14: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.004Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.023Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 15: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.029Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.048Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 16: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.054Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.072Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 17: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.080Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.095Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 18: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.103Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.124Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 19: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.129Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.144Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 20: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.151Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.168Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 21: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.172Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.189Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 22: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.194Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.209Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 23: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.214Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.230Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 24: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.236Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.250Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 25: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.256Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.272Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 26: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.277Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.295Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 27: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.302Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.321Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 28: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.330Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.346Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 29: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.351Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.373Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 30: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.378Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.403Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 31: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.411Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.436Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 32: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.445Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.467Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 33: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.475Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.498Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 34: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.506Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.524Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 35: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.529Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.550Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 36: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.559Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.575Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 37: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.580Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.597Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 38: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.604Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.618Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 39: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.623Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.643Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 40: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.650Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.663Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 41: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.671Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.687Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 42: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.693Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.709Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 43: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.713Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.728Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 44: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.734Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.749Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 45: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.756Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.772Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 46: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.777Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.791Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 47: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.796Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.814Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 48: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.820Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.834Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 49: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.839Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.854Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 50: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.860Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.874Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 51: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.878Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.894Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 52: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.900Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.917Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 53: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.923Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.940Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 54: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.945Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.959Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 55: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.965Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:31.983Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 56: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:31.990Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.006Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 57: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.012Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.036Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 58: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.042Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.065Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 59: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.139Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.172Z"}
+{"level":"info","message":"GET /api/stats/system","timestamp":"2025-03-19T00:34:32.185Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 60: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.196Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.247Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 61: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.272Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.307Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 62: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.340Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.374Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 63: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.388Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.414Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 64: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.423Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.456Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 65: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.462Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.486Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 66: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.496Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.520Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 67: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.526Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.545Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 68: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.553Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.568Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 69: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.574Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.591Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 70: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.597Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.616Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 71: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.623Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.641Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 72: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.646Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.661Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 73: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.668Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.680Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 74: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.687Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.701Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 75: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.707Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.724Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 76: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.731Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.747Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 77: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.757Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.772Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 78: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.777Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.792Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 79: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.797Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.813Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 80: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.819Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.838Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 81: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.843Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.859Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 82: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.864Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.879Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 83: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.886Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.902Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 84: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.908Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:32.927Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 85: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:32.933Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 86: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.013Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 87: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.048Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 88: 99 new, 1 updated, 0 errors","timestamp":"2025-03-19T00:34:33.088Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 89: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.118Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 90: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.150Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 91: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.181Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 92: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.216Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 93: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.242Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 94: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.270Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 95: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.295Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 96: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.322Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 97: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.347Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 98: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.373Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:33.392Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 99: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:33.396Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 100: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.422Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 101: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.447Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:33.463Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 102: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:33.470Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 103: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.494Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:33.509Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 104: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:33.515Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 105: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.540Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 106: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.564Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 107: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.588Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 108: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.609Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 109: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.633Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 110: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.656Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 111: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.679Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 112: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.703Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 113: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.727Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 114: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.750Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 115: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.773Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 116: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.795Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 117: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.818Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 118: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.838Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:33.855Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 119: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:33.861Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 120: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.885Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 121: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.910Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 122: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.934Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:33.946Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 123: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:33.954Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 124: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:33.981Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 125: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.004Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 126: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.030Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 127: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.054Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 128: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.076Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 129: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.101Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 130: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.125Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 131: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.153Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 132: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.178Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 133: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.202Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 134: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.228Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 135: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.252Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 136: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.276Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 137: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.304Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 138: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.329Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 139: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.354Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 140: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.378Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 141: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.406Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 142: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.433Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 143: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.456Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 144: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.480Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 145: 99 new, 1 updated, 0 errors","timestamp":"2025-03-19T00:34:34.507Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 146: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.546Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 147: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.569Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 148: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.596Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 149: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.623Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 150: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.651Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 151: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.675Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 152: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.698Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 153: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.722Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 154: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.745Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 155: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.769Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 156: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.793Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 157: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.818Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 158: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.840Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:34.856Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 159: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:34.861Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 160: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.888Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 161: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:34.961Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:34.982Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 162: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:34.989Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 163: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.014Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:35.029Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 164: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:35.036Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 165: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.060Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 166: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.084Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 167: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.107Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 168: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.127Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 169: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.149Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:35.167Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 170: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:35.174Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 171: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.205Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 172: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.228Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 173: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.248Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 174: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.271Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 175: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.292Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 176: 99 new, 1 updated, 0 errors","timestamp":"2025-03-19T00:34:35.322Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 177: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.348Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 178: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.377Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 179: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.402Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 180: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.432Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 181: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.457Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 182: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.486Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 183: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.513Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 184: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.545Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 185: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.570Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 186: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.593Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 187: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.614Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 188: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.638Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 189: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.659Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 190: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.683Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 191: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.708Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 192: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.735Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 193: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.762Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 194: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.790Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 195: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.816Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 196: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.843Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 197: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.871Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 198: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.897Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 199: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.923Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 200: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.948Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 201: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:35.974Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:35.989Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 202: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:35.994Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 203: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.023Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 204: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.046Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 205: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.069Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 206: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.093Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 207: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.117Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 208: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.144Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 209: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.166Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 210: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.190Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 211: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.212Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 212: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.236Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:36.249Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 213: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:36.255Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 214: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.281Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 215: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.304Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 216: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.327Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 217: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.347Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 218: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.370Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 219: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.394Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 220: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.444Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 221: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.469Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 222: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.493Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 223: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.516Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 224: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.542Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 225: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.568Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 226: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.592Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 227: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.620Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 228: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.646Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 229: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.670Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 230: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.694Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 231: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.720Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:36.737Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 232: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:36.742Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 233: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.770Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 234: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.796Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 235: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.825Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:36.843Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 236: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:36.849Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 237: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.876Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 238: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.898Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 239: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.925Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 240: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.949Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 241: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.974Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 242: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:36.997Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 243: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.022Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 244: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.047Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 245: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.072Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 246: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.095Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:37.109Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 247: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:37.122Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 248: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.146Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 249: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.171Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 250: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.197Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 251: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.224Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 252: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.246Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 253: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.271Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 254: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.296Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 255: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.320Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 256: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.343Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 257: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.366Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 258: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.392Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 259: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.413Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 260: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.437Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:37.451Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 261: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:37.459Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 262: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.490Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 263: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.511Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 264: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.533Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 265: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.558Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 266: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.580Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 267: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.604Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 268: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.627Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 269: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.648Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 270: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.675Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 271: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.698Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 272: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.723Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 273: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.751Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 274: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.776Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 275: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.800Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:37.814Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 276: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:37.820Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 277: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.865Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:37.881Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 278: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:37.889Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 279: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.922Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 280: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.956Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 281: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:37.986Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 282: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.019Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 283: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.050Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 284: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.081Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 285: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.112Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 286: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.143Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 287: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.177Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 288: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.214Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 289: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.249Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 290: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.287Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:38.309Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 291: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:38.317Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 292: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.359Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 293: 99 new, 1 updated, 0 errors","timestamp":"2025-03-19T00:34:38.387Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 294: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.420Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 295: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.454Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:38.471Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 296: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:38.481Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 297: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.514Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 298: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.545Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 299: 100 new, 0 updated, 0 errors","timestamp":"2025-03-19T00:34:38.575Z"}
+{"level":"error","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Batch error:","timestamp":"2025-03-19T00:34:38.592Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processed batch 300: 0 new, 0 updated, 100 errors","timestamp":"2025-03-19T00:34:38.601Z"}
+{"level":"info","message":"[Job d7a20aa7-cbb0-4d91-b423-1a61b43ad04b] Processing completed: 30000 total, 19496 new, 4 updated, 10500 errors","timestamp":"2025-03-19T00:34:38.601Z"}
+{"level":"info","message":"File 67235936-3ea2-473a-be28-ecb0bc799c14-2023-12-27 MANDALAYHOLDINGS-8020REI 30K Direct Mail.xlsx processed successfully and moved to /uploads/processed/67235936-3ea2-473a-be28-ecb0bc799c14-2023-12-27 MANDALAYHOLDINGS-8020REI 30K Direct Mail.xlsx","timestamp":"2025-03-19T00:34:38.628Z"}
+{"level":"info","message":"GET /api/stats/system","timestamp":"2025-03-19T00:35:32.307Z"}
