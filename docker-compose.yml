@@ -8,20 +8,23 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3001
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=direct_mail_dev
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
+      - DB_NAME=direct_mail_db
+      - DB_USER=dbuser
+      - DB_PASSWORD=dbpassword
+      - JWT_SECRET=secret
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redispassword
     volumes:
       - ./backend/logs:/app/logs
+      - ./backend/uploads:/app/uploads
     depends_on:
       - redis
       - postgres
     networks:
-      - easypanel-mail # Changed from app_net
+      - easypanel-mail
 
   redis:
     image: redis:7-alpine
@@ -31,21 +34,21 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
     networks:
-      - easypanel-mail # Changed from app_net
+      - easypanel-mail
 
   postgres:
     image: postgres:15-alpine
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=direct_mail_dev
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=direct_mail_db
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=dbpassword
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/db/init:/docker-entrypoint-initdb.d
     networks:
-      - easypanel-mail # Changed from app_net
+      - easypanel-mail
 
 volumes:
   redis_data:
