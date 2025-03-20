@@ -3,7 +3,7 @@ import logger from '../logger';
 
 // Redis client options
 const redisOptions = {
-  host: process.env.REDIS_HOST || 'localhost',
+  host: process.env.REDIS_HOST || 'redis',
   port: parseInt(process.env.REDIS_PORT || '6379'),
   password: process.env.REDIS_PASSWORD || '',
   retryStrategy: (times: number) => {
