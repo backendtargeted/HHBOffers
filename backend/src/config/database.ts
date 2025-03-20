@@ -29,6 +29,11 @@ const sequelize = new Sequelize(
         /SequelizeInvalidConnectionError/,
         /SequelizeConnectionTimedOutError/,
         /TimeoutError/,
+        /ETIMEDOUT/, //added more error types for retry
+        /EHOSTUNREACH/,
+        /ECONNRESET/,
+        /ECONNREFUSED/,
+        /ENOTFOUND/       
       ],
       max: 5,                // Maximum retries
       backoffBase: 100,      // Initial backoff duration in ms
