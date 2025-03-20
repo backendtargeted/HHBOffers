@@ -71,4 +71,5 @@ volumes:
 
 networks:
   easypanel-mail:
-    driver: bridge
+    driver: overlay
+    attachable: true
