@@ -37,6 +37,14 @@ The application follows a layered architecture with well-defined components:
 - Async Handler Pattern: Standardizes error handling in async routes.
 - Response Handler Pattern: Ensures consistent camelCase transformation and response formatting.
 
+**Frontend Patterns:**
+
+- Context API Pattern: For authentication state management
+- Container/Presentational Pattern: Separating logic from UI components
+- Higher-Order Component Pattern: For route protection and authorization
+- Custom Hook Pattern: For reusable form logic and data fetching
+- Render Props Pattern: For component composition
+
 **API Response Pattern:**
 
 - Standardized response handler utility
@@ -69,17 +77,19 @@ The application follows a layered architecture with well-defined components:
 
 ## Component Relationships
 
-- **Frontend**: React components communicate with the backend API using Axios for data fetching and updates. The frontend provides the user interface for property searching, data uploading, and system monitoring. It handles user authentication and authorization, displaying data and providing feedback to the user.
-- **Backend**: Express.js handles API requests, interacts with PostgreSQL using Sequelize ORM, and utilizes Redis for caching and session management.
-- **Data**: PostgreSQL stores persistent data, while Redis caches frequently accessed data to improve performance.
-- **Infrastructure**: Docker containers encapsulate the application, Nginx acts as a reverse proxy, and Winston provides logging.
+**Frontend**: Authentication context provides user state to protected routes
+
+- Material-UI theming provides consistent design language
+- Form components use React Hook Form for validation
+- Data fetching components handle loading and error states
+- Navigation components enforce role-based access
 
 ## Security Measures
 
-- JWT-based authentication and role-based authorization protect API endpoints.
-- Input validation middleware prevents injection attacks.
-- Rate limiting controls API access.
-- Secure HTTP headers enhance security.
+- Frontend route protection with authentication checks
+- Input sanitization before API requests
+- Token storage in localStorage with expiration handling
+- Secure cookie policy for production
 
 ## Scalability and Performance
 

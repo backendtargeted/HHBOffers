@@ -95,14 +95,26 @@ function App() {
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
+      console.log('Login attempt for:', email);
       const response = await authAPI.login(email, password);
-      if (response.success && response.token) {
+      
+      // Check response structure and values
+      console.log('Login response:', response);
+      
+      if (response && response.success && response.token) {
         localStorage.setItem('authToken', response.token);
         setUser(response.user);
         setIsAuthenticated(true);
         setNotification({
           message: 'Login successful',
           type: 'success'
+        });
+      } else {
+        // Handle unexpected response format
+        console.error('Unexpected login response format:', response);
+        setNotification({
+          message: response.message || 'Login failed: Unexpected response format',
+          type: 'error'
         });
       }
     } catch (error) {
@@ -111,7 +123,6 @@ function App() {
         message: handleApiError(error),
         type: 'error'
       });
-      throw error;
     } finally {
       setLoading(false);
     }

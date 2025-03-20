@@ -1,3 +1,5 @@
+// backend/src/models/User.ts
+
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../config/database';
 import bcrypt from 'bcrypt';
@@ -29,7 +31,12 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
 
   // Helper method to compare passwords
   public async comparePassword(candidatePassword: string): Promise<boolean> {
-    return bcrypt.compare(candidatePassword, this.password);
+    try {
+      return await bcrypt.compare(candidatePassword, this.password);
+    } catch (error) {
+      console.error('Password comparison error:', error);
+      return false;
+    }
   }
 }
 
@@ -67,7 +74,7 @@ User.init(
     role: {
       type: DataTypes.STRING(20),
       allowNull: false,
-      defaultValue: 'user',
+      defaultValue: 'admin', // Default role is 'admin'
       validate: {
         isIn: [['admin', 'manager', 'user', 'guest']],
       },

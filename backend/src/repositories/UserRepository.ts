@@ -1,7 +1,9 @@
 import { Transaction, Op, WhereOptions, fn, col, literal } from 'sequelize';
 import BaseRepository from './BaseRepository';
 import User, { UserAttributes, UserCreationAttributes } from '../models/User';
-import sequelize from '../config/database';
+import sequelize from '../config/database'; 
+import logger from '../logger';
+
 
 /**
  * Repository class for User model
@@ -28,10 +30,16 @@ export default class UserRepository extends BaseRepository<User> {
    * @returns User instance or null
    */
   async findByEmailForAuth(email: string): Promise<User | null> {
-    return this.findOne(
-      { email },
-      { attributes: { include: ['password'] } }
-    );
+    try {
+      logger.info(`Finding user by email for auth: ${email}`);
+      return this.model.findOne({
+        where: { email },
+        attributes: { include: ['password'] }
+      });
+    } catch (error) {
+      logger.error(`Error finding user by email for auth: ${email}`, error);
+      throw error;
+    }
   }
 
   /**

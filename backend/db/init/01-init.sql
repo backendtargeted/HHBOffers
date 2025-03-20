@@ -1,5 +1,17 @@
 -- db/init/01-init.sql
 
+CREATE USER dbuser WITH PASSWORD 'dbpassword';
+
+-- Grant privileges to the user
+ALTER USER dbuser WITH CREATEDB;
+GRANT ALL PRIVILEGES ON DATABASE direct_mail_db TO dbuser;
+
+-- Connect to the database
+\c direct_mail_db
+
+-- Set the search path to public
+SET search_path TO public;
+
 -- Create tables
 
 -- Users Table
@@ -54,7 +66,6 @@ CREATE TABLE IF NOT EXISTS upload_jobs (
   processed_records INTEGER DEFAULT 0,
   new_records INTEGER DEFAULT 0,
   updated_records INTEGER DEFAULT 0,
-  error_records INTEGER DEFAULT 0,
   error_details TEXT,
   started_at TIMESTAMP,
   completed_at TIMESTAMP,
@@ -82,6 +93,19 @@ CREATE INDEX IF NOT EXISTS idx_activity_logs_user_id ON audit_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_activity_logs_entity ON audit_logs(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_activity_logs_action ON audit_logs(action);
 CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON audit_logs(created_at);
+
+-- Create dbuser role
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'dbuser') THEN
+        CREATE ROLE dbuser WITH LOGIN PASSWORD 'dbpassword';
+        ALTER ROLE dbuser WITH SUPERUSER;
+    END IF;
+END$$;
+
+-- Grant all privileges to dbuser on all tables in the public schema
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO dbuser;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO dbuser;
 
 -- Create Admin User
 -- Password: Admin@123456 (bcrypt hash)
@@ -129,9 +153,7 @@ INSERT INTO properties (
   ('Gandalf', 'The Grey', 'Orthanc Tower', 'Isengard', 'NY', '11111', 1000000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
   ('Legolas', 'Greenleaf', 'Thranduil’s Halls', 'Mirkwood', 'NY', '22222', 350000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
   ('Gimli', 'Son of Glóin', 'Glittering Caves', 'Helm’s Deep', 'NY', '33333', 450000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  ('Saruman', 'The White', 'Orthanc Tower', 'Isengard', 'NY', '44444', 666666, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-ON CONFLICT (property_address, property_city, property_state, property_zip) DO NOTHING;
-
+  ('Saruman', 'The White', 'Orthanc Tower', 'Isengard', 'NY', '44444', 666666, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Create a function to automatically update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_timestamp_column()
