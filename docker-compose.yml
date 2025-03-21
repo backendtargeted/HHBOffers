@@ -14,7 +14,7 @@ services:
       - DB_USER=dbuser
       - DB_PASSWORD=dbpassword
       - JWT_SECRET=secret
-      - REDIS_HOST=redis # This should match your Redis service name in Easypanel
+      - REDIS_HOST=hhb_redis # This should match your Redis service name in Easypanel
       - REDIS_PORT=6379
       - REDIS_USERNAME=default
       - REDIS_PASSWORD=redispassword
