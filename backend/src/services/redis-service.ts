@@ -3,9 +3,7 @@ import logger from '../logger';
 
 // Redis client options
 const redisOptions = {
-  host: process.env.REDIS_HOST || 'hhb_redis',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  password: process.env.REDIS_PASSWORD || '',  // Password should be set in environment variables
+  url: process.env.REDIS_URL,
   retryStrategy: (times: number) => {
     const delay = Math.min(times * 50, 2000);
     return delay;
