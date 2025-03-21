@@ -14,59 +14,31 @@ services:
       - DB_USER=dbuser
       - DB_PASSWORD=dbpassword
       - JWT_SECRET=secret
-      - REDIS_HOST=redis
+      - REDIS_HOST=localhost # Changed to use localhost for Redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=redispassword
     volumes:
       - ./backend/logs:/app/logs
       - ./backend/uploads:/app/uploads
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - easypanel-mail
-    restart: always
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
-    networks:
-      - easypanel-mail
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: always
+      - postgres
+    network_mode: host # Use host network for app to access local Redis
 
   postgres:
     image: postgres:15-alpine
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=direct_mail_db
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=dbpassword
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/db/init:/docker-entrypoint-initdb.d
     networks:
       - easypanel-mail
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: always
 
 volumes:
-  redis_data:
   postgres_data:
 
 networks:
