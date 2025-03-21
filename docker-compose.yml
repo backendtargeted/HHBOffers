@@ -29,10 +29,3 @@ services:
 
 volumes:
   postgres_data:
-
-networks:
-  easypanel-mail:
-    driver: overlay
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
