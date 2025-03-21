@@ -11,6 +11,8 @@ const redisOptions = {
   maxRetriesPerRequest: 3
 };
 
+console.log('Redis URL:', redisOptions.url);
+
 // Create Redis client
 const redisClient = new Redis(redisOptions);
 
