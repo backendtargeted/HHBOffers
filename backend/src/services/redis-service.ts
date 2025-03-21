@@ -3,7 +3,7 @@ import logger from '../logger';
 
 // Redis client options
 const redisOptions = {
-  url: `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT || 6379}`,
+  url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT || 6379}`,
   retryStrategy: (times: number) => {
     const delay = Math.min(times * 50, 2000);
     return delay;
