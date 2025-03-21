@@ -67,7 +67,8 @@ class InMemoryCache {
 const redisOptions = {
   host: process.env.REDIS_HOST || 'redis',
   port: parseInt(process.env.REDIS_PORT || '6379'),
-  password: process.env.REDIS_PASSWORD || '',
+  // Only add password if it's provided in environment variables
+  ...(process.env.REDIS_PASSWORD ? { password: process.env.REDIS_PASSWORD } : {}),
   retryStrategy: (times: number) => {
     const delay = Math.min(times * 50, 2000);
     return delay;
