@@ -5,19 +5,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3001:3001"
-    environment:
-      - NODE_ENV=production
-      - PORT=3001
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=direct_mail_db
-      - DB_USER=dbuser
-      - DB_PASSWORD=dbpassword
-      - JWT_SECRET=secret
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_USERNAME=default
-      - REDIS_PASSWORD=redispassword
+    env_file:
+      - backend/.env
     volumes:
       - ./backend/logs:/app/logs
       - ./backend/uploads:/app/uploads
@@ -30,6 +19,8 @@ services:
     image: postgres:15-alpine
     ports:
       - "5432:5432"
+    env_file:
+      - backend/.env
     environment:
       - POSTGRES_DB=direct_mail_db
       - POSTGRES_USER=dbuser
