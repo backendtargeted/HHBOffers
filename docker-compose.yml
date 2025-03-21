@@ -14,7 +14,7 @@ services:
       - DB_USER=dbuser
       - DB_PASSWORD=dbpassword
       - JWT_SECRET=secret
-      - REDIS_HOST=localhost # Changed to use localhost for Redis
+      - REDIS_HOST=redis # This should match your Redis service name in Easypanel
       - REDIS_PORT=6379
       - REDIS_PASSWORD=redispassword
     volumes:
@@ -22,7 +22,8 @@ services:
       - ./backend/uploads:/app/uploads
     depends_on:
       - postgres
-    network_mode: host # Use host network for app to access local Redis
+    networks:
+      - easypanel-mail
 
   postgres:
     image: postgres:15-alpine
