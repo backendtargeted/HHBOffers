@@ -5,7 +5,7 @@ import logger from '../logger';
 const redisOptions = {
   host: process.env.REDIS_HOST || 'hhb_redis',
   port: parseInt(process.env.REDIS_PORT || '6379'),
-  username: process.env.REDIS_USERNAME || 'default',
+  username: process.env.REDIS_USERNAME || 'redis',
   password: process.env.REDIS_PASSWORD || '',  // Password should be set in environment variables
   retryStrategy: (times: number) => {
     const delay = Math.min(times * 50, 2000);
