@@ -7,6 +7,13 @@ services:
       - backend
     networks:
       - app-network
+      - easypanel-hhb # Connect to Easypanel's network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hhb-frontend.rule=Host(`hhb-offers.q5l76g.easypanel.host`)"
+      - "traefik.http.services.hhb-frontend.loadbalancer.server.port=3000"
+      - "traefik.http.routers.hhb-frontend.entrypoints=websecure"
+      - "traefik.http.routers.hhb-frontend.tls=true"
 
   backend:
     build:
@@ -36,7 +43,6 @@ services:
   postgres:
     image: postgres:15-alpine
     environment:
-      - DB_HOST=hhb_postgres
       - POSTGRES_DB=direct_mail_db
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=dbpassword

@@ -1,5 +1,8 @@
 // Base URL for API
-const API_BASE_URL = '/api';
+
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'http://backend:3001/api'  // Use the service name in Docker network
+  : '/api';  // Use proxy in development
 
 // Timeout duration in milliseconds
 const TIMEOUT_DURATION = 30000; // 30 seconds
