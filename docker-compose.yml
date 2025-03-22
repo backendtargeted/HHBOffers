@@ -5,8 +5,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    ports:
-      - "3002:3000" # Assuming you serve frontend with nginx on port 80
+    # ports:
+    #   - "3002:3000" # Assuming you serve frontend with nginx on port 80
     depends_on:
       - backend
     networks:
@@ -16,8 +16,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    ports:
-      - "3001:3001"
+    # ports:
+    #   - "3001:3001"
     volumes:
       - ./backend/logs:/app/logs
       - ./backend/uploads:/app/uploads
@@ -41,8 +41,8 @@ services:
 
   postgres:
     image: postgres:15-alpine
-    ports:
-      - "5432:5432"
+    # ports:
+    #   - "5432:5432"
     environment:
       - DB_HOST=hhb_postgres
       - POSTGRES_DB=direct_mail_db
@@ -56,8 +56,8 @@ services:
 
   redis:
     image: redis:6.2.6-alpine
-    ports:
-      - "6379:6379"
+    # ports:
+    #   - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
