@@ -29,3 +29,8 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  easypanel-mail:
+    driver: overlay
+    attachable: true
