@@ -1,16 +1,27 @@
 import Redis from 'ioredis';
 import logger from '../logger';
 
+// Get Redis connection details from environment variables
+const REDIS_HOST = process.env.REDIS_HOST || 'redis';
+const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379');
+const REDIS_USERNAME = process.env.REDIS_USERNAME || '';
+const REDIS_PASSWORD = process.env.REDIS_PASSWORD || '';
+
 // Redis client options
 const redisOptions = {
-  // url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT || 6379}`,
-  url: `redis://default:redispassword@hhb_redis:6379`,
+  host: REDIS_HOST,
+  port: REDIS_PORT,
+  username: REDIS_USERNAME || undefined,
+  password: REDIS_PASSWORD || undefined,
   retryStrategy: (times: number) => {
     const delay = Math.min(times * 50, 2000);
     return delay;
   },
   maxRetriesPerRequest: 3
 };
+
+// Log the Redis connection details (without password)
+logger.info(`Connecting to Redis at ${REDIS_HOST}:${REDIS_PORT}`);
 
 // Create Redis client
 const redisClient = new Redis(redisOptions);

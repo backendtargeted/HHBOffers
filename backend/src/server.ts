@@ -6,12 +6,14 @@ import dotenv from 'dotenv';
 import { rateLimit } from 'express-rate-limit';
 import path from 'path';
 
+
 // Load environment variables
 dotenv.config();
 
 // Import routes and middleware
 import apiRoutes from './routes/api-routes';
 import logger from './logger';
+import testRedisConnection from './utils/redis-test';
 
 // Initialize express app
 const app = express();
@@ -83,8 +85,18 @@ app.get('*', (_req, res) => {
 
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   logger.info(`Server running on port ${PORT}`);
+  
+  // Test Redis connection on startup
+  logger.info('Testing Redis connection...');
+  const redisConnected = await testRedisConnection();
+  
+  if (redisConnected) {
+    logger.info('Redis connection test successful');
+  } else {
+    logger.error('Redis connection test failed - application may not function correctly');
+  }
 });
 
 export default app;
