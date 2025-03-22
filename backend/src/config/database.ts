@@ -10,7 +10,7 @@ const sequelize = new Sequelize(
   process.env.DB_USER || 'dbuser',
   process.env.DB_PASSWORD || 'dbpassword',
   {
-    host: process.env.DB_HOST || 'postgres', // Use 'postgres' as the host in Docker
+    host: process.env.DB_HOST || 'hhb_postgres', // Use 'hhb_postgres' as the host in Docker
     port: parseInt(process.env.DB_PORT || '5432'),
     dialect: 'postgres',
     logging: process.env.NODE_ENV === 'development' ? (msg: string) => logger.debug(msg) : false,

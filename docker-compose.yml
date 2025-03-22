@@ -44,6 +44,7 @@ services:
     ports:
       - "5432:5432"
     environment:
+      - DB_HOST=hhb_postgres
       - POSTGRES_DB=direct_mail_db
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=dbpassword
