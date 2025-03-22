@@ -6,8 +6,19 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Use a lightweight Node image for the production stage
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install serve to run the application
+RUN npm install -g serve
+
+# Copy the build folder from the build stage
+COPY --from=build /app/build .
+
+# Expose the default port for serve (5000)
+EXPOSE 3000
+
+# Run the application using serve
+CMD ["serve", "-s", ".", "-l", "3000"]
