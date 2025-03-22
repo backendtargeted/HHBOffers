@@ -32,7 +32,12 @@ app.use(helmet({
     }
   }
 }));
-app.use(cors()); // Enable CORS
+
+// Apply middlewares
+app.use(cors({
+  origin: ['http://localhost:5000', 'https://hhb-offers.q5l76g.easypanel.host'],
+  credentials: true
+}));
 app.use(compression()); // Compress responses
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
