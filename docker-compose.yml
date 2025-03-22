@@ -69,3 +69,5 @@ volumes:
 networks:
   app-network:
     driver: bridge
+  easypanel-hhb:
+    external: true
