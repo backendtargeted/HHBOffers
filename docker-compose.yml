@@ -6,7 +6,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:80" # Assuming you serve frontend with nginx on port 80
+      - "3002:3000" # Assuming you serve frontend with nginx on port 80
     depends_on:
       - backend
     networks:
