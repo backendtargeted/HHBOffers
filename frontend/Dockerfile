@@ -17,8 +17,8 @@ RUN npm install -g serve
 # Copy the build folder from the build stage
 COPY --from=build /app/build .
 
-# Expose the default port for serve (5000)
-EXPOSE 3000
+# Expose the default port for serve (3001)
+EXPOSE 3001
 
 # Run the application using serve
-CMD ["serve", "-s", ".", "-l", "3000"]
+CMD ["serve", "-s", ".", "-l", "3001"]
