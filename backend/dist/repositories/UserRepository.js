@@ -16,6 +16,7 @@ exports.userRepository = void 0;
 const sequelize_1 = require("sequelize");
 const BaseRepository_1 = __importDefault(require("./BaseRepository"));
 const User_1 = __importDefault(require("../models/User"));
+const logger_1 = __importDefault(require("../logger"));
 /**
  * Repository class for User model
  * Extends BaseRepository with User-specific query methods
@@ -42,7 +43,17 @@ class UserRepository extends BaseRepository_1.default {
      */
     findByEmailForAuth(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.findOne({ email }, { attributes: { include: ['password'] } });
+            try {
+                logger_1.default.info(`Finding user by email for auth: ${email}`);
+                return this.model.findOne({
+                    where: { email },
+                    attributes: { include: ['password'] }
+                });
+            }
+            catch (error) {
+                logger_1.default.error(`Error finding user by email for auth: ${email}`, error);
+                throw error;
+            }
         });
     }
     /**

@@ -18,8 +18,8 @@ const logger_1 = __importDefault(require("../logger"));
  * Database configuration with connection pooling to mitigate
  * connection failures during high traffic
  */
-const sequelize = new sequelize_1.Sequelize(process.env.DB_NAME || 'direct_mail_dev', process.env.DB_USER || 'postgres', process.env.DB_PASSWORD || 'postgres', {
-    host: process.env.DB_HOST || 'localhost',
+const sequelize = new sequelize_1.Sequelize(process.env.DB_NAME || 'direct_mail_db', process.env.DB_USER || 'dbuser', process.env.DB_PASSWORD || 'dbpassword', {
+    host: process.env.DB_HOST || 'postgres', // Use 'postgres' as the host in Docker
     port: parseInt(process.env.DB_PORT || '5432'),
     dialect: 'postgres',
     logging: process.env.NODE_ENV === 'development' ? (msg) => logger_1.default.debug(msg) : false,
@@ -38,6 +38,11 @@ const sequelize = new sequelize_1.Sequelize(process.env.DB_NAME || 'direct_mail_
             /SequelizeInvalidConnectionError/,
             /SequelizeConnectionTimedOutError/,
             /TimeoutError/,
+            /ETIMEDOUT/, //added more error types for retry
+            /EHOSTUNREACH/,
+            /ECONNRESET/,
+            /ECONNREFUSED/,
+            /ENOTFOUND/
         ],
         max: 5, // Maximum retries
         backoffBase: 100, // Initial backoff duration in ms

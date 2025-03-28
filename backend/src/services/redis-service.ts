@@ -3,14 +3,20 @@ import logger from '../logger';
 
 // Redis client options
 const redisOptions = {
-  // url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT || 6379}`,
-  url: `redis://default:redispassword@hhb_redis:6379`,
+  host: process.env.REDIS_HOST || 'redis', // Default to service name from docker-compose
+  port: parseInt(process.env.REDIS_PORT || '6379'),
+  username: process.env.REDIS_USERNAME || 'default',
+  password: process.env.REDIS_PASSWORD || '',
   retryStrategy: (times: number) => {
     const delay = Math.min(times * 50, 2000);
     return delay;
   },
-  maxRetriesPerRequest: 3
+  maxRetriesPerRequest: 3,
+  enableOfflineQueue: true,
+  connectTimeout: 10000,
+  commandTimeout: 5000
 };
+
 
 // Create Redis client
 const redisClient = new Redis(redisOptions);

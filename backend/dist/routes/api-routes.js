@@ -12,7 +12,7 @@ const docs_routes_1 = __importDefault(require("./docs-routes"));
 const logger_1 = __importDefault(require("../logger"));
 const router = (0, express_1.Router)();
 // Health check endpoint
-router.get('/health', (_req, res) => {
+router.get('/api/health', (_req, res) => {
     return res.status(200).json({
         status: 'UP',
         timestamp: new Date(),

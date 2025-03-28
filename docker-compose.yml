@@ -8,29 +8,48 @@ services:
     volumes:
       - ./backend/logs:/app/logs
       - ./backend/uploads:/app/uploads
+    env_file: .env
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
-      - easypanel-mail
+      - app-network
 
   postgres:
     image: postgres:15-alpine
-    ports:
-      - "5432:5432"
     environment:
-      - POSTGRES_DB=direct_mail_db
-      - POSTGRES_USER=dbuser
-      - POSTGRES_PASSWORD=dbpassword
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
-      - easypanel-mail
+      - app-network
+
+  redis:
+    image: redis:6.2.6-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
-  easypanel-mail:
-    driver: overlay
-    attachable: true
+  app-network:
+    driver: bridge

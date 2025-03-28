@@ -1,505 +1,419 @@
-import fs from 'fs';
-import { Readable } from 'stream';
-import csv from 'csv-parser';
-import path from 'path';
-import Excel from 'exceljs';
-import { PropertyCreationAttributes } from '../models/Property';
-import { propertyRepository } from '../repositories/PropertyRepository';
-import { uploadJobRepository } from '../repositories/UploadJobRepository';
-import { activityLogRepository } from '../repositories/ActivityLogRepository';
-import logger from '../logger';
-import { EventEmitter } from 'events';
-
-// Define interfaces for better type safety
-interface ProcessingStats {
-  totalRecords: number;
-  newRecords: number;
-  updatedRecords: number;
-  errorRecords: number;
-}
-
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FileProcessorService = void 0;
+const fs_1 = __importDefault(require("fs"));
+const csv_parser_1 = __importDefault(require("csv-parser"));
+const exceljs_1 = __importDefault(require("exceljs"));
+const PropertyRepository_1 = require("../repositories/PropertyRepository");
+const UploadJobRepository_1 = require("../repositories/UploadJobRepository");
+const ActivityLogRepository_1 = require("../repositories/ActivityLogRepository");
+const logger_1 = __importDefault(require("../logger"));
 /**
  * Service for processing CSV and XLSX files using the Batch Processing Pattern
  * This implementation focuses on efficiency when dealing with large files
  */
-export class FileProcessorService {
-  private readonly DEFAULT_BATCH_SIZE = 1000; // Default batch size
-  private stream: Readable | null = null;
-
-/**
- * Process a CSV file using the Batch Processing Pattern with non-blocking approach
- * @param filePath Path to the CSV file
- * @param jobId Unique identifier for this processing job
- * @param userId ID of the user who initiated the job
- * @param batchSize Optional batch size (default 1000)
- * @returns Promise with processing statistics
- */
-async processCsvFile(
-  filePath: string, 
-  jobId: string, 
-  userId: number, 
-  batchSize: number = this.DEFAULT_BATCH_SIZE
-): Promise<ProcessingStats> {
-  // Update job status to processing
-  await uploadJobRepository.updateStatus(jobId, 'processing');
-  
-  // Log activity
-  await activityLogRepository.log({
-    user_id: userId,
-    action: 'start_processing',
-    entity_type: 'uploadjob',
-    entity_id: jobId,
-    details: { filePath, fileType: 'csv' }
-  });
-
-  return new Promise((resolve, reject) => {
-    const stats: ProcessingStats = {
-      totalRecords: 0,
-      newRecords: 0,
-      updatedRecords: 0,
-      errorRecords: 0
-    };
-    
-    let batch: any[] = [];
-    let batchCount = 0;
-    
-    try {
-      this.stream = fs.createReadStream(filePath)
-        .pipe(csv())
-        .on('data', (row: any) => {
-          batch.push(row);
-          stats.totalRecords++;
-          
-          // When batch size is reached, process the batch
-          if (batch.length >= batchSize) {
-            // Pause the stream to prevent memory overflow
-            this.stream!.pause();
-            
-            // Process the batch in the next event loop tick to avoid blocking
-            setImmediate(async () => {
-              try {
-                const batchStats = await this.processBatch(batch, jobId);
-                this.updateStats(stats, batchStats);
-                
-                // Update progress in database
-                await this.updateJobProgress(jobId, stats);
-                
-                // Emit progress event
-                this.emitProgress(jobId, stats);
-                
-                // Log progress
-                logger.info(`[Job ${jobId}] Processed batch ${++batchCount}: ` +
-                  `${batchStats.newRecords} new, ${batchStats.updatedRecords} updated, ${batchStats.errorRecords} errors`);
-                
-                // Clear the batch array
-                batch = [];
-                
-                // Resume the stream in the next tick to allow other operations
-                setImmediate(() => {
-                  this.stream!.resume();
-                });
-              } catch (error: unknown) {
-                const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-                logger.error(`[Job ${jobId}] Error processing batch ${batchCount}:`, errorMessage);
-                
-                // Resume the stream to continue processing
-                this.stream!.resume();
-                
-                // We don't reject here to allow processing to continue
-                batch = [];
-              }
-            });
-          }
-        })
-        .on('end', () => {
-          // Process any remaining records
-          if (batch.length > 0) {
-            setImmediate(async () => {
-              try {
-                const batchStats = await this.processBatch(batch, jobId);
-                this.updateStats(stats, batchStats);
-                await this.updateJobProgress(jobId, stats);
-                this.emitProgress(jobId, stats);
-                
-                logger.info(`[Job ${jobId}] Processed final batch ${++batchCount}: ` +
-                  `${batchStats.newRecords} new, ${batchStats.updatedRecords} updated, ${batchStats.errorRecords} errors`);
-                
-                finishProcessing();
-              } catch (error: unknown) {
-                const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-                logger.error(`[Job ${jobId}] Error processing final batch:`, errorMessage);
-                
-                // Update job status to failed
-                (async () => {
-                  await uploadJobRepository.updateStatus(jobId, 'failed');
-                  
-                  // Log activity
-                  await activityLogRepository.log({
-                    user_id: userId,
-                    action: 'processing_failed',
-                    entity_type: 'uploadjob',
-                    entity_id: jobId,
-                    details: { error: error instanceof Error ? error.message : 'Unknown error' }
-                  });
-                  
-                  reject(error);
-                })();
-              }
-            });
-          } else {
-            finishProcessing();
-          }
-          
-          function finishProcessing() {
-            logger.info(`[Job ${jobId}] Processing completed: ` +
-              `${stats.totalRecords} total, ${stats.newRecords} new, ${stats.updatedRecords} updated, ${stats.errorRecords} errors`);
-            
-            // Update job status to completed
-            (async () => {
-              await uploadJobRepository.updateStatus(jobId, 'completed');
-              
-              // Log activity
-              await activityLogRepository.log({
+class FileProcessorService {
+    constructor() {
+        this.BATCH_SIZE = 100; // Process 100 records at a time
+        this.stream = null;
+        // Observer Pattern implementation
+        this.progressObservers = new Map();
+    }
+    /**
+     * Process a CSV file using the Batch Processing Pattern with non-blocking behavior
+     * @param filePath Path to the CSV file
+     * @param jobId Unique identifier for this processing job
+     * @param userId ID of the user who initiated the job
+     * @returns Promise with processing statistics
+     */
+    processCsvFile(filePath, jobId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Update job status to processing
+            yield UploadJobRepository_1.uploadJobRepository.updateStatus(jobId, 'processing');
+            // Log activity
+            yield ActivityLogRepository_1.activityLogRepository.log({
                 user_id: userId,
-                action: 'processing_completed',
+                action: 'start_processing',
                 entity_type: 'uploadjob',
                 entity_id: jobId,
-                details: stats
-              });
-              
-              resolve(stats);
-            })();
-          }
-        })
-        .on('error', async (error: Error) => {
-          logger.error(`[Job ${jobId}] Stream error:`, error);
-          
-          // Update job status to failed
-          await uploadJobRepository.updateStatus(jobId, 'failed');
-          
-          // Log activity
-          await activityLogRepository.log({
-            user_id: userId,
-            action: 'processing_failed',
-            entity_type: 'uploadjob',
-            entity_id: jobId,
-            details: { error: error instanceof Error ? error.message : 'Unknown error' }
-          });
-          
-          reject(error);
-        });
-    } catch (error) {
-      logger.error(`[Job ${jobId}] Error setting up CSV processing:`, error);
-      reject(error);
-    }
-  });
-}
-  
-/**
- * Process an XLSX file using the Batch Processing Pattern with non-blocking approach
- * @param filePath Path to the XLSX file
- * @param jobId Unique identifier for this processing job
- * @param userId ID of the user who initiated the job
- * @param batchSize Optional batch size (default 1000)
- * @returns Promise with processing statistics
- */
-async processXlsxFile(
-  filePath: string, 
-  jobId: string, 
-  userId: number,
-  batchSize: number = this.DEFAULT_BATCH_SIZE
-): Promise<ProcessingStats> {
-  // Update job status to processing
-  await uploadJobRepository.updateStatus(jobId, 'processing');
-  
-  // Log activity
-  await activityLogRepository.log({
-    user_id: userId,
-    action: 'start_processing',
-    entity_type: 'uploadjob',
-    entity_id: jobId,
-    details: { filePath, fileType: 'xlsx' }
-  });
-  
-  return new Promise(async (resolve, reject) => {
-    const stats: ProcessingStats = {
-      totalRecords: 0,
-      newRecords: 0,
-      updatedRecords: 0,
-      errorRecords: 0
-    };
-    
-    try {
-      const workbook = new Excel.Workbook();
-      await workbook.xlsx.readFile(filePath);
-      
-      const worksheet = workbook.getWorksheet(1); // Get the first worksheet
-      
-      if (!worksheet) {
-        throw new Error('Worksheet not found');
-      }
-      
-      let batch: any[] = [];
-      let batchCount = 0;
-      
-      // Get header row
-      const headerRow = worksheet.getRow(1);
-      const headers: string[] = [];
-      
-      headerRow.eachCell((cell: any, colNumber: number) => {
-        headers[colNumber - 1] = cell.value?.toString() || '';
-      });
-      
-      // Process rows in batches to avoid blocking
-      const totalRows = worksheet.rowCount;
-      stats.totalRecords = totalRows - 1; // Exclude header row
-      
-      // Update job with total record count immediately
-      await this.updateJobProgress(jobId, stats);
-      
-      // Process rows in batches with non-blocking approach
-      for (let rowNumber = 2; rowNumber <= totalRows; rowNumber++) {
-        const row = worksheet.getRow(rowNumber);
-        const rowData: any = {};
-        
-        row.eachCell({ includeEmpty: true }, (cell: any, colNumber: number) => {
-          const header = headers[colNumber - 1];
-          rowData[header] = cell.value;
-        });
-        
-        batch.push(rowData);
-        
-        // When batch size is reached or at the end, process the batch
-        if (batch.length >= batchSize || rowNumber === totalRows) {
-          const currentBatch = [...batch];
-          batch = []; // Clear batch for next iteration
-          
-          // Process in next tick to avoid blocking
-          await new Promise<void>(resolveTimer => {
-            setImmediate(async () => {
-              try {
-                const batchStats = await this.processBatch(currentBatch, jobId);
-                this.updateStats(stats, batchStats);
-                
-                // Update progress in database
-                await this.updateJobProgress(jobId, stats);
-                
-                // Emit progress event
-                this.emitProgress(jobId, stats);
-                
-                // Log progress
-                logger.info(`[Job ${jobId}] Processed batch ${++batchCount}: ` +
-                  `${batchStats.newRecords} new, ${batchStats.updatedRecords} updated, ${batchStats.errorRecords} errors`);
-                
-                resolveTimer();
-              } catch (error: unknown) {
-                const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-                logger.error(`[Job ${jobId}] Error processing batch ${batchCount}:`, errorMessage);
-                resolveTimer();
-              }
+                details: { filePath, fileType: 'csv' }
             });
-          });
+            return new Promise((resolve, reject) => {
+                const stats = {
+                    totalRecords: 0,
+                    newRecords: 0,
+                    updatedRecords: 0,
+                    errorRecords: 0
+                };
+                let batch = [];
+                let batchCount = 0;
+                this.stream = fs_1.default.createReadStream(filePath)
+                    .pipe((0, csv_parser_1.default)())
+                    .on('data', (row) => {
+                    batch.push(row);
+                    stats.totalRecords++;
+                    // When batch size is reached, process the batch
+                    if (batch.length >= this.BATCH_SIZE) {
+                        // Pause the stream to prevent memory overflow
+                        this.stream.pause();
+                        // Process the batch in a non-blocking way
+                        setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                            try {
+                                const batchStats = yield this.processBatch(batch, jobId);
+                                this.updateStats(stats, batchStats);
+                                // Update progress in database
+                                yield this.updateJobProgress(jobId, stats);
+                                // Emit progress event
+                                this.emitProgress(jobId, stats);
+                                // Log progress
+                                logger_1.default.info(`[Job ${jobId}] Processed batch ${++batchCount}: ` +
+                                    `${batchStats.newRecords} new, ${batchStats.updatedRecords} updated, ${batchStats.errorRecords} errors`);
+                                // Clear the batch array
+                                batch = [];
+                                // Resume the stream
+                                this.stream.resume();
+                            }
+                            catch (error) {
+                                const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+                                logger_1.default.error(`[Job ${jobId}] Error processing batch ${batchCount}:`, errorMessage);
+                                this.stream.resume(); // Resume despite error to continue processing
+                            }
+                        }), 0);
+                    }
+                })
+                    .on('end', () => __awaiter(this, void 0, void 0, function* () {
+                    // Process any remaining records
+                    if (batch.length > 0) {
+                        try {
+                            const batchStats = yield this.processBatch(batch, jobId);
+                            this.updateStats(stats, batchStats);
+                            yield this.updateJobProgress(jobId, stats);
+                            this.emitProgress(jobId, stats);
+                            logger_1.default.info(`[Job ${jobId}] Processed final batch ${++batchCount}: ` +
+                                `${batchStats.newRecords} new, ${batchStats.updatedRecords} updated, ${batchStats.errorRecords} errors`);
+                        }
+                        catch (error) {
+                            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+                            logger_1.default.error(`[Job ${jobId}] Error processing final batch:`, errorMessage);
+                            // Update job status to failed
+                            yield UploadJobRepository_1.uploadJobRepository.updateStatus(jobId, 'failed');
+                            // Log activity
+                            yield ActivityLogRepository_1.activityLogRepository.log({
+                                user_id: userId,
+                                action: 'processing_failed',
+                                entity_type: 'uploadjob',
+                                entity_id: jobId,
+                                details: { error: error instanceof Error ? error.message : 'Unknown error' }
+                            });
+                            reject(error);
+                            return;
+                        }
+                    }
+                    logger_1.default.info(`[Job ${jobId}] Processing completed: ` +
+                        `${stats.totalRecords} total, ${stats.newRecords} new, ${stats.updatedRecords} updated, ${stats.errorRecords} errors`);
+                    // Update job status to completed
+                    yield this.updateJobProgress(jobId, stats);
+                    yield UploadJobRepository_1.uploadJobRepository.updateStatus(jobId, 'completed');
+                    // Log activity
+                    yield ActivityLogRepository_1.activityLogRepository.log({
+                        user_id: userId,
+                        action: 'processing_completed',
+                        entity_type: 'uploadjob',
+                        entity_id: jobId,
+                        details: stats
+                    });
+                    resolve(stats);
+                }))
+                    .on('error', (error) => __awaiter(this, void 0, void 0, function* () {
+                    logger_1.default.error(`[Job ${jobId}] Stream error:`, error);
+                    // Update job status to failed
+                    yield UploadJobRepository_1.uploadJobRepository.updateStatus(jobId, 'failed');
+                    // Log activity
+                    yield ActivityLogRepository_1.activityLogRepository.log({
+                        user_id: userId,
+                        action: 'processing_failed',
+                        entity_type: 'uploadjob',
+                        entity_id: jobId,
+                        details: { error: error instanceof Error ? error.message : 'Unknown error' }
+                    });
+                    reject(error);
+                }));
+            });
+        });
+    }
+    /**
+     * Process an XLSX file using the Batch Processing Pattern with non-blocking behavior
+     * @param filePath Path to the XLSX file
+     * @param jobId Unique identifier for this processing job
+     * @param userId ID of the user who initiated the job
+     * @returns Promise with processing statistics
+     */
+    processXlsxFile(filePath, jobId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Update job status to processing
+            yield UploadJobRepository_1.uploadJobRepository.updateStatus(jobId, 'processing');
+            // Log activity
+            yield ActivityLogRepository_1.activityLogRepository.log({
+                user_id: userId,
+                action: 'start_processing',
+                entity_type: 'uploadjob',
+                entity_id: jobId,
+                details: { filePath, fileType: 'xlsx' }
+            });
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                const stats = {
+                    totalRecords: 0,
+                    newRecords: 0,
+                    updatedRecords: 0,
+                    errorRecords: 0
+                };
+                try {
+                    const workbook = new exceljs_1.default.Workbook();
+                    yield workbook.xlsx.readFile(filePath);
+                    const worksheet = workbook.getWorksheet(1); // Get the first worksheet
+                    if (!worksheet) {
+                        throw new Error('Worksheet not found');
+                    }
+                    // Get header row
+                    const headerRow = worksheet.getRow(1);
+                    const headers = [];
+                    headerRow.eachCell((cell, colNumber) => {
+                        var _a;
+                        headers[colNumber - 1] = ((_a = cell.value) === null || _a === void 0 ? void 0 : _a.toString()) || '';
+                    });
+                    // Collect all rows first to enable batch processing
+                    const allRows = [];
+                    // Skip header row (starting from 2)
+                    worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+                        if (rowNumber === 1)
+                            return; // Skip header
+                        const rowData = {};
+                        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                            const header = headers[colNumber - 1];
+                            rowData[header] = cell.value;
+                        });
+                        allRows.push(rowData);
+                        stats.totalRecords++;
+                    });
+                    // Process rows in batches
+                    let batchCount = 0;
+                    for (let i = 0; i < allRows.length; i += this.BATCH_SIZE) {
+                        const batch = allRows.slice(i, i + this.BATCH_SIZE);
+                        // Use setTimeout to avoid blocking the main thread
+                        yield new Promise((batchResolve) => {
+                            setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                                try {
+                                    const batchStats = yield this.processBatch(batch, jobId);
+                                    this.updateStats(stats, batchStats);
+                                    // Update progress in database
+                                    yield this.updateJobProgress(jobId, stats);
+                                    // Emit progress event
+                                    this.emitProgress(jobId, stats);
+                                    logger_1.default.info(`[Job ${jobId}] Processed batch ${++batchCount}: ` +
+                                        `${batchStats.newRecords} new, ${batchStats.updatedRecords} updated, ${batchStats.errorRecords} errors`);
+                                    batchResolve();
+                                }
+                                catch (error) {
+                                    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+                                    logger_1.default.error(`[Job ${jobId}] Error processing batch ${batchCount}:`, errorMessage);
+                                    batchResolve(); // Resolve despite error to continue processing
+                                }
+                            }), 0);
+                        });
+                    }
+                    logger_1.default.info(`[Job ${jobId}] Processing completed: ` +
+                        `${stats.totalRecords} total, ${stats.newRecords} new, ${stats.updatedRecords} updated, ${stats.errorRecords} errors`);
+                    // Update job status to completed
+                    yield this.updateJobProgress(jobId, stats);
+                    yield UploadJobRepository_1.uploadJobRepository.updateStatus(jobId, 'completed');
+                    // Log activity
+                    yield ActivityLogRepository_1.activityLogRepository.log({
+                        user_id: userId,
+                        action: 'processing_completed',
+                        entity_type: 'uploadjob',
+                        entity_id: jobId,
+                        details: stats
+                    });
+                    resolve(stats);
+                }
+                catch (error) {
+                    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+                    logger_1.default.error(`[Job ${jobId}] Error processing XLSX file:`, errorMessage);
+                    // Update job status to failed
+                    yield UploadJobRepository_1.uploadJobRepository.updateStatus(jobId, 'failed');
+                    // Log activity
+                    yield ActivityLogRepository_1.activityLogRepository.log({
+                        user_id: userId,
+                        action: 'processing_failed',
+                        entity_type: 'uploadjob',
+                        entity_id: jobId,
+                        details: { error: error instanceof Error ? error.message : 'Unknown error' }
+                    });
+                    reject(error);
+                }
+            }));
+        });
+    }
+    /**
+     * Process a batch of records in batches of 100
+     * @param batch Array of records to process
+     * @param jobId Unique identifier for this processing job
+     * @returns Promise with batch processing statistics
+     */
+    processBatch(batch, jobId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const stats = {
+                totalRecords: batch.length,
+                newRecords: 0,
+                updatedRecords: 0,
+                errorRecords: 0
+            };
+            // Use a transaction for the entire batch
+            const transaction = yield PropertyRepository_1.propertyRepository.startTransaction();
+            try {
+                // Transform all records first
+                const propertiesData = batch.map(row => this.transformRowToPropertyData(row));
+                // Batch create/update using upsert with conflict resolution
+                const result = yield PropertyRepository_1.propertyRepository.bulkCreate(propertiesData, transaction, ['offer', 'updated_at']);
+                // Analyze results to count new/updated records
+                result.forEach(property => {
+                    if (property.created_at.getTime() === property.updated_at.getTime()) {
+                        stats.newRecords++;
+                    }
+                    else {
+                        stats.updatedRecords++;
+                    }
+                });
+                yield transaction.commit();
+            }
+            catch (error) {
+                yield transaction.rollback();
+                stats.errorRecords = batch.length;
+                const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+                logger_1.default.error(`[Job ${jobId}] Batch error:`, errorMessage);
+            }
+            return stats;
+        });
+    }
+    /**
+     * Transform a raw data row into a PropertyCreationAttributes object
+     * This method handles data normalization and validation
+     * @param row Raw data row
+     * @returns Transformed PropertyCreationAttributes object
+     */
+    transformRowToPropertyData(row) {
+        // Extract and normalize property data
+        const propertyData = {
+            first_name: row.firstName || row.first_name || null,
+            last_name: row.lastName || row.last_name || null,
+            property_address: this.normalizeAddress(row.propertyAddress || row.property_address || row.address || ''),
+            property_city: this.normalizeCity(row.propertyCity || row.property_city || row.city || ''),
+            property_state: this.normalizeState(row.propertyState || row.property_state || row.state || ''),
+            property_zip: this.normalizeZip(row.propertyZip || row.property_zip || row.zip || ''),
+            offer: parseFloat(row.offer || '0'),
+            created_at: new Date(),
+            updated_at: new Date()
+        };
+        return propertyData;
+    }
+    /**
+     * Update the overall statistics with batch statistics
+     * @param stats Overall statistics to update
+     * @param batchStats Batch statistics to add
+     */
+    updateStats(stats, batchStats) {
+        stats.newRecords += batchStats.newRecords;
+        stats.updatedRecords += batchStats.updatedRecords;
+        stats.errorRecords += batchStats.errorRecords;
+    }
+    /**
+     * Update job progress in the database
+     * @param jobId Unique identifier for this processing job
+     * @param stats Current processing statistics
+     */
+    updateJobProgress(jobId, stats) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield UploadJobRepository_1.uploadJobRepository.updateProgress(jobId, {
+                totalRecords: stats.totalRecords,
+                newRecords: stats.newRecords,
+                updatedRecords: stats.updatedRecords,
+                errorRecords: stats.errorRecords
+            });
+        });
+    }
+    /**
+     * Register a callback for progress updates
+     * @param jobId Job ID to observe
+     * @param callback Function to call with progress updates
+     */
+    onProgress(jobId, callback) {
+        if (!this.progressObservers.has(jobId)) {
+            this.progressObservers.set(jobId, []);
         }
-      }
-      
-      logger.info(`[Job ${jobId}] Processing completed: ` +
-        `${stats.totalRecords} total, ${stats.newRecords} new, ${stats.updatedRecords} updated, ${stats.errorRecords} errors`);
-      
-      // Update job status to completed
-      await uploadJobRepository.updateStatus(jobId, 'completed');
-      
-      // Log activity
-      await activityLogRepository.log({
-        user_id: userId,
-        action: 'processing_completed',
-        entity_type: 'uploadjob',
-        entity_id: jobId,
-        details: stats
-      });
-      
-      resolve(stats);
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      logger.error(`[Job ${jobId}] Error processing XLSX file:`, errorMessage);
-      
-      // Update job status to failed
-      await uploadJobRepository.updateStatus(jobId, 'failed');
-      
-      // Log activity
-      await activityLogRepository.log({
-        user_id: userId,
-        action: 'processing_failed',
-        entity_type: 'uploadjob',
-        entity_id: jobId,
-        details: { error: error instanceof Error ? error.message : 'Unknown error' }
-      });
-      
-      reject(error);
+        this.progressObservers.get(jobId).push(callback);
     }
-  });
-}
-
-  /**
-   * Process a batch of records
-   * @param batch Array of records to process
-   * @param jobId Unique identifier for this processing job
-   * @returns Promise with batch processing statistics
-   */
-  private async processBatch(batch: any[], jobId: string): Promise<ProcessingStats> {
-    const stats: ProcessingStats = {
-      totalRecords: batch.length,
-      newRecords: 0,
-      updatedRecords: 0,
-      errorRecords: 0
-    };
-    
-    // Process each record in the batch
-    for (const row of batch) {
-      try {
-        logger.info(`[Job ${jobId}] Processing row: ${JSON.stringify(row)}`);
-        const propertyData = this.transformRowToPropertyData(row);
-        logger.info(`[Job ${jobId}] Transformed property data: ${JSON.stringify(propertyData)}`);
-
-        // Create or update property using the repository's createOrUpdate method
-        const [property, isNew] = await propertyRepository.createOrUpdate(propertyData);
-
-        if (isNew) {
-          stats.newRecords++;
-        } else {
-          stats.updatedRecords++;
+    /**
+     * Remove a progress callback
+     * @param jobId Job ID
+     * @param callback Function to remove
+     */
+    offProgress(jobId, callback) {
+        if (!this.progressObservers.has(jobId))
+            return;
+        const observers = this.progressObservers.get(jobId);
+        const index = observers.indexOf(callback);
+        if (index !== -1) {
+            observers.splice(index, 1);
         }
-      } catch (error: unknown) {
-        stats.errorRecords++;
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        logger.error(`[Job ${jobId}] Error processing record: ${JSON.stringify(row)}`, errorMessage);
-      }
+        if (observers.length === 0) {
+            this.progressObservers.delete(jobId);
+        }
     }
-
-    return stats;
-  }
-
-  /**
-   * Transform a raw data row into a PropertyCreationAttributes object
-   * This method handles data normalization and validation
-   * @param row Raw data row
-   * @returns Transformed PropertyCreationAttributes object
-   */
-  private transformRowToPropertyData(row: any): PropertyCreationAttributes {
-    logger.info(`Transforming row data: ${JSON.stringify(row)}`);
-    // Extract and normalize property data
-    const propertyData: PropertyCreationAttributes = {
-      first_name: row.firstName || row.first_name || null,
-      last_name: row.lastName || row.last_name || null,
-      property_address: this.normalizeAddress(row.propertyAddress || row.property_address || row.address || ''),
-      property_city: this.normalizeCity(row.propertyCity || row.property_city || row.city || ''),
-      property_state: this.normalizeState(row.propertyState || row.property_state || row.state || ''),
-      property_zip: this.normalizeZip(row.propertyZip || row.property_zip || row.zip || ''),
-      offer: parseFloat(row.offer || '0'),
-      created_at: new Date(),
-      updated_at: new Date()
-    };
-    logger.info(`Transformed property data: ${JSON.stringify(propertyData)}`);
-    return propertyData;
-  }
-
-  /**
-   * Update the overall statistics with batch statistics
-   * @param stats Overall statistics to update
-   * @param batchStats Batch statistics to add
-   */
-  private updateStats(stats: ProcessingStats, batchStats: ProcessingStats): void {
-    stats.newRecords += batchStats.newRecords;
-    stats.updatedRecords += batchStats.updatedRecords;
-    stats.errorRecords += batchStats.errorRecords;
-  }
-  
-  /**
-   * Update job progress in the database
-   * @param jobId Unique identifier for this processing job
-   * @param stats Current processing statistics
-   */
-  private async updateJobProgress(jobId: string, stats: ProcessingStats): Promise<void> {
-    await uploadJobRepository.updateProgress(jobId, {
-      totalRecords: stats.totalRecords,
-      newRecords: stats.newRecords,
-      updatedRecords: stats.updatedRecords,
-      errorRecords: stats.errorRecords
-    });
-  }
-  
-  // Observer Pattern implementation
-  private progressObservers: Map<string, Function[]> = new Map();
-  
-  /**
-   * Register a callback for progress updates
-   * @param jobId Job ID to observe
-   * @param callback Function to call with progress updates
-   */
-  public onProgress(jobId: string, callback: (stats: ProcessingStats) => void): void {
-    if (!this.progressObservers.has(jobId)) {
-      this.progressObservers.set(jobId, []);
+    /**
+     * Emit a progress update to all registered observers
+     * @param jobId Job ID
+     * @param stats Processing statistics
+     */
+    emitProgress(jobId, stats) {
+        if (!this.progressObservers.has(jobId))
+            return;
+        for (const callback of this.progressObservers.get(jobId)) {
+            try {
+                callback(stats);
+            }
+            catch (error) {
+                const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+                logger_1.default.error(`[Job ${jobId}] Error in progress callback:`, errorMessage);
+            }
+        }
     }
-    
-    this.progressObservers.get(jobId)!.push(callback);
-  }
-  
-  /**
-   * Remove a progress callback
-   * @param jobId Job ID
-   * @param callback Function to remove
-   */
-  public offProgress(jobId: string, callback: Function): void {
-    if (!this.progressObservers.has(jobId)) return;
-    
-    const observers = this.progressObservers.get(jobId)!;
-    const index = observers.indexOf(callback);
-    
-    if (index !== -1) {
-      observers.splice(index, 1);
+    // Helper methods for data normalization
+    normalizeAddress(address) {
+        return address.trim().replace(/\s{2,}/g, ' ');
     }
-    
-    if (observers.length === 0) {
-      this.progressObservers.delete(jobId);
+    normalizeCity(city) {
+        return city.trim().replace(/\s{2,}/g, ' ');
     }
-  }
-  
-  /**
-   * Emit a progress update to all registered observers
-   * @param jobId Job ID
-   * @param stats Processing statistics
-   */
-  private emitProgress(jobId: string, stats: ProcessingStats): void {
-    if (!this.progressObservers.has(jobId)) return;
-    
-    for (const callback of this.progressObservers.get(jobId)!) {
-      try {
-        callback(stats);
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        logger.error(`[Job ${jobId}] Error in progress callback:`, errorMessage);
-      }
+    normalizeState(state) {
+        return state.trim().toUpperCase();
     }
-  }
-  
-  // Helper methods for data normalization
-  
-  private normalizeAddress(address: string): string {
-    return address.trim().replace(/\s{2,}/g, ' ');
-  }
-  
-  private normalizeCity(city: string): string {
-    return city.trim().replace(/\s{2,}/g, ' ');
-  }
-  
-  private normalizeState(state: string): string {
-    return state.trim().toUpperCase();
-  }
-  
-  private normalizeZip(zip: string): string {
-    // Extract just the digits for the first 5 digits of the zip code
-    const zipDigits = zip.replace(/\D/g, '');
-    return zipDigits.substring(0, 5);
-  }
+    normalizeZip(zip) {
+        // Extract just the digits for the first 5 digits of the zip code
+        const zipDigits = zip.replace(/\D/g, '');
+        return zipDigits.substring(0, 5);
+    }
 }
-
-export default FileProcessorService;
+exports.FileProcessorService = FileProcessorService;
+exports.default = FileProcessorService;

@@ -16,6 +16,8 @@ const repositories_1 = require("../repositories");
 const repositories_2 = require("../repositories");
 const redis_service_1 = require("../services/redis-service");
 const logger_1 = __importDefault(require("../logger"));
+const dataTransformer_1 = require("../utils/dataTransformer");
+const responseHandler_1 = require("../utils/responseHandler");
 class PropertyController {
     /**
      * Get all properties with pagination
@@ -32,20 +34,27 @@ class PropertyController {
                 // Try to get from cache first
                 const cachedData = yield redis_service_1.redisService.get(cacheKey);
                 if (cachedData) {
-                    return res.status(200).json(Object.assign(Object.assign({ success: true }, cachedData), { fromCache: true }));
+                    // If we have cached data, make sure it's properly parsed
+                    const parsedCachedData = typeof cachedData === 'string'
+                        ? JSON.parse(cachedData)
+                        : cachedData;
+                    return (0, responseHandler_1.sendResponse)(res, Object.assign(Object.assign({}, parsedCachedData), { fromCache: true }));
                 }
                 // If not in cache, get from database
                 const result = yield repositories_1.propertyRepository.findPaginated(page, pageSize);
-                // Store in cache for 5 minutes
-                yield redis_service_1.redisService.set(cacheKey, result, 300);
-                return res.status(200).json(Object.assign({ success: true }, result));
+                logger_1.default.info(`[PropertyController] getAllProperties result: ${JSON.stringify(result)}`);
+                // Transform the result to camelCase
+                const camelCaseResult = (0, dataTransformer_1.toCamelCase)(JSON.parse(JSON.stringify(result)));
+                logger_1.default.info(`[PropertyController] Transformed to camelCase: ${JSON.stringify(camelCaseResult)}`);
+                // Store in cache for 5 minutes (using string format)
+                yield redis_service_1.redisService.set(cacheKey, JSON.stringify(camelCaseResult), 300);
+                return (0, responseHandler_1.sendResponse)(res, camelCaseResult);
             }
             catch (error) {
                 logger_1.default.error('Error fetching properties:', error);
-                return res.status(500).json({
-                    success: false,
+                return (0, responseHandler_1.sendResponse)(res, {
                     message: 'Error fetching properties'
-                });
+                }, 500);
             }
         });
     }
@@ -64,22 +73,27 @@ class PropertyController {
                 // Try to get from cache first
                 const cachedProperty = yield redis_service_1.redisService.get(cacheKey);
                 if (cachedProperty) {
-                    return res.status(200).json({
-                        success: true,
-                        property: cachedProperty,
+                    // Parse cached property if needed
+                    const parsedCachedProperty = typeof cachedProperty === 'string'
+                        ? JSON.parse(cachedProperty)
+                        : cachedProperty;
+                    return (0, responseHandler_1.sendResponse)(res, {
+                        property: parsedCachedProperty,
                         fromCache: true
                     });
                 }
                 // If not in cache, get from database
                 const property = yield repositories_1.propertyRepository.findById(parseInt(id));
                 if (!property) {
-                    return res.status(404).json({
-                        success: false,
+                    return (0, responseHandler_1.sendResponse)(res, {
                         message: 'Property not found'
-                    });
+                    }, 404);
                 }
-                // Store in cache for 10 minutes
-                yield redis_service_1.redisService.set(cacheKey, property, 600);
+                // Transform property to camelCase
+                const camelCaseProperty = (0, dataTransformer_1.toCamelCase)(JSON.parse(JSON.stringify(property)));
+                logger_1.default.info(`[PropertyController] Property ${id} transformed to camelCase: ${JSON.stringify(camelCaseProperty)}`);
+                // Store camelCase version in cache for 10 minutes
+                yield redis_service_1.redisService.set(cacheKey, JSON.stringify(camelCaseProperty), 600);
                 // Log view activity
                 const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
                 if (userId) {
@@ -91,17 +105,15 @@ class PropertyController {
                         ip_address: req.ip
                     });
                 }
-                return res.status(200).json({
-                    success: true,
-                    property
+                return (0, responseHandler_1.sendResponse)(res, {
+                    property: camelCaseProperty
                 });
             }
             catch (error) {
                 logger_1.default.error(`Error fetching property with ID ${req.params.id}:`, error);
-                return res.status(500).json({
-                    success: false,
+                return (0, responseHandler_1.sendResponse)(res, {
                     message: 'Error fetching property'
-                });
+                }, 500);
             }
         });
     }
@@ -128,10 +140,9 @@ class PropertyController {
                 // Check if property with same address already exists
                 const existingProperty = yield repositories_1.propertyRepository.findByAddressCombination(propertyData.property_address, propertyData.property_city, propertyData.property_state, propertyData.property_zip);
                 if (existingProperty) {
-                    return res.status(409).json({
-                        success: false,
+                    return (0, responseHandler_1.sendResponse)(res, {
                         message: 'Property with this address already exists'
-                    });
+                    }, 409);
                 }
                 // Create property
                 const property = yield repositories_1.propertyRepository.create(propertyData);
@@ -147,17 +158,18 @@ class PropertyController {
                 });
                 // Invalidate related cache keys
                 yield redis_service_1.redisService.delete('properties:all:*');
-                return res.status(201).json({
+                const camelCaseProperty = (0, dataTransformer_1.toCamelCase)(JSON.parse(JSON.stringify(property)));
+                const response = {
                     success: true,
-                    property
-                });
+                    property: camelCaseProperty,
+                };
+                return (0, responseHandler_1.sendResponse)(res, response, 201);
             }
             catch (error) {
                 logger_1.default.error('Error creating property:', error);
-                return res.status(500).json({
-                    success: false,
+                return (0, responseHandler_1.sendResponse)(res, {
                     message: 'Error creating property'
-                });
+                }, 500);
             }
         });
     }
@@ -236,9 +248,10 @@ class PropertyController {
                 // Invalidate cache
                 yield redis_service_1.redisService.delete(`property:${id}`);
                 yield redis_service_1.redisService.delete('properties:all:*');
-                return res.status(200).json({
-                    success: true,
-                    property: updatedProperty
+                // Transform property to camelCase
+                const camelCaseProperty = (0, dataTransformer_1.toCamelCase)(JSON.parse(JSON.stringify(updatedProperty)));
+                return (0, responseHandler_1.sendResponse)(res, {
+                    property: camelCaseProperty
                 });
             }
             catch (error) {
@@ -306,6 +319,162 @@ class PropertyController {
                     success: false,
                     message: 'Error deleting property'
                 });
+            }
+        });
+    }
+    /**
+     * Search properties with pagination and autocomplete functionality
+     * @param req Request object
+     * @param res Response object
+     */
+    searchProperties(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                const query = req.query.q || '';
+                const page = parseInt(req.query.page) || 1;
+                const limit = parseInt(req.query.limit) || 10;
+                const offset = (page - 1) * limit;
+                // If query is too short, return empty results
+                if (query.length < 2) {
+                    return res.status(200).json({
+                        success: true,
+                        results: [],
+                        total: 0,
+                        page,
+                        limit
+                    });
+                }
+                // Cache key
+                const cacheKey = `properties:search:q=${query}:page=${page}:limit=${limit}`;
+                // Try to get from cache first
+                const cachedResults = yield redis_service_1.redisService.get(cacheKey);
+                if (cachedResults) {
+                    return res.status(200).json(Object.assign(Object.assign({ success: true }, cachedResults), { fromCache: true }));
+                }
+                // Get search results
+                const results = yield repositories_1.propertyRepository.searchProperties(query, limit, offset);
+                // Count total results using the same search criteria instead of the IDs
+                const total = yield repositories_1.propertyRepository.countSearchResults(query);
+                // Transform results to camelCase
+                const camelCaseResults = (0, dataTransformer_1.toCamelCase)(JSON.parse(JSON.stringify(results)));
+                logger_1.default.info(`[PropertyController] Search results transformed to camelCase: ${JSON.stringify(camelCaseResults)}`);
+                // Format response
+                const response = {
+                    results: camelCaseResults,
+                    total,
+                    page,
+                    limit,
+                    totalPages: Math.ceil(total / limit)
+                };
+                // Cache results for 5 minutes
+                yield redis_service_1.redisService.set(cacheKey, JSON.stringify(response), 300);
+                // Log search activity
+                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                if (userId) {
+                    yield repositories_2.activityLogRepository.log({
+                        user_id: userId,
+                        action: 'search',
+                        entity_type: 'property',
+                        details: { query, page, limit, resultsCount: results.length },
+                        ip_address: req.ip
+                    });
+                }
+                return res.status(200).json(Object.assign({ success: true }, response));
+            }
+            catch (error) {
+                logger_1.default.error(`Error searching properties with query ${req.query.q}:`, error);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Error searching properties'
+                });
+            }
+        });
+    }
+    /**
+     * Batch create properties
+     * @param req Request object
+     * @param res Response object
+     */
+    batchCreateProperties(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                const { properties } = req.body;
+                if (!Array.isArray(properties) || properties.length === 0) {
+                    return (0, responseHandler_1.sendResponse)(res, {
+                        message: 'Invalid request. Expected an array of properties.'
+                    }, 400);
+                }
+                const results = {
+                    total: properties.length,
+                    created: 0,
+                    failed: 0,
+                    errors: []
+                };
+                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                const createdProperties = [];
+                // Process each property
+                for (let i = 0; i < properties.length; i++) {
+                    try {
+                        const property = properties[i];
+                        // Transform to database format
+                        const propertyData = {
+                            first_name: property.firstName || null,
+                            last_name: property.lastName || null,
+                            property_address: property.propertyAddress,
+                            property_city: property.propertyCity,
+                            property_state: property.propertyState,
+                            property_zip: property.propertyZip,
+                            offer: property.offer,
+                            created_at: new Date(),
+                            updated_at: new Date()
+                        };
+                        // Check for duplicate by address
+                        const existingProperty = yield repositories_1.propertyRepository.findByAddressCombination(propertyData.property_address, propertyData.property_city, propertyData.property_state, propertyData.property_zip);
+                        if (existingProperty) {
+                            results.failed++;
+                            results.errors.push({
+                                index: i,
+                                error: 'Property with this address already exists'
+                            });
+                            continue;
+                        }
+                        // Create the property
+                        const newProperty = yield repositories_1.propertyRepository.create(propertyData);
+                        // Log creation
+                        yield repositories_2.activityLogRepository.log({
+                            user_id: userId,
+                            action: 'batch_create',
+                            entity_type: 'property',
+                            entity_id: newProperty.id.toString(),
+                            details: propertyData,
+                            ip_address: req.ip
+                        });
+                        results.created++;
+                        createdProperties.push(newProperty);
+                    }
+                    catch (error) {
+                        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+                        logger_1.default.error(`Error creating property in batch operation:`, errorMessage);
+                        results.failed++;
+                        results.errors.push({ index: i, error: errorMessage });
+                    }
+                }
+                // Invalidate list caches
+                yield redis_service_1.redisService.delete('properties:all:*');
+                // Transform created properties to camelCase
+                const camelCaseProperties = (0, dataTransformer_1.toCamelCase)(JSON.parse(JSON.stringify(createdProperties)));
+                return (0, responseHandler_1.sendResponse)(res, {
+                    results,
+                    properties: camelCaseProperties
+                }, 201);
+            }
+            catch (error) {
+                logger_1.default.error('Error performing batch creation:', error);
+                return (0, responseHandler_1.sendResponse)(res, {
+                    message: 'Error performing batch creation'
+                }, 500);
             }
         });
     }
@@ -428,161 +597,6 @@ class PropertyController {
                 return res.status(500).json({
                     success: false,
                     message: 'Error performing batch update'
-                });
-            }
-        });
-    }
-    /**
-     * Search properties with pagination and autocomplete functionality
-     * @param req Request object
-     * @param res Response object
-     */
-    searchProperties(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            try {
-                const query = req.query.q || '';
-                const page = parseInt(req.query.page) || 1;
-                const limit = parseInt(req.query.limit) || 10;
-                const offset = (page - 1) * limit;
-                // If query is too short, return empty results
-                if (query.length < 2) {
-                    return res.status(200).json({
-                        success: true,
-                        results: [],
-                        total: 0,
-                        page,
-                        limit
-                    });
-                }
-                // Cache key
-                const cacheKey = `properties:search:q=${query}:page=${page}:limit=${limit}`;
-                // Try to get from cache first
-                const cachedResults = yield redis_service_1.redisService.get(cacheKey);
-                if (cachedResults) {
-                    return res.status(200).json(Object.assign(Object.assign({ success: true }, cachedResults), { fromCache: true }));
-                }
-                // Get search results
-                const results = yield repositories_1.propertyRepository.searchProperties(query, limit, offset);
-                const total = yield repositories_1.propertyRepository.count({
-                    where: results.length > 0 ? { id: { in: results.map((p) => p.id) } } : {}
-                });
-                // Format response
-                const response = {
-                    results,
-                    total,
-                    page,
-                    limit,
-                    totalPages: Math.ceil(total / limit)
-                };
-                // Cache results for 5 minutes
-                yield redis_service_1.redisService.set(cacheKey, response, 300);
-                // Log search activity
-                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
-                if (userId) {
-                    yield repositories_2.activityLogRepository.log({
-                        user_id: userId,
-                        action: 'search',
-                        entity_type: 'property',
-                        details: { query, page, limit, resultsCount: results.length },
-                        ip_address: req.ip
-                    });
-                }
-                return res.status(200).json(Object.assign({ success: true }, response));
-            }
-            catch (error) {
-                logger_1.default.error(`Error searching properties with query ${req.query.q}:`, error);
-                return res.status(500).json({
-                    success: false,
-                    message: 'Error searching properties'
-                });
-            }
-        });
-    }
-    /**
-   * Batch create properties
-   * @param req Request object
-   * @param res Response object
-   */
-    batchCreateProperties(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            try {
-                const { properties } = req.body;
-                if (!Array.isArray(properties) || properties.length === 0) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Invalid request. Expected an array of properties.'
-                    });
-                }
-                const results = {
-                    total: properties.length,
-                    created: 0,
-                    failed: 0,
-                    errors: []
-                };
-                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
-                const createdProperties = [];
-                // Process each property
-                for (let i = 0; i < properties.length; i++) {
-                    try {
-                        const property = properties[i];
-                        // Transform to database format
-                        const propertyData = {
-                            first_name: property.firstName || null,
-                            last_name: property.lastName || null,
-                            property_address: property.propertyAddress,
-                            property_city: property.propertyCity,
-                            property_state: property.propertyState,
-                            property_zip: property.propertyZip,
-                            offer: property.offer,
-                            created_at: new Date(),
-                            updated_at: new Date()
-                        };
-                        // Check for duplicate by address
-                        const existingProperty = yield repositories_1.propertyRepository.findByAddressCombination(propertyData.property_address, propertyData.property_city, propertyData.property_state, propertyData.property_zip);
-                        if (existingProperty) {
-                            results.failed++;
-                            results.errors.push({
-                                index: i,
-                                error: 'Property with this address already exists'
-                            });
-                            continue;
-                        }
-                        // Create the property
-                        const newProperty = yield repositories_1.propertyRepository.create(propertyData);
-                        // Log creation
-                        yield repositories_2.activityLogRepository.log({
-                            user_id: userId,
-                            action: 'batch_create',
-                            entity_type: 'property',
-                            entity_id: newProperty.id.toString(),
-                            details: propertyData,
-                            ip_address: req.ip
-                        });
-                        results.created++;
-                        createdProperties.push(newProperty);
-                    }
-                    catch (error) {
-                        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-                        logger_1.default.error(`Error creating property in batch operation:`, errorMessage);
-                        results.failed++;
-                        results.errors.push({ index: i, error: errorMessage });
-                    }
-                }
-                // Invalidate list caches
-                yield redis_service_1.redisService.delete('properties:all:*');
-                return res.status(201).json({
-                    success: true,
-                    results,
-                    properties: createdProperties
-                });
-            }
-            catch (error) {
-                logger_1.default.error('Error performing batch creation:', error);
-                return res.status(500).json({
-                    success: false,
-                    message: 'Error performing batch creation'
                 });
             }
         });

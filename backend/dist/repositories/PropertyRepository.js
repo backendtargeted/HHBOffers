@@ -17,6 +17,7 @@ const sequelize_1 = require("sequelize");
 const BaseRepository_1 = __importDefault(require("./BaseRepository"));
 const Property_1 = __importDefault(require("../models/Property"));
 const database_1 = __importDefault(require("../config/database"));
+const logger_1 = __importDefault(require("../logger"));
 /**
  * Repository class for Property model
  * Extends BaseRepository with Property-specific query methods
@@ -36,12 +37,15 @@ class PropertyRepository extends BaseRepository_1.default {
      */
     findByAddressCombination(propertyAddress, propertyCity, propertyState, propertyZip) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.findOne({
+            logger_1.default.info(`[PropertyRepository] Finding property by address combination: ${propertyAddress}, ${propertyCity}, ${propertyState}, ${propertyZip}`);
+            const property = yield this.findOne({
                 property_address: propertyAddress,
                 property_city: propertyCity,
                 property_state: propertyState,
                 property_zip: propertyZip,
             });
+            logger_1.default.info(`[PropertyRepository] Found property: ${JSON.stringify(property)}`);
+            return property;
         });
     }
     /**
@@ -78,11 +82,27 @@ class PropertyRepository extends BaseRepository_1.default {
      * @param transaction - Optional transaction
      * @returns Created or updated property instance and a boolean indicating if it was created
      */
+    startTransaction() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return database_1.default.transaction();
+        });
+    }
+    bulkCreate(records, transaction, updateOnDuplicate) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.model.bulkCreate(records, {
+                transaction,
+                updateOnDuplicate,
+                returning: true
+            });
+        });
+    }
     createOrUpdate(propertyData, transaction) {
         return __awaiter(this, void 0, void 0, function* () {
+            logger_1.default.info(`[PropertyRepository] createOrUpdate called with propertyData: ${JSON.stringify(propertyData)}`);
             // Check if property already exists based on address
             const existingProperty = yield this.findByAddressCombination(propertyData.property_address, propertyData.property_city, propertyData.property_state, propertyData.property_zip);
             if (existingProperty) {
+                logger_1.default.info(`[PropertyRepository] Found existing property: ${JSON.stringify(existingProperty)}`);
                 // Update the offer amount if it changed
                 if (existingProperty.offer !== propertyData.offer) {
                     const [, updatedProperties] = yield this.update(existingProperty.id, { offer: propertyData.offer }, transaction);
@@ -90,6 +110,7 @@ class PropertyRepository extends BaseRepository_1.default {
                 }
                 return [existingProperty, false];
             }
+            logger_1.default.info(`[PropertyRepository] Creating new property: ${JSON.stringify(propertyData)}`);
             // Create new property if it doesn't exist
             const newProperty = yield this.create(propertyData, transaction);
             return [newProperty, true];
@@ -215,6 +236,32 @@ class PropertyRepository extends BaseRepository_1.default {
                 limit,
                 offset,
                 order: [['updated_at', 'DESC']]
+            });
+        });
+    }
+    /**
+     * Count search results for a query string
+     * @param query - Search query string
+     * @returns Number of matching properties
+     */
+    countSearchResults(query) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const searchTerms = query.split(' ').filter((term) => term.length > 0);
+            const whereConditions = [];
+            for (const term of searchTerms) {
+                whereConditions.push({
+                    [sequelize_1.Op.or]: [
+                        { property_address: { [sequelize_1.Op.iLike]: `%${term}%` } },
+                        { property_city: { [sequelize_1.Op.iLike]: `%${term}%` } },
+                        { first_name: { [sequelize_1.Op.iLike]: `%${term}%` } },
+                        { last_name: { [sequelize_1.Op.iLike]: `%${term}%` } }
+                    ]
+                });
+            }
+            return this.count({
+                where: {
+                    [sequelize_1.Op.and]: whereConditions
+                }
             });
         });
     }

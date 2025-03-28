@@ -17,13 +17,13 @@ const ioredis_1 = __importDefault(require("ioredis"));
 const logger_1 = __importDefault(require("../logger"));
 // Redis client options
 const redisOptions = {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379'),
-    password: process.env.REDIS_PASSWORD || '',
+    // url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT || 6379}`,
+    url: `redis://default:redispassword@hhb_redis:6379`,
     retryStrategy: (times) => {
         const delay = Math.min(times * 50, 2000);
         return delay;
-    }
+    },
+    maxRetriesPerRequest: 3
 };
 // Create Redis client
 const redisClient = new ioredis_1.default(redisOptions);

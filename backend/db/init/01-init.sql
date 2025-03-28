@@ -1,13 +1,11 @@
 -- db/init/01-init.sql
 
-CREATE USER dbuser WITH PASSWORD 'dbpassword';
-
--- Grant privileges to the user
+-- Grant privileges
 ALTER USER dbuser WITH CREATEDB;
-GRANT ALL PRIVILEGES ON DATABASE direct_mail_db TO dbuser;
+GRANT ALL PRIVILEGES ON DATABASE hhboffers TO dbuser;
 
--- Connect to the database
-\c direct_mail_db
+-- Connect to the database (this will be used by subsequent commands)
+\connect hhboffers;
 
 -- Set the search path to public
 SET search_path TO public;
