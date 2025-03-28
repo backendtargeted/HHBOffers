@@ -63,12 +63,14 @@ CREATE TABLE IF NOT EXISTS upload_jobs (
   total_records INTEGER DEFAULT 0,
   processed_records INTEGER DEFAULT 0,
   new_records INTEGER DEFAULT 0,
+  error_records INTEGER NOT NULL DEFAULT 0,
   updated_records INTEGER DEFAULT 0,
   error_details TEXT,
   started_at TIMESTAMP,
   completed_at TIMESTAMP,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  
 );
 
 CREATE INDEX IF NOT EXISTS idx_upload_jobs_user_id ON upload_jobs(user_id);
