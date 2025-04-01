@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { 
   CssBaseline, 
@@ -11,11 +11,9 @@ import {
   CircularProgress,
   Typography
 } from '@mui/material';
-import { blue, green } from '@mui/material/colors';
+import { green } from '@mui/material/colors';
 
 // Import components
-import Login from './components/auth/Login';
-import Registration from './components/auth/Registration';
 import Dashboard from './components/dashboard/Dashboard';
 import PropertySearch from './components/property/PropertySearch';
 import PropertyDetail from './components/property/PropertyDetail';
@@ -24,13 +22,13 @@ import Navigation from './components/layout/Navigation';
 import PropertyTableList from './components/property/PropertyTableList';
 
 // Import API services
-import { authAPI, propertyAPI, uploadAPI, statsAPI, handleApiError } from './services/api';
+import { propertyAPI, uploadAPI, statsAPI, handleApiError } from './services/api';
 
-// Create theme
+// Create theme with brand color
 const theme = createTheme({
   palette: {
     primary: {
-      main: blue[700],
+      main: '#233752', // Brand blue
     },
     secondary: {
       main: green[600],
@@ -38,116 +36,10 @@ const theme = createTheme({
   },
 });
 
-// Define user interface
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-}
-
-// Auth context interface and implementation
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  isAuthenticated: boolean;
-}
-
-export const AuthContext = React.createContext<AuthContextType | null>(null);
-
 function App() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [notification, setNotification] = useState<{message: string; type: 'success' | 'error' | 'info'} | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Check if user is logged in
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-      
-      try {
-        const response = await authAPI.getProfile();
-        if (response.success && response.user) {
-          setUser(response.user);
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        localStorage.removeItem('authToken');
-        console.error('Authentication check failed:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    checkAuth();
-  }, []);
-
-  // Login function
-  const login = async (email: string, password: string) => {
-    try {
-      setLoading(true);
-      console.log('Login attempt for:', email);
-      const response = await authAPI.login(email, password);
-      
-      // Check response structure and values
-      console.log('Login response:', response);
-      
-      if (response && response.success && response.token) {
-        localStorage.setItem('authToken', response.token);
-        setUser(response.user);
-        setIsAuthenticated(true);
-        setNotification({
-          message: 'Login successful',
-          type: 'success'
-        });
-      } else {
-        // Handle unexpected response format
-        console.error('Unexpected login response format:', response);
-        setNotification({
-          message: response.message || 'Login failed: Unexpected response format',
-          type: 'error'
-        });
-      }
-    } catch (error) {
-      console.error('Login failed:', error);
-      setNotification({
-        message: handleApiError(error),
-        type: 'error'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Logout function
-  const logout = async () => {
-    try {
-      setLoading(true);
-      await authAPI.logout();
-      
-      // Clear local storage and state
-      localStorage.removeItem('authToken');
-      setUser(null);
-      setIsAuthenticated(false);
-      setNotification({
-        message: 'You have been logged out',
-        type: 'info'
-      });
-    } catch (error) {
-      console.error('Logout failed:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Search properties
   const searchProperties = async (query: string) => {
@@ -254,108 +146,62 @@ function App() {
     setNotification(null);
   };
 
-  // Auth context value
-  const authContextValue: AuthContextType = {
-    user,
-    loading,
-    login,
-    logout,
-    isAuthenticated
-  };
-
-  // If initial loading
-  if (loading && !user) {
-    return (
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh'
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      </ThemeProvider>
-    );
-  }
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AuthContext.Provider value={authContextValue}>
-        <Router>
-          {isAuthenticated && <Navigation />}
-          <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flex: 1 }}>
-              <Routes>
-                <Route 
-                  path="/" 
-                  element={isAuthenticated ? <Navigate to="/search" /> : <Login onLogin={login} />} 
-                />
-                <Route 
-                  path="/login" 
-                  element={isAuthenticated ? <Navigate to="/search" /> : <Login onLogin={login} />} 
-                />
-                <Route 
-                  path="/register" 
-                  element={isAuthenticated ? <Navigate to="/search" /> : <Registration />} 
-                />
-                <Route 
-                  path="/dashboard" 
-                  element={isAuthenticated ? <Dashboard fetchStats={fetchSystemStats} /> : <Navigate to="/login" />} 
-                />
-
-
-                <Route 
-                  path="/search" 
-                  element={
-                    isAuthenticated ? 
-                      <Box>
-                        <PropertySearch 
-                          onSearch={searchProperties} 
-                          onSelectProperty={handlePropertySelect} 
+      <Router>
+        <Navigation />
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flex: 1 }}>
+            <Routes>
+              <Route 
+                path="/" 
+                element={<Navigate to="/search" />} 
+              />
+              <Route 
+                path="/dashboard" 
+                element={<Dashboard fetchStats={fetchSystemStats} />} 
+              />
+              <Route 
+                path="/search" 
+                element={
+                  <Box>
+                    <PropertySearch 
+                      onSearch={searchProperties} 
+                      onSelectProperty={handlePropertySelect} 
+                    />
+                    
+                    {selectedProperty ? (
+                      <Box mt={4}>
+                        <PropertyDetail 
+                          property={selectedProperty} 
+                          onUpdate={updateProperty}
+                          onBack={() => setSelectedProperty(null)}
+                          editable={true}
+                          isLoading={isLoading}
                         />
-                        
-                        {selectedProperty ? (
-                          <Box mt={4}>
-                            <PropertyDetail 
-                              property={selectedProperty} 
-                              onUpdate={updateProperty}
-                              onBack={() => setSelectedProperty(null)} // Add back button functionality
-                              editable={user?.role === 'admin' || user?.role === 'manager'} 
-                              isLoading={isLoading}
-                            />
-                          </Box>
-                        ) : (
-                          <Box mt={4}>
-                            <PropertyTableList 
-                              getAllProperties={propertyAPI.getAllProperties}
-                              onSelectProperty={handlePropertySelect}
-                              limit={20}
-                            />
-                          </Box>
-                        )}
-                      </Box> : 
-                      <Navigate to="/login" />
-                  } 
-                />
-                <Route 
-                  path="/upload" 
-                  element={
-                    isAuthenticated && (user?.role === 'admin' || user?.role === 'manager') ? 
-                      <FileUpload onUpload={handleFileUpload} /> : 
-                      <Navigate to="/login" />
-                  } 
-                />
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
-            </Container>
-          </Box>
-        </Router>
-      </AuthContext.Provider>
+                      </Box>
+                    ) : (
+                      <Box mt={4}>
+                        <PropertyTableList 
+                          getAllProperties={propertyAPI.getAllProperties}
+                          onSelectProperty={handlePropertySelect}
+                          limit={20}
+                        />
+                      </Box>
+                    )}
+                  </Box>
+                } 
+              />
+              <Route 
+                path="/upload" 
+                element={<FileUpload onUpload={handleFileUpload} />}
+              />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </Container>
+        </Box>
+      </Router>
       
       {/* Notification */}
       <Snackbar 

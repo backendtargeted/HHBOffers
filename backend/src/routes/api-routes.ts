@@ -1,16 +1,14 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import authRoutes from './auth-routes';
 import propertyRoutes from './property-routes';
 import uploadRoutes from './upload-routes';
 import statsRoutes from './stats-routes';
 import docsRoutes from './docs-routes';
-import { authenticate } from '../middleware/auth-middleware';
 import logger from '../logger';
 
 const router = Router();
 
 // Health check endpoint
-router.get('/api/health', (_req: Request, res: Response) => {
+router.get('/health', (_req: Request, res: Response) => {
   return res.status(200).json({
     status: 'UP',
     timestamp: new Date(),
@@ -25,8 +23,7 @@ router.get('/api/health', (_req: Request, res: Response) => {
 // API Documentation
 router.use('/docs', docsRoutes);
 
-// Routes
-router.use('/auth', authRoutes);
+// Routes without auth middleware
 router.use('/properties', propertyRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/stats', statsRoutes);
