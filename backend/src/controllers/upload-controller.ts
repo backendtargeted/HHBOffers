@@ -31,7 +31,17 @@ class UploadController {
 
       // Get file details
       const file = req.file;
-      const userId = (req as any).user.id;
+      // Fix the user ID access - add type check and fallback
+      const userId = (req as any).user?.id;
+      
+      // Add validation for userId
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'User not authenticated'
+        });
+      }
+
       const originalName = file.originalname;
       const fileSize = file.size;
       const filePath = file.path;
