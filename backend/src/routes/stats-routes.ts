@@ -10,6 +10,4 @@ router.get('/properties/by-state', asyncHandler(statsController.getPropertyStats
 
 router.get('/properties/by-city/:state', asyncHandler(statsController.getPropertyStatsByCity));
 
-router.get('/users/activity', asyncHandler(statsController.getUserActivityStats));
-
 export default router;

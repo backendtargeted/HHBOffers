@@ -23,7 +23,6 @@ router.get('/health', (_req: Request, res: Response) => {
 // API Documentation
 router.use('/docs', docsRoutes);
 
-// Routes without auth middleware
 router.use('/properties', propertyRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/stats', statsRoutes);

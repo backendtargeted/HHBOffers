@@ -98,16 +98,12 @@ class PropertyController {
       await redisService.set(cacheKey, JSON.stringify(camelCaseProperty), 600);
       
       // Log view activity
-      const userId = (req as any).user?.id;
-      if (userId) {
-        await activityLogRepository.log({
-          user_id: userId,
-          action: 'view',
-          entity_type: 'property',
-          entity_id: id,
-          ip_address: req.ip
-        });
-      }
+      await activityLogRepository.log({
+        action: 'view',
+        entity_type: 'property',
+        entity_id: id,
+        ip_address: req.ip
+      });
       
       return sendResponse(res, {
         property: camelCaseProperty
@@ -157,9 +153,7 @@ class PropertyController {
       const property = await propertyRepository.create(propertyData);
       
       // Log creation activity
-      const userId = (req as any).user?.id;
       await activityLogRepository.log({
-        user_id: userId,
         action: 'create',
         entity_type: 'property',
         entity_id: property.id.toString(),
@@ -257,9 +251,7 @@ class PropertyController {
       }
       
       // Log update activity
-      const userId = (req as any).user?.id;
       await activityLogRepository.log({
-        user_id: userId,
         action: 'update',
         entity_type: 'property',
         entity_id: id,
@@ -317,9 +309,7 @@ class PropertyController {
       }
       
       // Log deletion activity
-      const userId = (req as any).user?.id;
       await activityLogRepository.log({
-        user_id: userId,
         action: 'delete',
         entity_type: 'property',
         entity_id: id,
@@ -408,16 +398,12 @@ class PropertyController {
       await redisService.set(cacheKey, JSON.stringify(response), 300);
       
       // Log search activity
-      const userId = (req as any).user?.id;
-      if (userId) {
-        await activityLogRepository.log({
-          user_id: userId,
-          action: 'search',
-          entity_type: 'property',
-          details: { query, page, limit, resultsCount: results.length },
-          ip_address: req.ip
-        });
-      }
+      await activityLogRepository.log({
+        action: 'search',
+        entity_type: 'property',
+        details: { query, page, limit, resultsCount: results.length },
+        ip_address: req.ip
+      });
       
       return res.status(200).json({
         success: true,
@@ -454,7 +440,6 @@ class PropertyController {
         errors: [] as { index: number; error: string }[]
       };
       
-      const userId = (req as any).user?.id;
       const createdProperties = [];
       
       // Process each property
@@ -497,7 +482,6 @@ class PropertyController {
           
           // Log creation
           await activityLogRepository.log({
-            user_id: userId,
             action: 'batch_create',
             entity_type: 'property',
             entity_id: newProperty.id.toString(),
@@ -557,8 +541,6 @@ class PropertyController {
         failed: 0,
         errors: [] as { id: number; error: string }[]
       };
-      
-      const userId = (req as any).user?.id;
       
       // Process each property update
       for (const property of properties) {
@@ -633,7 +615,6 @@ class PropertyController {
           
           // Log update activity
           await activityLogRepository.log({
-            user_id: userId,
             action: 'batch_update',
             entity_type: 'property',
             entity_id: propertyId.toString(),

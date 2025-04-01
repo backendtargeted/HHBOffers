@@ -35,55 +35,9 @@ const fetchWithTimeout = async (url: string, options: RequestInit = {}): Promise
   }
 };
 
-// Helper to add authorization header
-const getAuthHeaders = (): HeadersInit => {
-  const token = localStorage.getItem('authToken');
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json'
-  };
-  
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-  
-  return headers;
-};
-
-// Auth API calls
-export const authAPI = {
-  login: async (email: string, password: string) => {
-    return fetchWithTimeout(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email, password })
-    });
-  },
-  
-  register: async (userData: { name: string; email: string; password: string }) => {
-    return fetchWithTimeout(`${API_BASE_URL}/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(userData)
-    });
-  },
-  
-  logout: async () => {
-    return fetchWithTimeout(`${API_BASE_URL}/auth/logout`, {
-      method: 'POST',
-      headers: getAuthHeaders()
-    });
-  },
-  
-  getProfile: async () => {
-    return fetchWithTimeout(`${API_BASE_URL}/auth/profile`, {
-      method: 'GET',
-      headers: getAuthHeaders()
-    });
-  },
+// Default headers for JSON requests
+const jsonHeaders: HeadersInit = {
+  'Content-Type': 'application/json'
 };
 
 // Property API calls
@@ -92,7 +46,7 @@ export const propertyAPI = {
     try {
       const response = await fetch(`${API_BASE_URL}/properties?page=${page}&limit=${limit}`, {
         method: 'GET',
-        headers: getAuthHeaders()
+        headers: jsonHeaders
       });
       
       if (!response.ok) {
@@ -123,7 +77,7 @@ export const propertyAPI = {
     try {
       const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
         method: 'GET',
-        headers: getAuthHeaders()
+        headers: jsonHeaders
       });
       
       if (!response.ok) {
@@ -162,7 +116,7 @@ searchProperties: async (query: string, limit: number = 10) => {
     const response = await fetch(
       `${API_BASE_URL}/properties/search?q=${encodeURIComponent(query)}&limit=${limit}`, {
         method: 'GET',
-        headers: getAuthHeaders()
+        headers: jsonHeaders
       }
     );
     
@@ -200,7 +154,7 @@ searchProperties: async (query: string, limit: number = 10) => {
   createProperty: async (propertyData: any) => {
     return fetchWithTimeout(`${API_BASE_URL}/properties`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: jsonHeaders,
       body: JSON.stringify(propertyData)
     });
   },
@@ -223,7 +177,7 @@ searchProperties: async (query: string, limit: number = 10) => {
       const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
         method: 'PUT',
         headers: {
-          ...getAuthHeaders(),
+          ...jsonHeaders,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(formattedData)
@@ -258,14 +212,14 @@ searchProperties: async (query: string, limit: number = 10) => {
   deleteProperty: async (id: number) => {
     return fetchWithTimeout(`${API_BASE_URL}/properties/${id}`, {
       method: 'DELETE',
-      headers: getAuthHeaders()
+      headers: jsonHeaders
     });
   },
   
   batchUpdateProperties: async (properties: any[]) => {
     return fetchWithTimeout(`${API_BASE_URL}/properties/batch`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: jsonHeaders,
       body: JSON.stringify({ properties })
     });
   },
@@ -277,16 +231,8 @@ export const uploadAPI = {
     const formData = new FormData();
     formData.append('file', file);
     
-    // Get auth token but don't include content type - browser will set it with boundary
-    const headers: HeadersInit = {};
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    
     return fetchWithTimeout(`${API_BASE_URL}/upload`, {
       method: 'POST',
-      headers,
       body: formData
     });
   },
@@ -294,21 +240,21 @@ export const uploadAPI = {
   getJobStatus: async (jobId: string) => {
     return fetchWithTimeout(`${API_BASE_URL}/upload/${jobId}`, {
       method: 'GET',
-      headers: getAuthHeaders()
+      headers: jsonHeaders
     });
   },
   
   cancelJob: async (jobId: string) => {
     return fetchWithTimeout(`${API_BASE_URL}/upload/${jobId}/cancel`, {
       method: 'PUT',
-      headers: getAuthHeaders()
+      headers: jsonHeaders
     });
   },
   
   getUserJobs: async (page: number = 1, limit: number = 10) => {
     return fetchWithTimeout(`${API_BASE_URL}/upload/jobs?page=${page}&limit=${limit}`, {
       method: 'GET',
-      headers: getAuthHeaders()
+      headers: jsonHeaders
     });
   },
 };
@@ -318,7 +264,7 @@ export const statsAPI = {
   getSystemStats: async () => {
     const response = await fetchWithTimeout(`${API_BASE_URL}/stats/system`, {
       method: 'GET',
-      headers: getAuthHeaders()
+      headers: jsonHeaders
     });
     return response.stats;
   },
@@ -326,7 +272,7 @@ export const statsAPI = {
   getPropertyStatsByState: async () => {
     const response = await fetchWithTimeout(`${API_BASE_URL}/stats/properties/by-state`, {
       method: 'GET',
-      headers: getAuthHeaders()
+      headers: jsonHeaders
     });
     return response.stats;
   },
@@ -334,7 +280,7 @@ export const statsAPI = {
   getPropertyStatsByCity: async (state: string) => {
     const response = await fetchWithTimeout(`${API_BASE_URL}/stats/properties/by-city/${state}`, {
       method: 'GET',
-      headers: getAuthHeaders()
+      headers: jsonHeaders
     });
     return response.stats;
   },
@@ -342,7 +288,7 @@ export const statsAPI = {
   getUserActivityStats: async () => {
     const response = await fetchWithTimeout(`${API_BASE_URL}/stats/users/activity`, {
       method: 'GET',
-      headers: getAuthHeaders()
+      headers: jsonHeaders
     });
     return response.stats;
   },
@@ -361,7 +307,6 @@ export const handleApiError = (error: any): string => {
 
 // Default export for convenience
 export default {
-  authAPI,
   propertyAPI,
   uploadAPI,
   statsAPI,

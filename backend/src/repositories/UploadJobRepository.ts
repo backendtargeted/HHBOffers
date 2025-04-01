@@ -1,7 +1,6 @@
 import { Transaction, Op, WhereOptions } from 'sequelize';
 import BaseRepository from './BaseRepository';
 import UploadJob, { UploadJobAttributes, UploadJobCreationAttributes } from '../models/UploadJob';
-import User from '../models/User';
 
 /**
  * Repository class for UploadJob model
@@ -73,31 +72,6 @@ export default class UploadJobRepository extends BaseRepository<UploadJob> {
   }
 
   /**
-   * Find jobs by user ID
-   * @param userId - User ID
-   * @param page - Page number
-   * @param pageSize - Page size
-   * @returns Paginated jobs for the specified user
-   */
-  async findByUserId(
-    userId: number,
-    page: number = 1,
-    pageSize: number = 20
-  ): Promise<{ rows: UploadJob[]; count: number; totalPages: number; currentPage: number }> {
-    return this.findPaginated(page, pageSize, {
-      where: { user_id: userId },
-      order: [['created_at', 'DESC']],
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'name', 'email'],
-        },
-      ],
-    });
-  }
-
-  /**
    * Find jobs by status
    * @param status - Job status
    * @param page - Page number
@@ -112,55 +86,18 @@ export default class UploadJobRepository extends BaseRepository<UploadJob> {
     return this.findPaginated(page, pageSize, {
       where: { status },
       order: [['created_at', 'DESC']],
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'name', 'email'],
-        },
-      ],
-    });
-  }
-
-  /**
-   * Find jobs by user ID and status
-   * @param userId - User ID
-   * @param status - Job status
-   * @param page - Page number
-   * @param pageSize - Page size
-   * @returns Paginated jobs for the specified user with the specified status
-   */
-  async findByUserAndStatus(
-    userId: number,
-    status: UploadJobAttributes['status'],
-    page: number = 1,
-    pageSize: number = 20
-  ): Promise<{ rows: UploadJob[]; count: number; totalPages: number; currentPage: number }> {
-    return this.findPaginated(page, pageSize, {
-      where: {
-        user_id: userId,
-        status,
-      },
-      order: [['created_at', 'DESC']],
     });
   }
 
   /**
    * Get recent jobs with details
    * @param limit - Maximum number of jobs to return
-   * @returns Recent jobs with user details
+   * @returns Recent jobs
    */
   async getRecentJobs(limit: number = 10): Promise<UploadJob[]> {
     return this.findAll({
       limit,
       order: [['created_at', 'DESC']],
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'name', 'email'],
-        },
-      ],
     });
   }
 

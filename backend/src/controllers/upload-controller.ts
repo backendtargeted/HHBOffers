@@ -19,6 +19,62 @@ class UploadController {
    * @param req Request object
    * @param res Response object
    */
+  async getJobStatus(req: Request, res: Response) {
+    try {
+      const { jobId } = req.params;
+      const job = await uploadJobRepository.findById(jobId);
+      
+      if (!job) {
+        return res.status(404).json({
+          success: false,
+          message: 'Job not found'
+        });
+      }
+      
+      return res.status(200).json({
+        success: true,
+        job
+      });
+    } catch (error) {
+      logger.error(`Error getting job status for ${req.params.jobId}:`, error);
+      return res.status(500).json({
+        success: false,
+        message: 'Error getting job status'
+      });
+    }
+  }
+
+  /**
+   * Cancel a job
+   * @param req Request object
+   * @param res Response object
+   */
+  async cancelJob(req: Request, res: Response) {
+    try {
+      const { jobId } = req.params;
+      const job = await uploadJobRepository.cancelJob(jobId);
+      
+      if (!job) {
+        return res.status(404).json({
+          success: false,
+          message: 'Job not found'
+        });
+      }
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Job cancelled successfully',
+        job
+      });
+    } catch (error) {
+      logger.error(`Error cancelling job ${req.params.jobId}:`, error);
+      return res.status(500).json({
+        success: false,
+        message: 'Error cancelling job'
+      });
+    }
+  }
+
   async uploadFile(req: Request, res: Response) {
     try {
       // Check if file exists in request
@@ -31,17 +87,6 @@ class UploadController {
 
       // Get file details
       const file = req.file;
-      // Fix the user ID access - add type check and fallback
-      const userId = (req as any).user?.id;
-      
-      // Add validation for userId
-      if (!userId) {
-        return res.status(401).json({
-          success: false,
-          message: 'User not authenticated'
-        });
-      }
-
       const originalName = file.originalname;
       const fileSize = file.size;
       const filePath = file.path;
@@ -70,7 +115,6 @@ class UploadController {
       // Create an upload job record
       const job = await uploadJobRepository.createJob({
         id: jobId,
-        user_id: userId,
         filename: originalName,
         file_type: fileType,
         status: 'pending',
@@ -79,23 +123,8 @@ class UploadController {
         updated_records: 0,
         error_records: 0
       });
-      
-      // Log the upload activity
-      await activityLogRepository.log({
-        user_id: userId,
-        action: 'upload',
-        entity_type: 'uploadjob',
-        entity_id: jobId,
-        details: {
-          filename: originalName,
-          fileSize,
-          fileType
-        },
-        ip_address: req.ip
-      });
-      
+
       // Return response immediately with job ID
-      // This allows the user to continue using the application
       const response = {
         success: true,
         jobId,
@@ -103,9 +132,8 @@ class UploadController {
       };
       
       res.status(202).json(response);
-      
-      // Start processing in the background, after response has been sent
-      // Using setImmediate to ensure this runs in the next event loop iteration
+
+      // Process in background
       setImmediate(async () => {
         try {
           // Add job to active jobs
@@ -116,9 +144,9 @@ class UploadController {
           
           // Process the file based on type
           if (fileType === 'csv') {
-            await fileProcessorService.processCsvFile(filePath, jobId, userId);
+            await fileProcessorService.processCsvFile(filePath, jobId);
           } else if (fileType === 'xlsx') {
-            await fileProcessorService.processXlsxFile(filePath, jobId, userId);
+            await fileProcessorService.processXlsxFile(filePath, jobId);
           }
           
           // Move file to processed directory
@@ -138,22 +166,12 @@ class UploadController {
           
           // Remove job from active jobs
           activeJobs.delete(jobId);
-        } catch (error) {
-          logger.error(`Error processing file for job ${jobId}:`, error);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          logger.error(`[Job ${jobId}] Error processing file:`, errorMessage);
           
           // Update job status to failed
           await uploadJobRepository.updateStatus(jobId, 'failed');
-          
-          // Log error
-          await activityLogRepository.log({
-            user_id: userId,
-            action: 'upload_failed',
-            entity_type: 'uploadjob',
-            entity_id: jobId,
-            details: {
-              error: error instanceof Error ? error.message : 'Unknown error'
-            }
-          });
           
           // Try to delete the file
           try {
@@ -173,170 +191,6 @@ class UploadController {
       return res.status(500).json({
         success: false,
         message: 'Error uploading file'
-      });
-    }
-  }
-  
-  /**
-   * Get job status
-   * @param req Request object
-   * @param res Response object
-   */
-  async getJobStatus(req: Request, res: Response) {
-    try {
-      const { jobId } = req.params;
-      
-      // Get job from database
-      const job = await uploadJobRepository.findById(jobId);
-      
-      if (!job) {
-        return res.status(404).json({
-          success: false,
-          message: 'Job not found'
-        });
-      }
-      
-      // Check if user has permission to view this job
-      const userId = (req as any).user.id;
-      const userRole = (req as any).user.role;
-      
-      if (job.user_id !== userId && userRole !== 'admin') {
-        return res.status(403).json({
-          success: false,
-          message: 'You do not have permission to view this job'
-        });
-      }
-      
-      // Determine if job is currently being processed
-      const isActive = activeJobs.has(jobId);
-      
-      // Return job status
-      return res.status(200).json({
-        success: true,
-        job: {
-          id: job.id,
-          filename: job.filename,
-          status: job.status,
-          progress: job.total_records > 0 
-            ? Math.round(((job.new_records + job.updated_records + job.error_records) / job.total_records) * 100) 
-            : 0,
-          totalRecords: job.total_records,
-          processedRecords: job.new_records + job.updated_records + job.error_records,
-          newRecords: job.new_records,
-          updatedRecords: job.updated_records,
-          errorRecords: job.error_records,
-          createdAt: job.created_at,
-          completedAt: job.completed_at,
-          isActive: isActive
-        }
-      });
-    } catch (error) {
-      logger.error(`Error fetching job status for job ${req.params.jobId}:`, error);
-      return res.status(500).json({
-        success: false,
-        message: 'Error fetching job status'
-      });
-    }
-  }
-  
-  /**
-   * Cancel a job
-   * @param req Request object
-   * @param res Response object
-   */
-  async cancelJob(req: Request, res: Response) {
-    try {
-      const { jobId } = req.params;
-      
-      // Get job from database
-      const job = await uploadJobRepository.findById(jobId);
-      
-      if (!job) {
-        return res.status(404).json({
-          success: false,
-          message: 'Job not found'
-        });
-      }
-      
-      // Check if user has permission to cancel this job
-      const userId = (req as any).user.id;
-      const userRole = (req as any).user.role;
-      
-      if (job.user_id !== userId && userRole !== 'admin') {
-        return res.status(403).json({
-          success: false,
-          message: 'You do not have permission to cancel this job'
-        });
-      }
-      
-      // Check if job can be cancelled
-      if (job.status !== 'pending' && job.status !== 'processing') {
-        return res.status(400).json({
-          success: false,
-          message: `Job cannot be cancelled because it is already ${job.status}`
-        });
-      }
-      
-      // Remove job from active jobs
-      activeJobs.delete(jobId);
-      
-      // Cancel the job
-      await uploadJobRepository.cancelJob(jobId);
-      
-      // Log cancellation
-      await activityLogRepository.log({
-        user_id: userId,
-        action: 'cancel_upload',
-        entity_type: 'uploadjob',
-        entity_id: jobId,
-        ip_address: req.ip
-      });
-      
-      return res.status(200).json({
-        success: true,
-        message: 'Job cancelled successfully'
-      });
-    } catch (error) {
-      logger.error(`Error cancelling job ${req.params.jobId}:`, error);
-      return res.status(500).json({
-        success: false,
-        message: 'Error cancelling job'
-      });
-    }
-  }
-  
-  /**
-   * Get recent jobs for the current user
-   * @param req Request object
-   * @param res Response object
-   */
-  async getUserJobs(req: Request, res: Response) {
-    try {
-      const userId = (req as any).user.id;
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
-      
-      // Get jobs from database
-      const result = await uploadJobRepository.findByUserId(userId, page, limit);
-      
-      // Add active status to each job
-      const jobs = result.rows.map(job => ({
-        ...job.toJSON(),
-        isActive: activeJobs.has(job.id)
-      }));
-      
-      return res.status(200).json({
-        success: true,
-        jobs,
-        total: result.count,
-        page: result.currentPage,
-        totalPages: result.totalPages
-      });
-    } catch (error) {
-      logger.error('Error fetching user jobs:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Error fetching user jobs'
       });
     }
   }

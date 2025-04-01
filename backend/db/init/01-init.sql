@@ -12,19 +12,6 @@ SET search_path TO public;
 
 -- Create tables
 
--- Users Table
-CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  email VARCHAR(255) NOT NULL UNIQUE,
-  password VARCHAR(255) NOT NULL,
-  role VARCHAR(20) NOT NULL DEFAULT 'user',
-  last_login TIMESTAMP,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
 -- Properties Table
 CREATE TABLE IF NOT EXISTS properties (
@@ -56,7 +43,6 @@ CREATE INDEX IF NOT EXISTS idx_properties_last_name ON properties(last_name);
 -- Upload Jobs Table
 CREATE TABLE IF NOT EXISTS upload_jobs (
   id VARCHAR(100) PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
   filename VARCHAR(255) NOT NULL,
   file_type VARCHAR(10) NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'pending',
@@ -72,14 +58,11 @@ CREATE TABLE IF NOT EXISTS upload_jobs (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
   
 );
-
-CREATE INDEX IF NOT EXISTS idx_upload_jobs_user_id ON upload_jobs(user_id);
 CREATE INDEX IF NOT EXISTS idx_upload_jobs_status ON upload_jobs(status);
 
 -- Activity Logs Table
 CREATE TABLE IF NOT EXISTS audit_logs (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id),
   action VARCHAR(50) NOT NULL,
   entity_type VARCHAR(50) NOT NULL,
   entity_id VARCHAR(50),
@@ -89,10 +72,13 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_activity_logs_user_id ON audit_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_activity_logs_entity ON audit_logs(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_activity_logs_action ON audit_logs(action);
 CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON audit_logs(created_at);
+
+-- Drop any existing user-related tables and indexes if they exist
+DROP TABLE IF EXISTS users CASCADE;
+DROP INDEX IF EXISTS idx_activity_logs_user_id;
 
 -- Create dbuser role
 DO $$
@@ -106,42 +92,6 @@ END$$;
 -- Grant all privileges to dbuser on all tables in the public schema
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO dbuser;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO dbuser;
-
--- Create Admin User
--- Password: Admin@123456 (bcrypt hash)
-INSERT INTO users (name, email, password, role, created_at, updated_at)
-VALUES (
-  'Admin User',
-  'admin@example.com',
-  '$2a$12$hZ1T7Ws0BWn9PR3rF90arO.oRGMsfMkOIDmZtVE7yXqipIkDZl6.a',
-  'admin',
-  CURRENT_TIMESTAMP,
-  CURRENT_TIMESTAMP
-) ON CONFLICT (email) DO NOTHING;
-
--- Create Manager User
--- Password: Manager@123456 (bcrypt hash)
-INSERT INTO users (name, email, password, role, created_at, updated_at)
-VALUES (
-  'Manager User',
-  'manager@example.com',
-  '$2a$12$AUGsMroR4aaqXZMt.zbi4.PsOKltaKWDbGG3Ld.c8jXaCJzOyYo72',
-  'manager',
-  CURRENT_TIMESTAMP,
-  CURRENT_TIMESTAMP
-) ON CONFLICT (email) DO NOTHING;
-
--- Create Regular User
--- Password: User@123456 (bcrypt hash)
-INSERT INTO users (name, email, password, role, created_at, updated_at)
-VALUES (
-  'Regular User',
-  'user@example.com',
-  '$2a$12$m6XIUzcTcfIr3CzZ31csBe6lG.Wgkyb9XmAdAlBrPMTYqF0owqPZW',
-  'user',
-  CURRENT_TIMESTAMP,
-  CURRENT_TIMESTAMP
-) ON CONFLICT (email) DO NOTHING;
 
 -- Insert some sample properties
 INSERT INTO properties (
@@ -165,10 +115,6 @@ END;
 $$ language 'plpgsql';
 
 -- Create triggers for tables
-CREATE TRIGGER update_users_timestamp 
-BEFORE UPDATE ON users
-FOR EACH ROW EXECUTE PROCEDURE update_timestamp_column();
-
 CREATE TRIGGER update_properties_timestamp 
 BEFORE UPDATE ON properties
 FOR EACH ROW EXECUTE PROCEDURE update_timestamp_column();

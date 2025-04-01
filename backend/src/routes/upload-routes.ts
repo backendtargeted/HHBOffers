@@ -13,11 +13,6 @@ router.post(
 );
 
 router.get(
-  '/jobs',
-  asyncHandler(uploadController.getUserJobs)
-);
-
-router.get(
   '/:jobId',
   asyncHandler(uploadController.getJobStatus)
 );

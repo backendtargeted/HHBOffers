@@ -1,11 +1,9 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../config/database';
-import User from './User';
 
 // UploadJob attributes interface
 export interface UploadJobAttributes {
   id: string; // UUID
-  user_id: number;
   filename: string;
   file_type: string;
   status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
@@ -25,7 +23,6 @@ export interface UploadJobCreationAttributes extends Optional<UploadJobAttribute
 
 class UploadJob extends Model<UploadJobAttributes, UploadJobCreationAttributes> implements UploadJobAttributes {
   public id!: string;
-  public user_id!: number;
   public filename!: string;
   public file_type!: string;
   public status!: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
@@ -97,14 +94,6 @@ UploadJob.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'users',
-        key: 'id',
-      },
-    },
     filename: {
       type: DataTypes.STRING(255),
       allowNull: false,
@@ -174,8 +163,5 @@ UploadJob.init(
     },
   }
 );
-
-// Set up the association with the User model
-UploadJob.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 export default UploadJob;

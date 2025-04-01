@@ -29,21 +29,11 @@ export class FileProcessorService {
  * Process a CSV file using the Batch Processing Pattern with non-blocking behavior
  * @param filePath Path to the CSV file
  * @param jobId Unique identifier for this processing job
- * @param userId ID of the user who initiated the job
  * @returns Promise with processing statistics
  */
-async processCsvFile(filePath: string, jobId: string, userId: number): Promise<ProcessingStats> {
+async processCsvFile(filePath: string, jobId: string): Promise<ProcessingStats> {
   // Update job status to processing
   await uploadJobRepository.updateStatus(jobId, 'processing');
-  
-  // Log activity
-  await activityLogRepository.log({
-    user_id: userId,
-    action: 'start_processing',
-    entity_type: 'uploadjob',
-    entity_id: jobId,
-    details: { filePath, fileType: 'csv' }
-  });
     return new Promise((resolve, reject) => {
       const stats: ProcessingStats = {
         totalRecords: 0,
@@ -115,7 +105,6 @@ async processCsvFile(filePath: string, jobId: string, userId: number): Promise<P
               
               // Log activity
               await activityLogRepository.log({
-                user_id: userId,
                 action: 'processing_failed',
                 entity_type: 'uploadjob',
                 entity_id: jobId,
@@ -136,7 +125,6 @@ async processCsvFile(filePath: string, jobId: string, userId: number): Promise<P
           
           // Log activity
           await activityLogRepository.log({
-            user_id: userId,
             action: 'processing_completed',
             entity_type: 'uploadjob',
             entity_id: jobId,
@@ -153,7 +141,6 @@ async processCsvFile(filePath: string, jobId: string, userId: number): Promise<P
           
           // Log activity
           await activityLogRepository.log({
-            user_id: userId,
             action: 'processing_failed',
             entity_type: 'uploadjob',
             entity_id: jobId,
@@ -169,16 +156,14 @@ async processCsvFile(filePath: string, jobId: string, userId: number): Promise<P
    * Process an XLSX file using the Batch Processing Pattern with non-blocking behavior
    * @param filePath Path to the XLSX file
    * @param jobId Unique identifier for this processing job
-   * @param userId ID of the user who initiated the job
    * @returns Promise with processing statistics
    */
-  async processXlsxFile(filePath: string, jobId: string, userId: number): Promise<ProcessingStats> {
+  async processXlsxFile(filePath: string, jobId: string): Promise<ProcessingStats> {
     // Update job status to processing
     await uploadJobRepository.updateStatus(jobId, 'processing');
     
     // Log activity
     await activityLogRepository.log({
-      user_id: userId,
       action: 'start_processing',
       entity_type: 'uploadjob',
       entity_id: jobId,
@@ -268,7 +253,6 @@ async processCsvFile(filePath: string, jobId: string, userId: number): Promise<P
         
         // Log activity
         await activityLogRepository.log({
-          user_id: userId,
           action: 'processing_completed',
           entity_type: 'uploadjob',
           entity_id: jobId,
@@ -285,7 +269,6 @@ async processCsvFile(filePath: string, jobId: string, userId: number): Promise<P
         
         // Log activity
         await activityLogRepository.log({
-          user_id: userId,
           action: 'processing_failed',
           entity_type: 'uploadjob',
           entity_id: jobId,

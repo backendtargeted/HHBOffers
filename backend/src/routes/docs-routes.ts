@@ -14,8 +14,6 @@ router.get('/', (req: Request, res: Response) => {
   return res.status(200).json({
     message: 'API Documentation',
     endpoints: [
-      { path: '/api/auth/login', method: 'POST', description: 'User login' },
-      { path: '/api/auth/register', method: 'POST', description: 'User registration' },
       { path: '/api/properties', method: 'GET', description: 'Get all properties' },
       { path: '/api/properties/search', method: 'GET', description: 'Search properties' },
       { path: '/api/upload', method: 'POST', description: 'Upload file' },

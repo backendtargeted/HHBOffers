@@ -71,40 +71,6 @@ export const fileUploadValidationRules = (): ValidationChain[] => [
 ];
 
 /**
- * User creation validation rules
- * Used for user registration endpoint
- */
-export const userValidationRules = (): ValidationChain[] => [
-  body('email').isEmail().normalizeEmail()
-    .withMessage('Must be a valid email address'),
-    
-  body('password').isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters long')
-    .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
-    .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
-    .matches(/[0-9]/).withMessage('Password must contain at least one number')
-    .matches(/[^A-Za-z0-9]/).withMessage('Password must contain at least one special character'),
-    
-  body('name').notEmpty().trim().escape()
-    .withMessage('Name is required'),
-    
-  body('role').optional().isIn(['admin', 'user'])
-    .withMessage('Role must be either admin or user')
-];
-
-/**
- * Login validation rules
- * Used for the login endpoint
- */
-export const loginValidationRules = (): ValidationChain[] => [
-  body('email').isEmail().normalizeEmail()
-    .withMessage('Must be a valid email address'),
-    
-  body('password').notEmpty()
-    .withMessage('Password is required')
-];
-
-/**
  * Batch property update validation rules
  */
 export const batchPropertyValidationRules = (): ValidationChain[] => [
@@ -203,5 +169,3 @@ export const batchPropertyCreationRules = (): ValidationChain[] => [
 // app.get('/api/properties/search', searchValidationRules(), validateInput, searchController.autocomplete);
 // app.post('/api/properties', propertyValidationRules(), validateInput, propertiesController.create);
 // app.post('/api/uploads', fileUploadValidationRules(), validateInput, uploadsController.upload);
-// app.post('/api/users', userValidationRules(), validateInput, usersController.create);
-// app.post('/api/auth/login', loginValidationRules(), validateInput, authController.login);
