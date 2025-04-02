@@ -16,7 +16,6 @@ import {
 } from '@mui/material';
 import {
   UploadFile as UploadIcon,
-  Person as PersonIcon,
   Home as HomeIcon,
   Update as UpdateIcon,
   Add as AddIcon
@@ -25,7 +24,6 @@ import {
 // Define TypeScript interfaces for the data
 interface ActivityItem {
   id: number;
-  userId: number;
   action: string;
   entityType: string;
   entityId?: string;
@@ -48,10 +46,6 @@ interface UploadStats {
 }
 
 interface SystemStats {
-  users: {
-    total: number;
-    active: number;
-  };
   properties: {
     total: number;
     addedToday: number;
@@ -104,7 +98,6 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchStats }) => {
     switch (action) {
       case 'create':
       case 'upload':
-      case 'register':
         return 'success';
       case 'delete':
       case 'upload_failed':
@@ -113,8 +106,6 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchStats }) => {
       case 'update':
       case 'batch_update':
         return 'warning';
-      case 'login':
-      case 'logout':
       case 'view':
         return 'info';
       default:
@@ -135,10 +126,6 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchStats }) => {
       case 'upload_failed':
       case 'processing_failed':
         return <UploadIcon color={activity.action.includes('failed') ? 'error' : 'success'} />;
-      case 'login':
-      case 'logout':
-      case 'register':
-        return <PersonIcon color="info" />;
       default:
         return <HomeIcon />;
     }
@@ -174,7 +161,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchStats }) => {
       {/* Stats Summary */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {/* Property Stats */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <Card elevation={3}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -202,31 +189,8 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchStats }) => {
           </Card>
         </Grid>
         
-        {/* User Stats */}
-        <Grid item xs={12} md={4}>
-          <Card elevation={3}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Users
-              </Typography>
-              <Typography variant="h3" color="primary">
-                {stats?.users.total.toLocaleString() || 0}
-              </Typography>
-              <Divider sx={{ my: 2 }} />
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Typography variant="subtitle2" color="textSecondary">Active Users (Last 7 Days)</Typography>
-                  <Typography variant="h6" color="success.main">
-                    {stats?.users.active.toLocaleString() || 0}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
-        
         {/* Upload Stats */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <Card elevation={3}>
             <CardContent>
               <Typography variant="h6" gutterBottom>

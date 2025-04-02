@@ -17,6 +17,18 @@ interface ProcessingStats {
   errorRecords: number;
 }
 
+// Interface for header mapping
+
+interface HeaderMapping {
+  firstName?: string;
+  lastName?: string;
+  propertyAddress?: string;
+  propertyCity?: string;
+  propertyState?: string;
+  propertyZip?: string;
+  offer?: string;
+}
+
 /**
  * Service for processing CSV and XLSX files using the Batch Processing Pattern
  * This implementation focuses on efficiency when dealing with large files
@@ -31,7 +43,7 @@ export class FileProcessorService {
  * @param jobId Unique identifier for this processing job
  * @returns Promise with processing statistics
  */
-async processCsvFile(filePath: string, jobId: string): Promise<ProcessingStats> {
+async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapping): Promise<ProcessingStats> {
   // Update job status to processing
   await uploadJobRepository.updateStatus(jobId, 'processing');
     return new Promise((resolve, reject) => {
@@ -44,10 +56,49 @@ async processCsvFile(filePath: string, jobId: string): Promise<ProcessingStats> 
       
       let batch: any[] = [];
       let batchCount = 0;
+      let headers: string[] = []; // Added to store headers
+      let firstRow = true; // Added flag for first row
       
       this.stream = fs.createReadStream(filePath)
         .pipe(csv())
         .on('data', (row: any) => {
+          // Capture headers from the first row if needed
+          if (firstRow) {
+            headers = Object.keys(row);
+            firstRow = false;
+            
+            // If no explicit mapping is provided, try to detect common patterns
+            if (!headerMapping) {
+              const detectedMapping: HeaderMapping = {};
+              
+              headers.forEach(header => {
+                const lowerHeader = header.toLowerCase();
+                if (lowerHeader.includes('first') && lowerHeader.includes('name')) 
+                  detectedMapping.firstName = header;
+                else if (lowerHeader.includes('last') && lowerHeader.includes('name')) 
+                  detectedMapping.lastName = header;
+                else if (lowerHeader.includes('address') || lowerHeader === 'addr') 
+                  detectedMapping.propertyAddress = header;
+                else if (lowerHeader.includes('city')) 
+                  detectedMapping.propertyCity = header;
+                else if (lowerHeader.includes('state')) 
+                  detectedMapping.propertyState = header;
+                else if (lowerHeader.includes('zip')) 
+                  detectedMapping.propertyZip = header;
+                else if (lowerHeader.includes('offer') || lowerHeader.includes('price') || lowerHeader === 'amount') 
+                  detectedMapping.offer = header;
+              });
+              
+              // Use detected mapping if any fields were matched
+              if (Object.keys(detectedMapping).length > 0) {
+                headerMapping = detectedMapping;
+                logger.info(`[Job ${jobId}] Auto-detected header mapping: ${JSON.stringify(headerMapping)}`);
+              } else {
+                 logger.warn(`[Job ${jobId}] Could not auto-detect header mapping. Using default fields.`);
+              }
+            }
+          }
+          
           batch.push(row);
           stats.totalRecords++;
           
@@ -59,7 +110,8 @@ async processCsvFile(filePath: string, jobId: string): Promise<ProcessingStats> 
             // Process the batch in a non-blocking way
             setTimeout(async () => {
               try {
-                const batchStats = await this.processBatch(batch, jobId);
+                // Pass headerMapping to processBatch
+                const batchStats = await this.processBatch(batch, jobId, headerMapping); 
                 this.updateStats(stats, batchStats);
                 
                 // Update progress in database
@@ -89,7 +141,8 @@ async processCsvFile(filePath: string, jobId: string): Promise<ProcessingStats> 
           // Process any remaining records
           if (batch.length > 0) {
             try {
-              const batchStats = await this.processBatch(batch, jobId);
+              // Pass headerMapping to processBatch
+              const batchStats = await this.processBatch(batch, jobId, headerMapping); 
               this.updateStats(stats, batchStats);
               await this.updateJobProgress(jobId, stats);
               this.emitProgress(jobId, stats);
@@ -158,7 +211,7 @@ async processCsvFile(filePath: string, jobId: string): Promise<ProcessingStats> 
    * @param jobId Unique identifier for this processing job
    * @returns Promise with processing statistics
    */
-  async processXlsxFile(filePath: string, jobId: string): Promise<ProcessingStats> {
+  async processXlsxFile(filePath: string, jobId: string, headerMapping?: HeaderMapping): Promise<ProcessingStats> {
     // Update job status to processing
     await uploadJobRepository.updateStatus(jobId, 'processing');
     
@@ -195,6 +248,37 @@ async processCsvFile(filePath: string, jobId: string): Promise<ProcessingStats> 
         headerRow.eachCell((cell: any, colNumber: number) => {
           headers[colNumber - 1] = cell.value?.toString() || '';
         });
+
+        // If no explicit mapping is provided, try to detect common patterns
+        if (!headerMapping) {
+          const detectedMapping: HeaderMapping = {};
+          
+          headers.forEach(header => {
+            const lowerHeader = header.toLowerCase();
+            if (lowerHeader.includes('first') && lowerHeader.includes('name')) 
+              detectedMapping.firstName = header;
+            else if (lowerHeader.includes('last') && lowerHeader.includes('name')) 
+              detectedMapping.lastName = header;
+            else if (lowerHeader.includes('address') || lowerHeader === 'addr') 
+              detectedMapping.propertyAddress = header;
+            else if (lowerHeader.includes('city')) 
+              detectedMapping.propertyCity = header;
+            else if (lowerHeader.includes('state')) 
+              detectedMapping.propertyState = header;
+            else if (lowerHeader.includes('zip')) 
+              detectedMapping.propertyZip = header;
+            else if (lowerHeader.includes('offer') || lowerHeader.includes('price') || lowerHeader === 'amount') 
+              detectedMapping.offer = header;
+          });
+          
+          // Use detected mapping if any fields were matched
+          if (Object.keys(detectedMapping).length > 0) {
+            headerMapping = detectedMapping;
+            logger.info(`[Job ${jobId}] Auto-detected header mapping: ${JSON.stringify(headerMapping)}`);
+          } else {
+             logger.warn(`[Job ${jobId}] Could not auto-detect header mapping. Using default fields.`);
+          }
+        }
         
         // Collect all rows first to enable batch processing
         const allRows: any[] = [];
@@ -222,7 +306,8 @@ async processCsvFile(filePath: string, jobId: string): Promise<ProcessingStats> 
           await new Promise<void>((batchResolve) => {
             setTimeout(async () => {
               try {
-                const batchStats = await this.processBatch(batch, jobId);
+                // Pass headerMapping to processBatch
+                const batchStats = await this.processBatch(batch, jobId, headerMapping); 
                 this.updateStats(stats, batchStats);
                 
                 // Update progress in database
@@ -284,9 +369,10 @@ async processCsvFile(filePath: string, jobId: string): Promise<ProcessingStats> 
    * Process a batch of records in batches of 100
    * @param batch Array of records to process
    * @param jobId Unique identifier for this processing job
+   * @param headerMapping Optional header mapping object
    * @returns Promise with batch processing statistics
    */
-  private async processBatch(batch: any[], jobId: string): Promise<ProcessingStats> {
+  private async processBatch(batch: any[], jobId: string, headerMapping?: HeaderMapping): Promise<ProcessingStats> {
     const stats: ProcessingStats = {
       totalRecords: batch.length,
       newRecords: 0,
@@ -298,8 +384,8 @@ async processCsvFile(filePath: string, jobId: string): Promise<ProcessingStats> 
     const transaction = await propertyRepository.startTransaction();
     
     try {
-      // Transform all records first
-      const propertiesData = batch.map(row => this.transformRowToPropertyData(row));
+      // Transform all records first, passing the headerMapping
+      const propertiesData = batch.map(row => this.transformRowToPropertyData(row, headerMapping));
 
       // Batch create/update using upsert with conflict resolution
       const result = await propertyRepository.bulkCreate(
@@ -334,16 +420,42 @@ async processCsvFile(filePath: string, jobId: string): Promise<ProcessingStats> 
    * @param row Raw data row
    * @returns Transformed PropertyCreationAttributes object
    */
-  private transformRowToPropertyData(row: any): PropertyCreationAttributes {
-    // Extract and normalize property data
+
+  private transformRowToPropertyData(row: any, headerMapping?: HeaderMapping): PropertyCreationAttributes {
+    // Use the mapping if provided, otherwise use default field names
+    const mapping = headerMapping || {
+      firstName: 'firstName',
+      lastName: 'lastName',
+      propertyAddress: 'propertyAddress',
+      propertyCity: 'propertyCity',
+      propertyState: 'propertyState',
+      propertyZip: 'propertyZip',
+      offer: 'offer'
+    };
+    
+    // Helper function to safely get value using mapping or fallbacks
+    const getValue = (fieldKey: keyof HeaderMapping, fallbacks: string[]): any => {
+      const mappedHeader = mapping[fieldKey];
+      if (mappedHeader && row[mappedHeader] !== undefined) {
+        return row[mappedHeader];
+      }
+      for (const fallback of fallbacks) {
+        if (row[fallback] !== undefined) {
+          return row[fallback];
+        }
+      }
+      return null; // Return null if no value found
+    };
+
+    // Extract and normalize property data using the mapping safely
     const propertyData: PropertyCreationAttributes = {
-      first_name: row.firstName || row.first_name || null,
-      last_name: row.lastName || row.last_name || null,
-      property_address: this.normalizeAddress(row.propertyAddress || row.property_address || row.address || ''),
-      property_city: this.normalizeCity(row.propertyCity || row.property_city || row.city || ''),
-      property_state: this.normalizeState(row.propertyState || row.property_state || row.state || ''),
-      property_zip: this.normalizeZip(row.propertyZip || row.property_zip || row.zip || ''),
-      offer: parseFloat(row.offer || '0'),
+      first_name: getValue('firstName', ['first_name']),
+      last_name: getValue('lastName', ['last_name']),
+      property_address: this.normalizeAddress(getValue('propertyAddress', ['property_address', 'address']) || ''),
+      property_city: this.normalizeCity(getValue('propertyCity', ['property_city', 'city']) || ''),
+      property_state: this.normalizeState(getValue('propertyState', ['property_state', 'state']) || ''),
+      property_zip: this.normalizeZip(getValue('propertyZip', ['property_zip', 'zip']) || ''),
+      offer: parseFloat(getValue('offer', ['offer']) || '0'),
       created_at: new Date(),
       updated_at: new Date()
     };

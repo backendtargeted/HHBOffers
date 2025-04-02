@@ -37,7 +37,7 @@ const PropertyTableList: React.FC<PropertyTableListProps> = ({
   // Fetch properties when page or limit changes
   useEffect(() => {
     fetchProperties(page, limit);
-  }, [page, limit]);
+  }, [page, limit, getAllProperties]);
 
   // Function to fetch properties
   const fetchProperties = async (page: number, limit: number) => {
