@@ -1,3 +1,5 @@
+// frontend/src/components/property/PropertyTableList.tsx
+
 import React, { useState, useEffect } from 'react';
 import { 
   Box, 
@@ -14,12 +16,8 @@ import {
   Alert,
   Button,
   useMediaQuery,
-  useTheme,
-  Container,
-  TextField,
-  InputAdornment
+  useTheme
 } from '@mui/material';
-import { Search as SearchIcon } from '@mui/icons-material';
 import { Property } from './PropertyDetail';
 import PropertyMobileCard from './PropertyMobileCard';
 
@@ -42,16 +40,11 @@ const PropertyTableList: React.FC<PropertyTableListProps> = ({
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
 
-  // Fetch properties when page, limit, or search changes
+  // Fetch properties when page or limit changes
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchProperties(page, limit);
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [page, limit, searchQuery]);
+    fetchProperties(page, limit);
+  }, [page, limit]);
 
   // Function to fetch properties
   const fetchProperties = async (page: number, limit: number) => {
@@ -100,9 +93,7 @@ const PropertyTableList: React.FC<PropertyTableListProps> = ({
 
   // Format currency
   const formatCurrency = (amount: number) => {
-    if (amount === 0) {
-      return 'Please Call';
-    }
+    if (amount === 0) return 'Please Call';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -111,134 +102,119 @@ const PropertyTableList: React.FC<PropertyTableListProps> = ({
   };
 
   return (
-    <Container maxWidth={isMobile ? "sm" : "lg"}>
-      <Box sx={{ width: '100%', mb: 4 }}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          placeholder="Search by address, city, or zip..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ mb: 3 }}
-        />
+    <Box sx={{ width: '100%' }}>
+      <Typography variant="h5" gutterBottom>
+        All Properties
+      </Typography>
 
-        {loading && (
-          <Box display="flex" justifyContent="center" my={4}>
-            <CircularProgress />
-          </Box>
-        )}
-        
-        {error && (
-          <Alert severity="error" sx={{ my: 2 }}>
-            {error}
-          </Alert>
-        )}
-        
-        {!loading && properties.length === 0 && !error && (
-          <Alert severity="info" sx={{ my: 2 }}>
-            No properties found.
-          </Alert>
-        )}
+      {loading && (
+        <Box display="flex" justifyContent="center" my={4}>
+          <CircularProgress />
+        </Box>
+      )}
 
-        {properties.length > 0 && (
-          <>
-            {isMobile ? (
-              // Mobile card view
-              <Box>
-                {properties.map((property) => (
-                  <PropertyMobileCard
-                    key={property.id}
-                    property={property}
-                    onSelect={handlePropertySelect}
-                  />
-                ))}
-              </Box>
-            ) : (
-              // Desktop table view
-              <TableContainer component={Paper} sx={{ mt: 2, mb: 2 }}>
-                <Table aria-label="property table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Address</TableCell>
-                      <TableCell>City</TableCell>
-                      <TableCell>State</TableCell>
-                      <TableCell>ZIP</TableCell>
-                      <TableCell>Owner</TableCell>
-                      <TableCell align="right">Offer</TableCell>
-                      <TableCell align="center">Action</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {properties.map((property) => (
-                      <TableRow 
-                        key={property.id}
-                        hover
-                        sx={{ 
-                          cursor: onSelectProperty ? 'pointer' : 'default',
-                          '&:last-child td, &:last-child th': { border: 0 }
-                        }}
-                      >
-                        <TableCell component="th" scope="row">
-                          {property.propertyAddress || 'Unknown'}
-                        </TableCell>
-                        <TableCell>{property.propertyCity || ''}</TableCell>
-                        <TableCell>{property.propertyState || ''}</TableCell>
-                        <TableCell>{property.propertyZip || ''}</TableCell>
-                        <TableCell>
-                          {property.firstName || ''} {property.lastName || ''}
-                          {!property.firstName && !property.lastName && 'N/A'}
-                        </TableCell>
-                        <TableCell align="right">
-                          {property.offer === 0.00 ? "Please Call" : formatCurrency(property.offer)}
-                        </TableCell>
-                        <TableCell align="center">
-                          <Button 
-                            variant="contained" 
-                            size="small" 
-                            onClick={() => handlePropertySelect(property)}
-                            color="primary"
-                          >
-                            View
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
+      {error && (
+        <Alert severity="error" sx={{ my: 2 }}>
+          {error}
+        </Alert>
+      )}
 
-            <Box display="flex" justifyContent="center" my={3}>
-              <Pagination 
-                count={totalPages} 
-                page={page} 
-                onChange={handlePageChange} 
-                color="primary"
-                size={isMobile ? "small" : "medium"}
-                showFirstButton
-                showLastButton
-              />
+      {!loading && properties.length === 0 && !error && (
+        <Alert severity="info" sx={{ my: 2 }}>
+          No properties found.
+        </Alert>
+      )}
+
+      {properties.length > 0 && (
+        <>
+          {isMobile ? (
+            // Mobile card view
+            <Box>
+              {properties.map((property) => (
+                <PropertyMobileCard
+                  key={property.id}
+                  property={property}
+                  onSelect={handlePropertySelect}
+                />
+              ))}
             </Box>
-            
-            <Typography 
-              variant="body2" 
-              color="text.secondary" 
-              align="center"
-              sx={{ fontSize: isMobile ? '0.875rem' : '1rem' }}
-            >
-              Showing {properties.length} of {totalItems} properties
-            </Typography>
-          </>
-        )}
-      </Box>
-    </Container>
+          ) : (
+            // Desktop table view
+            <TableContainer component={Paper} sx={{ mt: 2, mb: 2 }}>
+              <Table aria-label="property table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Address</TableCell>
+                    <TableCell>City</TableCell>
+                    <TableCell>State</TableCell>
+                    <TableCell>ZIP</TableCell>
+                    <TableCell>Owner</TableCell>
+                    <TableCell align="right">Offer</TableCell>
+                    <TableCell align="center">Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {properties.map((property) => (
+                    <TableRow 
+                      key={property.id}
+                      hover
+                      sx={{ 
+                        cursor: onSelectProperty ? 'pointer' : 'default',
+                        '&:last-child td, &:last-child th': { border: 0 }
+                      }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {property.propertyAddress || 'Unknown'}
+                      </TableCell>
+                      <TableCell>{property.propertyCity || ''}</TableCell>
+                      <TableCell>{property.propertyState || ''}</TableCell>
+                      <TableCell>{property.propertyZip || ''}</TableCell>
+                      <TableCell>
+                        {property.firstName || ''} {property.lastName || ''}
+                        {!property.firstName && !property.lastName && 'N/A'}
+                      </TableCell>
+                      <TableCell align="right">
+                        {property.offer === 0.00 ? "Please Call" : formatCurrency(property.offer)}
+                      </TableCell>
+                      <TableCell align="center">
+                        <Button 
+                          variant="contained" 
+                          size="small" 
+                          onClick={() => handlePropertySelect(property)}
+                          color="primary"
+                        >
+                          View
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+
+          <Box display="flex" justifyContent="center" my={3}>
+            <Pagination 
+              count={totalPages} 
+              page={page} 
+              onChange={handlePageChange} 
+              color="primary"
+              size={isMobile ? "small" : "medium"}
+              showFirstButton
+              showLastButton
+            />
+          </Box>
+          
+          <Typography 
+            variant="body2" 
+            color="text.secondary" 
+            align="center"
+          >
+            Showing {properties.length} of {totalItems} properties
+          </Typography>
+        </>
+      )}
+    </Box>
   );
 };
 
