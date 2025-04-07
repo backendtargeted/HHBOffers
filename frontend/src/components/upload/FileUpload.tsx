@@ -49,7 +49,7 @@ interface FileUploadProps {
 const FileUpload: React.FC<FileUploadProps> = ({
   onUpload,
   acceptedFileTypes = ['.csv', '.xlsx', '.xls'],
-  maxFileSize = 50 * 1024 * 1024, // 50MB
+  maxFileSize = 5000 * 1024 * 1024, // 5000MB
   maxFiles = 1 // Defaulting to 1 as per original logic, header mapping works best one file at a time
 }) => {
   const [files, setFiles] = useState<UploadedFile[]>([]);

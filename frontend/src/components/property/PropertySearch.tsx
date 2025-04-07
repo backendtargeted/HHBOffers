@@ -153,7 +153,7 @@ const PropertySearch: React.FC<PropertySearchProps> = ({
           <Paper
             elevation={0}
             sx={{
-              p: 1,
+              p: 2, // Increased padding for touch
               width: '100%',
               borderRadius: 1,
               '&:hover': {
@@ -161,19 +161,25 @@ const PropertySearch: React.FC<PropertySearchProps> = ({
               }
             }}
           >
-            <Grid container spacing={1}>
+            <Grid container spacing={2}>
               <Grid item xs={12}>
-                <Typography variant="body1" fontWeight="medium">
+                <Typography variant="body1" fontWeight="medium" sx={{ wordBreak: 'break-word' }}>
                   {option.propertyAddress}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-word' }}>
                   {option.propertyCity}, {option.propertyState} {option.propertyZip}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mt={0.5}>
+                <Box 
+                  display="flex" 
+                  flexDirection={{ xs: 'column', sm: 'row' }} 
+                  justifyContent="space-between" 
+                  alignItems={{ xs: 'flex-start', sm: 'center' }}
+                  gap={1}
+                >
                   <Typography variant="body2" color="text.secondary">
                     {(option.firstName || option.lastName) ? 
                       `${option.firstName || ''} ${option.lastName || ''}`.trim() : 
@@ -183,6 +189,7 @@ const PropertySearch: React.FC<PropertySearchProps> = ({
                     label={`$${option.offer ? option.offer.toLocaleString() : 0}`}
                     size="small"
                     color="primary"
+                    sx={{ minWidth: '100px' }}
                   />
                 </Box>
               </Grid>

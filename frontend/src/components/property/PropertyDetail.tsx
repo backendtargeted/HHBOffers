@@ -10,11 +10,13 @@ import {
   Chip,
   TextField,
   CircularProgress,
-  Alert
+  Alert,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
-import { 
-  Edit as EditIcon, 
-  Save as SaveIcon, 
+import {
+  Edit as EditIcon,
+  Save as SaveIcon,
   Cancel as CancelIcon,
   ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
@@ -77,6 +79,8 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [updateSuccess, setUpdateSuccess] = useState<boolean>(false);
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   // Check if object is in snake_case and convert to camelCase if needed
   const normalizeProperty = (prop: any): Property => {
@@ -111,10 +115,10 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   // Handle form submission
   const onSubmit = async (data: Property) => {
     if (!onUpdate) return;
-    
+
     setUpdateError(null);
     setUpdateSuccess(false);
-    
+
     try {
       await onUpdate(safeProperty.id, data);
       setIsEditing(false);
@@ -145,8 +149,8 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
             No property selected or property data is invalid.
           </Typography>
           {onBack && (
-            <Button 
-              startIcon={<ArrowBackIcon />} 
+            <Button
+              startIcon={<ArrowBackIcon />}
               onClick={onBack}
               sx={{ mt: 2 }}
             >
@@ -158,283 +162,299 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     );
   }
 
+  // Corrected return structure based on user feedback
   return (
     <Card elevation={3}>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {onBack && (
-              <Button 
-                startIcon={<ArrowBackIcon />} 
-                onClick={onBack}
-                sx={{ mr: 2 }}
-                variant="outlined"
-              >
-                Back
-              </Button>
-            )}
+        <Grid container spacing={2}>
+          {/* Title */}
+          <Grid item xs={12}>
             <Typography variant="h5" component="h2">
               Property Details
             </Typography>
-          </Box>
-          
-          {editable && !isEditing && (
-            <Button 
-              startIcon={<EditIcon />} 
-              variant="outlined" 
-              onClick={() => setIsEditing(true)}
-              disabled={isLoading}
-            >
-              Edit
-            </Button>
+          </Grid>
+
+          {/* Top Action Buttons */}
+          <Grid item xs={12}>
+            <Box sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: 2,
+              mb: 2
+            }}>
+              {onBack && (
+                <Button
+                  startIcon={<ArrowBackIcon />}
+                  onClick={onBack}
+                  variant="outlined"
+                  fullWidth={isSmallScreen}
+                  sx={{ width: { xs: '100%', sm: 'auto' } }}
+                >
+                  Back
+                </Button>
+              )}
+              {editable && !isEditing && (
+                <Button
+                  startIcon={<EditIcon />}
+                  variant="outlined"
+                  onClick={() => setIsEditing(true)}
+                  disabled={isLoading}
+                  fullWidth={isSmallScreen}
+                  sx={{ width: { xs: '100%', sm: 'auto' } }}
+                >
+                  Edit
+                </Button>
+              )}
+            </Box>
+          </Grid>
+
+          {/* Success Alert */}
+          {updateSuccess && (
+            <Grid item xs={12}>
+              <Alert severity="success">
+                Property updated successfully!
+              </Alert>
+            </Grid>
           )}
-        </Box>
-        
-        {updateSuccess && (
-          <Box sx={{ mb: 2 }}>
-            <Alert severity="success">
-              Property updated successfully!
-            </Alert>
-          </Box>
-        )}
-        
-        {/* Edit Mode */}
-        {isEditing ? (
-          <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <Controller
-                  name="firstName"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="First Name"
-                      fullWidth
-                      margin="normal"
-                      error={!!errors.firstName}
-                      helperText={errors.firstName?.message}
-                      value={field.value || ''}
+
+          {/* Main Content */}
+          <Grid item xs={12}>
+            {isEditing ? (
+              // Edit Mode
+              <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+                <Grid container spacing={2}>
+                  {/* Form Fields */}
+                  <Grid item xs={12} sm={6}>
+                    <Controller
+                      name="firstName"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="First Name"
+                          fullWidth
+                          margin="normal"
+                          error={!!errors.firstName}
+                          helperText={errors.firstName?.message}
+                          value={field.value || ''}
+                        />
+                      )}
                     />
-                  )}
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <Controller
-                  name="lastName"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Last Name"
-                      fullWidth
-                      margin="normal"
-                      error={!!errors.lastName}
-                      helperText={errors.lastName?.message}
-                      value={field.value || ''}
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Controller
+                      name="lastName"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="Last Name"
+                          fullWidth
+                          margin="normal"
+                          error={!!errors.lastName}
+                          helperText={errors.lastName?.message}
+                          value={field.value || ''}
+                        />
+                      )}
                     />
-                  )}
-                />
-              </Grid>
-              
-              <Grid item xs={12}>
-                <Controller
-                  name="propertyAddress"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Property Address"
-                      fullWidth
-                      required
-                      margin="normal"
-                      error={!!errors.propertyAddress}
-                      helperText={errors.propertyAddress?.message}
-                      value={field.value || ''}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Controller
+                      name="propertyAddress"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="Property Address"
+                          fullWidth
+                          required
+                          margin="normal"
+                          error={!!errors.propertyAddress}
+                          helperText={errors.propertyAddress?.message}
+                          value={field.value || ''}
+                        />
+                      )}
                     />
-                  )}
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <Controller
-                  name="propertyCity"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="City"
-                      fullWidth
-                      required
-                      margin="normal"
-                      error={!!errors.propertyCity}
-                      helperText={errors.propertyCity?.message}
-                      value={field.value || ''}
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Controller
+                      name="propertyCity"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="City"
+                          fullWidth
+                          required
+                          margin="normal"
+                          error={!!errors.propertyCity}
+                          helperText={errors.propertyCity?.message}
+                          value={field.value || ''}
+                        />
+                      )}
                     />
-                  )}
-                />
-              </Grid>
-              
-              <Grid item xs={6} sm={3}>
-                <Controller
-                  name="propertyState"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="State"
-                      fullWidth
-                      required
-                      margin="normal"
-                      inputProps={{ maxLength: 2 }}
-                      error={!!errors.propertyState}
-                      helperText={errors.propertyState?.message}
-                      value={field.value || ''}
+                  </Grid>
+                  <Grid item xs={6} sm={3}>
+                    <Controller
+                      name="propertyState"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="State"
+                          fullWidth
+                          required
+                          margin="normal"
+                          inputProps={{ maxLength: 2 }}
+                          error={!!errors.propertyState}
+                          helperText={errors.propertyState?.message}
+                          value={field.value || ''}
+                        />
+                      )}
                     />
-                  )}
-                />
-              </Grid>
-              
-              <Grid item xs={6} sm={3}>
-                <Controller
-                  name="propertyZip"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="ZIP Code"
-                      fullWidth
-                      required
-                      margin="normal"
-                      error={!!errors.propertyZip}
-                      helperText={errors.propertyZip?.message}
-                      value={field.value || ''}
+                  </Grid>
+                  <Grid item xs={6} sm={3}>
+                    <Controller
+                      name="propertyZip"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="ZIP Code"
+                          fullWidth
+                          required
+                          margin="normal"
+                          error={!!errors.propertyZip}
+                          helperText={errors.propertyZip?.message}
+                          value={field.value || ''}
+                        />
+                      )}
                     />
-                  )}
-                />
-              </Grid>
-              
-              <Grid item xs={12}>
-                <Controller
-                  name="offer"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Offer Amount"
-                      fullWidth
-                      required
-                      margin="normal"
-                      type="number"
-                      InputProps={{
-                        startAdornment: <Typography sx={{ mr: 1 }}>$</Typography>
-                      }}
-                      error={!!errors.offer}
-                      helperText={errors.offer?.message}
-                      value={field.value || 0}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Controller
+                      name="offer"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="Offer Amount"
+                          fullWidth
+                          required
+                          margin="normal"
+                          type="number"
+                          InputProps={{
+                            startAdornment: <Typography sx={{ mr: 1 }}>$</Typography>
+                          }}
+                          error={!!errors.offer}
+                          helperText={errors.offer?.message}
+                          value={field.value || 0}
+                        />
+                      )}
                     />
-                  )}
-                />
-              </Grid>
-              
-              <Grid item xs={12}>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 1 }}>
-                  <Button
-                    variant="outlined"
-                    startIcon={<CancelIcon />}
-                    onClick={() => setIsEditing(false)}
-                    disabled={isLoading}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    startIcon={isLoading ? <CircularProgress size={20} /> : <SaveIcon />}
-                    disabled={isLoading}
-                  >
-                    Save
-                  </Button>
-                </Box>
-              </Grid>
-            </Grid>
-            
-            {updateError && (
-              <Box sx={{ mt: 2 }}>
-                <Typography color="error">{updateError}</Typography>
-              </Box>
-            )}
-          </Box>
-        ) : (
-          // View Mode
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Typography variant="h6">
-                {safeProperty.propertyAddress}
-              </Typography>
-              <Typography variant="body1" color="textSecondary">
-                {safeProperty.propertyCity}, {safeProperty.propertyState} {safeProperty.propertyZip}
-              </Typography>
-            </Grid>
-            
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            
-            <Grid item xs={12} sm={6}>
-              <Typography variant="subtitle2" color="textSecondary">
-                Owner
-              </Typography>
-              <Typography variant="body1">
-                {(safeProperty.firstName || safeProperty.lastName) ? 
-                  `${safeProperty.firstName || ''} ${safeProperty.lastName || ''}`.trim() : 
-                  'N/A'}
-              </Typography>
-            </Grid>
-            
-            <Grid item xs={12} sm={6}>
-              <Typography variant="subtitle2" color="textSecondary">
-                Offer Amount
-              </Typography>
-              <Chip
-                label={formatCurrency(safeProperty.offer)}
-                color="primary"
-                sx={{ fontWeight: 'bold', fontSize: '1rem' }}
-              />
-            </Grid>
-            
-            {safeProperty.createdAt && (
-              <>
+                  </Grid>
+
+                  {/* Action Buttons */}
+                  <Grid item xs={12}>
+                    <Box sx={{
+                      display: 'flex',
+                      flexDirection: { xs: 'column', sm: 'row' },
+                      gap: 2,
+                      mt: 2
+                    }}>
+                      <Button
+                        variant="outlined"
+                        startIcon={<CancelIcon />}
+                        onClick={() => setIsEditing(false)}
+                        disabled={isLoading}
+                        fullWidth
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        startIcon={isLoading ? <CircularProgress size={20} /> : <SaveIcon />}
+                        disabled={isLoading}
+                        fullWidth
+                      >
+                        Save
+                      </Button>
+                    </Box>
+                  </Grid>
+                </Grid> {/* End Form Fields Grid */}
+
+                {updateError && (
+                  <Box sx={{ mt: 2 }}>
+                    <Typography color="error">{updateError}</Typography>
+                  </Box>
+                )}
+              </Box> // End Edit Mode Box
+            ) : (
+              // View Mode
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Typography variant="h6">
+                    {safeProperty.propertyAddress}
+                  </Typography>
+                  <Typography variant="body1" color="textSecondary">
+                    {safeProperty.propertyCity}, {safeProperty.propertyState} {safeProperty.propertyZip}
+                  </Typography>
+                </Grid>
                 <Grid item xs={12}>
                   <Divider />
                 </Grid>
-                
                 <Grid item xs={12} sm={6}>
                   <Typography variant="subtitle2" color="textSecondary">
-                    Created
+                    Owner
                   </Typography>
-                  <Typography variant="body2">
-                    {new Date(safeProperty.createdAt).toLocaleDateString()}
+                  <Typography variant="body1">
+                    {(safeProperty.firstName || safeProperty.lastName) ?
+                      `${safeProperty.firstName || ''} ${safeProperty.lastName || ''}`.trim() :
+                      'N/A'}
                   </Typography>
                 </Grid>
-                
                 <Grid item xs={12} sm={6}>
                   <Typography variant="subtitle2" color="textSecondary">
-                    Last Updated
+                    Offer Amount
                   </Typography>
-                  <Typography variant="body2">
-                    {safeProperty.updatedAt ? new Date(safeProperty.updatedAt).toLocaleDateString() : 'N/A'}
-                  </Typography>
+                  <Chip
+                    label={formatCurrency(safeProperty.offer)}
+                    color="primary"
+                    sx={{ fontWeight: 'bold', fontSize: '1rem' }}
+                  />
                 </Grid>
-              </>
-            )}
-          </Grid>
-        )}
+                {safeProperty.createdAt && (
+                  <>
+                    <Grid item xs={12}>
+                      <Divider />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        Created
+                      </Typography>
+                      <Typography variant="body2">
+                        {new Date(safeProperty.createdAt).toLocaleDateString()}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        Last Updated
+                      </Typography>
+                      <Typography variant="body2">
+                        {safeProperty.updatedAt ? new Date(safeProperty.updatedAt).toLocaleDateString() : 'N/A'}
+                      </Typography>
+                    </Grid>
+                  </>
+                )}
+              </Grid> // End View Mode Grid
+            )} {/* End isEditing ternary */}
+          </Grid> {/* End Main Content Grid item */}
+        </Grid> {/* End Main Grid container */}
       </CardContent>
     </Card>
-  );
-};
+  ); // End return statement
+}; // End component function
 
 export default PropertyDetail;

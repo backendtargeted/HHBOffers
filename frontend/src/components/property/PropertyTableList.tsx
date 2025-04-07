@@ -86,6 +86,9 @@ const PropertyTableList: React.FC<PropertyTableListProps> = ({
 
   // Format currency
   const formatCurrency = (amount: number) => {
+    if (amount === 0) {
+      return 'Please Call';
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -153,7 +156,7 @@ const PropertyTableList: React.FC<PropertyTableListProps> = ({
                       {!property.firstName && !property.lastName && 'N/A'}
                     </TableCell>
                     <TableCell align="right">
-                      {formatCurrency(property.offer || 0)}
+                      {property.offer === 0.00 ? "Please Call" : formatCurrency(property.offer)}
                     </TableCell>
                     <TableCell align="center">
                       <Button 
