@@ -209,26 +209,25 @@ function App() {
                     />
                     
                     {selectedProperty ? (
-                      <Box mt={4}>
+                      <Box mt={isMobile ? 2 : 4}> {/* Adjusted margin top */}
                         <PropertyDetail 
                           property={selectedProperty} 
                           onUpdate={updateProperty}
                           onBack={() => setSelectedProperty(null)}
                           editable={true}
                           isLoading={isLoading}
+                          isMobile={isMobile} // Pass isMobile prop
                         />
                       </Box>
                     ) : (
-                      // Only show the property table on desktop
-                      !isMobile && (
-                        <Box mt={4}>
-                          <PropertyTableList
-                            getAllProperties={propertyAPI.getAllProperties}
-                            onSelectProperty={handlePropertySelect}
-                            limit={20}
-                          />
-                        </Box>
-                      )
+                      // Show property table list on both mobile and desktop for consistency
+                      <Box mt={isMobile ? 2 : 4}> {/* Adjusted margin top */}
+                        <PropertyTableList
+                          getAllProperties={propertyAPI.getAllProperties}
+                          onSelectProperty={handlePropertySelect}
+                          limit={20}
+                        />
+                      </Box>
                     )}
                   </Box>
                 } 

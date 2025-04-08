@@ -68,6 +68,7 @@ interface PropertyDetailProps {
   onBack?: () => void;
   editable?: boolean;
   isLoading?: boolean;
+  isMobile?: boolean; // Add isMobile prop
 }
 
 const PropertyDetail: React.FC<PropertyDetailProps> = ({
@@ -245,9 +246,9 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
 
         {/* Main Content */}
         {isEditing ? (
-          // Edit Mode (Keep existing form structure for now)
+          // Edit Mode (Apply responsive spacing)
           <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-            <Grid container spacing={2}>
+            <Grid container spacing={isMobile ? 1 : 2}> {/* Updated spacing */}
               {/* Form Fields */}
               <Grid item xs={12} sm={6}>
                 <Controller
@@ -259,6 +260,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       label="First Name"
                       fullWidth
                       margin="normal"
+                      size={isMobile ? "medium" : "small"} // Add responsive size
                       error={!!errors.firstName}
                       helperText={errors.firstName?.message}
                       value={field.value || ''}
@@ -276,6 +278,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       label="Last Name"
                       fullWidth
                       margin="normal"
+                      size={isMobile ? "medium" : "small"} // Add responsive size
                       error={!!errors.lastName}
                       helperText={errors.lastName?.message}
                       value={field.value || ''}
@@ -294,6 +297,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       fullWidth
                       required
                       margin="normal"
+                      size={isMobile ? "medium" : "small"} // Add responsive size
                       error={!!errors.propertyAddress}
                       helperText={errors.propertyAddress?.message}
                       value={field.value || ''}
@@ -312,6 +316,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       fullWidth
                       required
                       margin="normal"
+                      size={isMobile ? "medium" : "small"} // Add responsive size
                       error={!!errors.propertyCity}
                       helperText={errors.propertyCity?.message}
                       value={field.value || ''}
@@ -330,6 +335,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       fullWidth
                       required
                       margin="normal"
+                      size={isMobile ? "medium" : "small"} // Add responsive size
                       inputProps={{ maxLength: 2 }}
                       error={!!errors.propertyState}
                       helperText={errors.propertyState?.message}
@@ -349,6 +355,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       fullWidth
                       required
                       margin="normal"
+                      size={isMobile ? "medium" : "small"} // Add responsive size
                       error={!!errors.propertyZip}
                       helperText={errors.propertyZip?.message}
                       value={field.value || ''}
@@ -367,6 +374,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       fullWidth
                       required
                       margin="normal"
+                      size={isMobile ? "medium" : "small"} // Add responsive size
                       type="number"
                       InputProps={{
                         startAdornment: <Typography sx={{ mr: 1 }}>$</Typography>
@@ -417,59 +425,63 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
             )}
           </Box> // End Edit Mode Box
         ) : (
-          // View Mode - Apply mobile styles
-          <Box>
-            {/* Property Address */}
-            <Typography sx={mobileStyles.heading}>
-              {safeProperty.propertyAddress}
-            </Typography>
-            <Typography sx={mobileStyles.subheading}>
-              {safeProperty.propertyCity}, {safeProperty.propertyState} {safeProperty.propertyZip}
-            </Typography>
+          /* View Mode */
+          /* Replace existing Box with Grid structure from plan */
+          <Grid item xs={12}> 
+            <Grid container spacing={isMobile ? 1 : 2}> {/* Responsive spacing */}
+              {/* Property Information */}
+              <Grid item xs={12}>
+                <Typography variant={isMobile ? "body1" : "h6"}> {/* Responsive variant */}
+                  {safeProperty.propertyAddress}
+                </Typography>
+                <Typography variant="body2" color="textSecondary"> {/* Use body2 as per plan */}
+                  {safeProperty.propertyCity}, {safeProperty.propertyState} {safeProperty.propertyZip}
+                </Typography>
+              </Grid>
 
-            <Divider sx={{ my: 2 }} />
+              <Grid item xs={12}><Divider sx={{ my: 1 }} /></Grid> {/* Add divider */}
 
-            {/* Owner Info */}
-            <Typography sx={mobileStyles.sectionTitle}>
-              Owner
-            </Typography>
-            <Typography sx={mobileStyles.sectionContent}>
-              {(safeProperty.firstName || safeProperty.lastName) ?
-                `${safeProperty.firstName || ''} ${safeProperty.lastName || ''}`.trim() :
-                'Current Homeowner'}
-            </Typography>
+              {/* Owner Info */}
+              <Grid item xs={12} sm={6}>
+                <Typography variant="caption" color="textSecondary">Owner</Typography>
+                <Typography variant={isMobile ? "body1" : "body1"}> {/* Consistent body1 */}
+                  {(safeProperty.firstName || safeProperty.lastName) ?
+                    `${safeProperty.firstName || ''} ${safeProperty.lastName || ''}`.trim() :
+                    'Current Homeowner'}
+                </Typography>
+              </Grid>
 
-            {/* Offer Amount */}
-            <Typography sx={mobileStyles.sectionTitle}>
-              Offer Amount
-            </Typography>
-            <Chip
-              label={formatCurrency(safeProperty.offer)}
-              color="primary"
-              sx={mobileStyles.chip}
-            />
+              {/* Offer Amount */}
+              <Grid item xs={12} sm={6}>
+                <Typography variant="caption" color="textSecondary">Offer Amount</Typography>
+                <Chip
+                  label={formatCurrency(safeProperty.offer)}
+                  color="primary"
+                  size={isMobile ? "medium" : "small"} // Responsive size
+                  sx={{ mt: 0.5 }}
+                />
+              </Grid>
 
-            {safeProperty.createdAt && (
-              <>
-                <Divider sx={{ my: 2 }} />
-                <Box>
-                  <Typography sx={mobileStyles.sectionTitle}>
-                    Created
-                  </Typography>
-                  <Typography sx={mobileStyles.sectionContent}>
-                    {new Date(safeProperty.createdAt).toLocaleDateString()}
-                  </Typography>
-
-                  <Typography sx={mobileStyles.sectionTitle}>
-                    Last Updated
-                  </Typography>
-                  <Typography sx={mobileStyles.sectionContent}>
-                    {safeProperty.updatedAt ? new Date(safeProperty.updatedAt).toLocaleDateString() : 'N/A'}
-                  </Typography>
-                </Box>
-              </>
-            )}
-          </Box> // End View Mode Box
+              {/* Dates */}
+              {safeProperty.createdAt && (
+                <>
+                  <Grid item xs={12}><Divider sx={{ my: 1 }} /></Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" color="textSecondary">Created</Typography>
+                    <Typography variant={isMobile ? "body2" : "body2"}> {/* Consistent body2 */}
+                      {new Date(safeProperty.createdAt).toLocaleDateString()}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" color="textSecondary">Last Updated</Typography>
+                    <Typography variant={isMobile ? "body2" : "body2"}> {/* Consistent body2 */}
+                      {safeProperty.updatedAt ? new Date(safeProperty.updatedAt).toLocaleDateString() : 'N/A'}
+                    </Typography>
+                  </Grid>
+                </>
+              )}
+            </Grid> {/* End Inner View Mode Grid */}
+          </Grid> // End Outer View Mode Grid Item
         )} {/* End isEditing ternary */}
       </CardContent>
     </Card>
