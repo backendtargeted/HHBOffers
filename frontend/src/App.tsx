@@ -5,9 +5,11 @@ import {
   ThemeProvider, 
   createTheme, 
   Box, 
-  Container, 
+  Container,
   Snackbar,
-  Alert
+  Alert,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import { green } from '@mui/material/colors';
 
@@ -70,6 +72,8 @@ const theme = createTheme({
 });
 
 function App() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [notification, setNotification] = useState<{message: string; type: 'success' | 'error' | 'info'} | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -215,13 +219,16 @@ function App() {
                         />
                       </Box>
                     ) : (
-                      <Box mt={4}>
-                        <PropertyTableList 
-                          getAllProperties={propertyAPI.getAllProperties}
-                          onSelectProperty={handlePropertySelect}
-                          limit={20}
-                        />
-                      </Box>
+                      // Only show the property table on desktop
+                      !isMobile && (
+                        <Box mt={4}>
+                          <PropertyTableList
+                            getAllProperties={propertyAPI.getAllProperties}
+                            onSelectProperty={handlePropertySelect}
+                            limit={20}
+                          />
+                        </Box>
+                      )
                     )}
                   </Box>
                 } 

@@ -8,7 +8,8 @@ import {
   Box,
   Chip,
   Grid,
-  useTheme
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import { debounce } from 'lodash';
 
@@ -44,6 +45,7 @@ const PropertySearch: React.FC<PropertySearchProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   // Normalize property data (handle snake_case to camelCase conversion)
   const normalizeProperty = (prop: any): Property => {
@@ -150,51 +152,51 @@ const PropertySearch: React.FC<PropertySearchProps> = ({
       noOptionsText={inputValue.length < minSearchLength ? "Type to search..." : "No properties found"}
       renderOption={(props, option) => (
         <li {...props} key={option.id}>
-          <Paper
-            elevation={0}
+          <Box
             sx={{
-              p: 2, // Increased padding for touch
-              width: '100%',
-              borderRadius: 1,
-              '&:hover': {
-                backgroundColor: theme.palette.action.hover
-              }
+              p: isMobile ? 2 : 1, // Adjust padding for mobile
+              width: '100%'
             }}
           >
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography variant="body1" fontWeight="medium" sx={{ wordBreak: 'break-word' }}>
-                  {option.propertyAddress}
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-word' }}>
-                  {option.propertyCity}, {option.propertyState} {option.propertyZip}
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Box 
-                  display="flex" 
-                  flexDirection={{ xs: 'column', sm: 'row' }} 
-                  justifyContent="space-between" 
-                  alignItems={{ xs: 'flex-start', sm: 'center' }}
-                  gap={1}
-                >
-                  <Typography variant="body2" color="text.secondary">
-                    {(option.firstName || option.lastName) ? 
-                      `${option.firstName || ''} ${option.lastName || ''}`.trim() : 
-                      'N/A'}
-                  </Typography>
-                  <Chip
-                    label={`$${option.offer ? option.offer.toLocaleString() : 0}`}
-                    size="small"
-                    color="primary"
-                    sx={{ minWidth: '100px' }}
-                  />
-                </Box>
-              </Grid>
-            </Grid>
-          </Paper>
+            <Typography
+              variant={isMobile ? "body1" : "body2"} // Adjust variant for mobile
+              fontWeight="medium"
+              sx={{ wordBreak: 'break-word' }}
+            >
+              {option.propertyAddress}
+            </Typography>
+
+            <Typography
+              variant={isMobile ? "body2" : "caption"} // Adjust variant for mobile
+              color="text.secondary"
+              sx={{ wordBreak: 'break-word' }}
+            >
+              {option.propertyCity}, {option.propertyState} {option.propertyZip}
+            </Typography>
+
+            <Box
+              sx={{
+                mt: 1,
+                display: 'flex',
+                flexDirection: isMobile ? 'column' : 'row', // Stack vertically on mobile
+                alignItems: isMobile ? 'flex-start' : 'center',
+                justifyContent: 'space-between'
+              }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                {(option.firstName || option.lastName) ?
+                  `${option.firstName || ''} ${option.lastName || ''}`.trim() :
+                  'N/A'}
+              </Typography>
+
+              <Chip
+                label={`$${option.offer ? option.offer.toLocaleString() : 0}`}
+                size={isMobile ? "medium" : "small"} // Larger chip on mobile
+                color="primary"
+                sx={{ mt: isMobile ? 1 : 0 }} // Add margin top on mobile
+              />
+            </Box>
+          </Box>
         </li>
       )}
       renderInput={(params) => (
@@ -203,8 +205,16 @@ const PropertySearch: React.FC<PropertySearchProps> = ({
           label="Search Properties"
           placeholder={placeholder}
           fullWidth
+          sx={{ // Style the root TextField
+            '& .MuiInputBase-root': {
+              fontSize: isMobile ? '1.1rem' : undefined // Larger font size on mobile
+            }
+          }}
           InputProps={{
             ...params.InputProps,
+            sx: { // Style the input element itself
+              py: isMobile ? 0.5 : undefined // Adjust vertical padding on mobile
+            },
             endAdornment: (
               <React.Fragment>
                 {loading ? <CircularProgress color="inherit" size={20} /> : null}
