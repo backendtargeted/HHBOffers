@@ -443,8 +443,10 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
 
               {/* Owner Info */}
               <Grid item xs={12} sm={6}>
-                <Typography variant="caption" color="textSecondary">Owner</Typography>
-                <Typography variant={isMobile ? "body1" : "body1"}> {/* Consistent body1 */}
+                <Typography variant="caption" color="textSecondary" display="block" gutterBottom>
+                  Owner
+                </Typography>
+                <Typography variant="body1">
                   {(safeProperty.firstName || safeProperty.lastName) ?
                     `${safeProperty.firstName || ''} ${safeProperty.lastName || ''}`.trim() :
                     'Current Homeowner'}
@@ -453,13 +455,26 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
 
               {/* Offer Amount */}
               <Grid item xs={12} sm={6}>
-                <Typography variant="caption" color="textSecondary">Offer Amount</Typography>
-                <Chip
-                  label={formatCurrency(safeProperty.offer)}
-                  color="primary"
-                  size={isMobile ? "medium" : "small"} // Responsive size
-                  sx={{ mt: 0.5 }}
-                />
+                <Typography variant="caption" color="textSecondary" display="block" gutterBottom>
+                  Offer Amount
+                </Typography>
+                <Box sx={{ mt: 0.5 }}>
+                  <Chip
+                    label={formatCurrency(safeProperty.offer)}
+                    color="primary"
+                    size={isMobile ? "medium" : "small"}
+                    sx={{
+                      height: 'auto',
+                      '& .MuiChip-label': {
+                        display: 'block',
+                        py: 1,
+                        px: 2,
+                        fontSize: isMobile ? '1.1rem' : '1rem',
+                        fontWeight: 500
+                      }
+                    }}
+                  />
+                </Box>
               </Grid>
 
               {/* Dates */}
