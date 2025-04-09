@@ -25,17 +25,18 @@ import PropertyTableList from './components/property/PropertyTableList';
 import { propertyAPI, uploadAPI, statsAPI, handleApiError } from './services/api';
 
 // Create theme with brand color
+
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#233752', // Brand blue
+      main: '#233752', // Keep existing brand blue
     },
     secondary: {
       main: green[600],
     },
   },
-  // Responsive typography settings
   typography: {
+    // Override base typography settings
     h5: {
       fontSize: '1.5rem',
       '@media (max-width:600px)': {
@@ -45,7 +46,7 @@ const theme = createTheme({
     body1: {
       fontSize: '1rem',
       '@media (max-width:600px)': {
-        fontSize: '1.1rem',
+        fontSize: '1.1rem', // Slightly larger on mobile for readability
         lineHeight: 1.6,
       },
     },
@@ -58,6 +59,7 @@ const theme = createTheme({
     },
   },
   components: {
+    // Add responsive styles for table cells
     MuiTableCell: {
       styleOverrides: {
         root: {
