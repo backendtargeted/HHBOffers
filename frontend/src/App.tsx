@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { 
-  CssBaseline, 
-  ThemeProvider, 
-  createTheme, 
-  Box, 
+import {
+  CssBaseline,
+  ThemeProvider,
+  createTheme,
+  Box,
   Container,
   Snackbar,
   Alert,
@@ -29,7 +29,7 @@ import { propertyAPI, uploadAPI, statsAPI, handleApiError } from './services/api
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#233752', // Keep existing brand blue
+      main: '#46474b', // Updated to requested gray color
     },
     secondary: {
       main: green[600],
@@ -193,27 +193,27 @@ function App() {
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flex: 1 }}>
             <Routes>
-              <Route 
-                path="/" 
-                element={<Navigate to="/search" />} 
+              <Route
+                path="/"
+                element={<Navigate to="/search" />}
               />
-              <Route 
-                path="/dashboard" 
-                element={<Dashboard fetchStats={fetchSystemStats} />} 
+              <Route
+                path="/dashboard"
+                element={<Dashboard fetchStats={fetchSystemStats} />}
               />
-              <Route 
-                path="/search" 
+              <Route
+                path="/search"
                 element={
                   <Box>
-                    <PropertySearch 
-                      onSearch={searchProperties} 
-                      onSelectProperty={handlePropertySelect} 
+                    <PropertySearch
+                      onSearch={searchProperties}
+                      onSelectProperty={handlePropertySelect}
                     />
-                    
+
                     {selectedProperty ? (
                       <Box mt={isMobile ? 2 : 4}> {/* Adjusted margin top */}
-                        <PropertyDetail 
-                          property={selectedProperty} 
+                        <PropertyDetail
+                          property={selectedProperty}
                           onUpdate={updateProperty}
                           onBack={() => setSelectedProperty(null)}
                           editable={true}
@@ -232,10 +232,10 @@ function App() {
                       </Box>
                     )}
                   </Box>
-                } 
+                }
               />
-              <Route 
-                path="/upload" 
+              <Route
+                path="/upload"
                 element={<FileUpload onUpload={handleFileUpload} />}
               />
               <Route path="*" element={<Navigate to="/" />} />
@@ -243,11 +243,11 @@ function App() {
           </Container>
         </Box>
       </Router>
-      
+
       {/* Notification */}
-      <Snackbar 
-        open={notification !== null} 
-        autoHideDuration={6000} 
+      <Snackbar
+        open={notification !== null}
+        autoHideDuration={6000}
         onClose={handleCloseNotification}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >

@@ -110,6 +110,9 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
 
   // Format currency function... (Assuming it exists or will be added if needed)
   const formatCurrency = (amount: number) => {
+    if (amount === 0) {
+      return 'Please Call'; // or 'No Offer Made'
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -427,7 +430,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
         ) : (
           /* View Mode */
           /* Replace existing Box with Grid structure from plan */
-          <Grid item xs={12}> 
+          <Grid item xs={12}>
             <Grid container spacing={isMobile ? 1 : 2}> {/* Responsive spacing */}
               {/* Property Information */}
               <Grid item xs={12}>
@@ -461,7 +464,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                 <Box sx={{ mt: 0.5 }}>
                   <Chip
                     label={formatCurrency(safeProperty.offer)}
-                    color="primary"
+                    color={safeProperty.offer === 0 ? "default" : "primary"}
                     size={isMobile ? "medium" : "small"}
                     sx={{
                       height: 'auto',
@@ -484,13 +487,13 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                   <Grid item xs={6}>
                     <Typography variant="caption" color="textSecondary">Created</Typography>
                     <Typography variant={isMobile ? "body2" : "body2"}> {/* Consistent body2 */}
-                      {new Date(safeProperty.createdAt).toLocaleDateString()}
+                      {new Date(safeProperty.createdAt).toLocaleDateString('en-US')}
                     </Typography>
                   </Grid>
                   <Grid item xs={6}>
                     <Typography variant="caption" color="textSecondary">Last Updated</Typography>
                     <Typography variant={isMobile ? "body2" : "body2"}> {/* Consistent body2 */}
-                      {safeProperty.updatedAt ? new Date(safeProperty.updatedAt).toLocaleDateString() : 'N/A'}
+                      {safeProperty.updatedAt ? new Date(safeProperty.updatedAt).toLocaleDateString('en-US') : 'N/A'}
                     </Typography>
                   </Grid>
                 </>
