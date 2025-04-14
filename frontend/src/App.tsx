@@ -8,7 +8,6 @@ import {
   Container,
   Snackbar,
   Alert,
-  useTheme,
   useMediaQuery
 } from '@mui/material';
 import { green } from '@mui/material/colors';
@@ -74,7 +73,7 @@ const theme = createTheme({
 });
 
 function App() {
-  const theme = useTheme();
+  // Use the theme we defined above
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [notification, setNotification] = useState<{message: string; type: 'success' | 'error' | 'info'} | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<any>(null);

@@ -43,7 +43,7 @@ const Navigation: React.FC<NavigationProps> = ({ title = 'Direct Mail Offers' })
 
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="static" sx={{ bgcolor: '#46474b' }}>
         <Toolbar>
           <IconButton
             edge="start"
