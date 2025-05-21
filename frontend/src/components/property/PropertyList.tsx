@@ -91,107 +91,60 @@ const PropertyTableList: React.FC<PropertyTableListProps> = ({
     }
   };
 
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    if (amount === 0) return 'Please Call';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
-
   return (
-    <Box sx={{ width: '100%' }}>
-      <Typography variant="h5" gutterBottom>
-        All Properties
-      </Typography>
-
-      {loading && (
-        <Box display="flex" justifyContent="center" my={4}>
+    <Box>
+      {loading ? (
+        <Box display="flex" justifyContent="center" my={3}>
           <CircularProgress />
         </Box>
-      )}
-
-      {error && (
+      ) : error ? (
         <Alert severity="error" sx={{ my: 2 }}>
           {error}
         </Alert>
-      )}
-
-      {!loading && properties.length === 0 && !error && (
+      ) : properties.length === 0 ? (
         <Alert severity="info" sx={{ my: 2 }}>
           No properties found.
         </Alert>
-      )}
-
-      {properties.length > 0 && (
+      ) : (
         <>
-          {isMobile ? (
-            // Mobile card view
-            <Box>
-              {properties.map((property) => (
-                <PropertyMobileCard
-                  key={property.id}
-                  property={property}
-                  onSelect={handlePropertySelect}
-                />
-              ))}
-            </Box>
-          ) : (
-            // Desktop table view
-            <TableContainer component={Paper} sx={{ mt: 2, mb: 2 }}>
-              <Table aria-label="property table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Address</TableCell>
-                    <TableCell>City</TableCell>
-                    <TableCell>State</TableCell>
-                    <TableCell>ZIP</TableCell>
-                    <TableCell>Owner</TableCell>
-                    <TableCell align="right">Offer</TableCell>
-                    <TableCell align="center">Action</TableCell>
+          <TableContainer component={Paper}>
+            <Table size={isMobile ? "small" : "medium"}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Address</TableCell>
+                  <TableCell>City</TableCell>
+                  <TableCell>State</TableCell>
+                  <TableCell>ZIP</TableCell>
+                  <TableCell>Owner</TableCell>
+                  <TableCell align="center">Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {properties.map((property) => (
+                  <TableRow key={property.id}>
+                    <TableCell>{property.propertyAddress || ''}</TableCell>
+                    <TableCell>{property.propertyCity || ''}</TableCell>
+                    <TableCell>{property.propertyState || ''}</TableCell>
+                    <TableCell>{property.propertyZip || ''}</TableCell>
+                    <TableCell>
+                      {property.firstName || ''} {property.lastName || ''}
+                      {!property.firstName && !property.lastName && 'N/A'}
+                    </TableCell>
+                    <TableCell align="center">
+                      <Button 
+                        variant="contained" 
+                        size="small" 
+                        onClick={() => handlePropertySelect(property)}
+                        color="primary"
+                      >
+                        View
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {properties.map((property) => (
-                    <TableRow 
-                      key={property.id}
-                      hover
-                      sx={{ 
-                        cursor: onSelectProperty ? 'pointer' : 'default',
-                        '&:last-child td, &:last-child th': { border: 0 }
-                      }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {property.propertyAddress || 'Unknown'}
-                      </TableCell>
-                      <TableCell>{property.propertyCity || ''}</TableCell>
-                      <TableCell>{property.propertyState || ''}</TableCell>
-                      <TableCell>{property.propertyZip || ''}</TableCell>
-                      <TableCell>
-                        {property.firstName || ''} {property.lastName || ''}
-                        {!property.firstName && !property.lastName && 'N/A'}
-                      </TableCell>
-                      <TableCell align="right">
-                        {property.offer === 0.00 ? "Please Call" : formatCurrency(property.offer)}
-                      </TableCell>
-                      <TableCell align="center">
-                        <Button 
-                          variant="contained" 
-                          size="small" 
-                          onClick={() => handlePropertySelect(property)}
-                          color="primary"
-                        >
-                          View
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
           <Box display="flex" justifyContent="center" my={3}>
             <Pagination 

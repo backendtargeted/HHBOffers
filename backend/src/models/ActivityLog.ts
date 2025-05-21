@@ -1,5 +1,4 @@
 import { Model, DataTypes, Optional } from 'sequelize';
-import sequelize from '../config/database';
 
 // ActivityLog attributes interface
 export interface ActivityLogAttributes {
@@ -16,7 +15,7 @@ export interface ActivityLogAttributes {
 // Attributes for ActivityLog creation - id and timestamps are optional
 export interface ActivityLogCreationAttributes extends Optional<ActivityLogAttributes, 'id' | 'created_at' | 'entity_id' | 'details' | 'ip_address' | 'user_agent'> {}
 
-class ActivityLog extends Model<ActivityLogAttributes, ActivityLogCreationAttributes> implements ActivityLogAttributes {
+export class ActivityLog extends Model<ActivityLogAttributes, ActivityLogCreationAttributes> implements ActivityLogAttributes {
   public id!: number;
   public action!: string;
   public entity_type!: string;
@@ -42,70 +41,70 @@ class ActivityLog extends Model<ActivityLogAttributes, ActivityLogCreationAttrib
   }
 }
 
-ActivityLog.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    action: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-      },
-    },
-    entity_type: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-      },
-    },
-    entity_id: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-    },
-    details: {
-      type: DataTypes.JSONB,
-      allowNull: true,
-    },
-    ip_address: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-    },
-    user_agent: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
+// Define model attributes
+export const ActivityLogModelAttributes = {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  action: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+    validate: {
+      notEmpty: true,
     },
   },
-  {
-    sequelize,
-    modelName: 'ActivityLog',
-    tableName: 'audit_logs', // Match the table name in the database schema
-    timestamps: false, // We'll only use created_at
-    indexes: [
-      {
-        name: 'idx_activity_logs_entity',
-        fields: ['entity_type', 'entity_id'],
-      },
-      {
-        name: 'idx_activity_logs_action',
-        fields: ['action'],
-      },
-      {
-        name: 'idx_activity_logs_created_at',
-        fields: ['created_at'],
-      },
-    ],
-  }
-);
+  entity_type: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+    },
+  },
+  entity_id: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+  },
+  details: {
+    type: DataTypes.JSONB,
+    allowNull: true,
+  },
+  ip_address: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+  },
+  user_agent: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+};
+
+// Define model options
+export const ActivityLogModelOptions = {
+  modelName: 'ActivityLog',
+  tableName: 'audit_logs', // Match the table name in the database schema
+  timestamps: false, // We'll only use created_at
+  indexes: [
+    {
+      name: 'idx_activity_logs_entity',
+      fields: ['entity_type', 'entity_id'],
+    },
+    {
+      name: 'idx_activity_logs_action',
+      fields: ['action'],
+    },
+    {
+      name: 'idx_activity_logs_created_at',
+      fields: ['created_at'],
+    },
+  ],
+};
 
 /**
  * Static method to log activity - makes it easier to create new log entries

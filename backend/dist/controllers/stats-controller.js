@@ -38,8 +38,6 @@ class StatsController {
                     });
                 }
                 // Gather fresh statistics
-                const totalUsers = yield repositories_1.userRepository.count();
-                const activeUsers = yield repositories_1.userRepository.getActiveUserCount(7); // Active in last 7 days
                 const totalProperties = yield repositories_1.propertyRepository.count();
                 const propertiesAddedToday = yield repositories_1.propertyRepository.getPropertiesAddedToday();
                 const propertiesUpdatedToday = yield repositories_1.propertyRepository.getPropertiesUpdatedToday();
@@ -49,10 +47,6 @@ class StatsController {
                 const recentActivities = yield repositories_1.activityLogRepository.getRecentActivity(10);
                 // Format response
                 const stats = {
-                    users: {
-                        total: totalUsers,
-                        active: activeUsers
-                    },
                     properties: {
                         total: totalProperties,
                         addedToday: propertiesAddedToday,
@@ -61,7 +55,6 @@ class StatsController {
                     uploads: uploadStats,
                     recentActivities: recentActivities.map((activity) => ({
                         id: activity.id,
-                        userId: activity.user_id,
                         action: activity.action,
                         entityType: activity.entity_type,
                         entityId: activity.entity_id,
@@ -160,49 +153,6 @@ class StatsController {
                 return res.status(500).json({
                     success: false,
                     message: 'Error fetching property statistics by city'
-                });
-            }
-        });
-    }
-    /**
-     * Get user activity statistics
-     * @param req Request object
-     * @param res Response object
-     */
-    getUserActivityStats(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                // Try to get from cache first
-                const cacheKey = 'stats:userActivity';
-                const cachedStats = yield redis_service_1.redisService.get(cacheKey);
-                if (cachedStats) {
-                    return res.status(200).json({
-                        success: true,
-                        stats: cachedStats,
-                        fromCache: true
-                    });
-                }
-                // Get users with upload counts
-                const usersWithUploads = yield repositories_1.userRepository.getUsersWithUploadCounts();
-                // Get user activity counts by type
-                const activityCounts = yield repositories_1.activityLogRepository.getActivityCountsByUser();
-                // Format response
-                const stats = {
-                    usersWithUploads,
-                    activityCounts
-                };
-                // Cache for 1 hour
-                yield redis_service_1.redisService.set(cacheKey, stats, 3600);
-                return res.status(200).json({
-                    success: true,
-                    stats
-                });
-            }
-            catch (error) {
-                logger_1.default.error('Error fetching user activity stats:', error);
-                return res.status(500).json({
-                    success: false,
-                    message: 'Error fetching user activity statistics'
                 });
             }
         });

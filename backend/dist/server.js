@@ -7,11 +7,10 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const compression_1 = __importDefault(require("compression"));
-const dotenv_1 = __importDefault(require("dotenv"));
 const express_rate_limit_1 = require("express-rate-limit");
 const path_1 = __importDefault(require("path"));
 // Load environment variables
-dotenv_1.default.config();
+require('dotenv').config();
 // Import routes and middleware
 const api_routes_1 = __importDefault(require("./routes/api-routes"));
 const logger_1 = __importDefault(require("./logger"));

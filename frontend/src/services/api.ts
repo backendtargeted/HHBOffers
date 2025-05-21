@@ -227,9 +227,17 @@ searchProperties: async (query: string, limit: number = 10) => {
 
 // Upload API calls
 export const uploadAPI = {
-  uploadFile: async (file: File) => {
+  uploadFile: async (file: File, headerMapping?: Record<string, string>, defaultOfferDate?: Date) => {
     const formData = new FormData();
     formData.append('file', file);
+    
+    if (headerMapping) {
+      formData.append('headerMapping', JSON.stringify(headerMapping));
+    }
+    
+    if (defaultOfferDate) {
+      formData.append('defaultOfferDate', defaultOfferDate.toISOString());
+    }
     
     return fetchWithTimeout(`${API_BASE_URL}/upload`, {
       method: 'POST',
@@ -294,6 +302,117 @@ export const statsAPI = {
   },
 };
 
+// Offer History API calls
+export const offerHistoryAPI = {
+  getPropertyOffers: async (propertyId: number) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/offers/property/${propertyId}`, {
+        method: 'GET',
+        headers: jsonHeaders
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          message: response.statusText
+        }));
+        throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return {
+        success: true,
+        offers: data.offers || []
+      };
+    } catch (error) {
+      console.error(`Error fetching offers for property ${propertyId}:`, error);
+      throw error;
+    }
+  },
+
+  addOffer: async (propertyId: number, offerData: { offerAmount: number; offerDate: string }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/offers/property/${propertyId}`, {
+        method: 'POST',
+        headers: jsonHeaders,
+        body: JSON.stringify({
+          offerAmount: Number(offerData.offerAmount),
+          offerDate: offerData.offerDate
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          message: response.statusText
+        }));
+        throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return {
+        success: true,
+        offer: data.offer
+      };
+    } catch (error) {
+      console.error(`Error adding offer for property ${propertyId}:`, error);
+      throw error;
+    }
+  },
+
+  updateOffer: async (offerId: number, offerData: { offerAmount: number; offerDate: string }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/offers/${offerId}`, {
+        method: 'PUT',
+        headers: jsonHeaders,
+        body: JSON.stringify({
+          offerAmount: Number(offerData.offerAmount),
+          offerDate: offerData.offerDate
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          message: response.statusText
+        }));
+        throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return {
+        success: true,
+        offer: data.offer
+      };
+    } catch (error) {
+      console.error(`Error updating offer ${offerId}:`, error);
+      throw error;
+    }
+  },
+
+  deleteOffer: async (offerId: number) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/offers/${offerId}`, {
+        method: 'DELETE',
+        headers: jsonHeaders
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          message: response.statusText
+        }));
+        throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return {
+        success: true,
+        message: data.message
+      };
+    } catch (error) {
+      console.error(`Error deleting offer ${offerId}:`, error);
+      throw error;
+    }
+  }
+};
+
 // Helper for handling API errors
 export const handleApiError = (error: any): string => {
   if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
@@ -310,5 +429,6 @@ export default {
   propertyAPI,
   uploadAPI,
   statsAPI,
+  offerHistoryAPI,
   handleApiError
 };

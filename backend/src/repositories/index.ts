@@ -1,26 +1,15 @@
 import BaseRepository from './BaseRepository';
-import PropertyRepository, { propertyRepository } from './PropertyRepository';
-import UploadJobRepository, { uploadJobRepository } from './UploadJobRepository';
-import ActivityLogRepository, { activityLogRepository } from './ActivityLogRepository';
+import { PropertyRepository, propertyRepository } from './PropertyRepository';
+import { uploadJobRepository } from './UploadJobRepository';
+import { activityLogRepository } from './ActivityLogRepository';
+import { offerHistoryRepository } from './OfferHistoryRepository';
 
-// Export classes
+// Export classes and instances
 export {
   BaseRepository,
   PropertyRepository,
-  UploadJobRepository,
-  ActivityLogRepository
-};
-
-// Export singleton instances
-export {
   propertyRepository,
   uploadJobRepository,
-  activityLogRepository
-};
-
-// Export default as an object with all repositories
-export default {
-  propertyRepository,
-  uploadJobRepository,
-  activityLogRepository
+  activityLogRepository,
+  offerHistoryRepository
 };

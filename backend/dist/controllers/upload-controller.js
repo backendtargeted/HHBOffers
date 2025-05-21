@@ -16,7 +16,6 @@ const uuid_1 = require("uuid");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const repositories_1 = require("../repositories");
-const repositories_2 = require("../repositories");
 const FileProcessorService_1 = __importDefault(require("../services/FileProcessorService"));
 const logger_1 = __importDefault(require("../logger"));
 // Initialize file processor service
@@ -24,6 +23,67 @@ const fileProcessorService = new FileProcessorService_1.default();
 // Keep track of active processing jobs
 const activeJobs = new Set();
 class UploadController {
+    /**
+     * Upload a file (CSV or XLSX)
+     * @param req Request object
+     * @param res Response object
+     */
+    getJobStatus(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { jobId } = req.params;
+                const job = yield repositories_1.uploadJobRepository.findById(jobId);
+                if (!job) {
+                    return res.status(404).json({
+                        success: false,
+                        message: 'Job not found'
+                    });
+                }
+                return res.status(200).json({
+                    success: true,
+                    job
+                });
+            }
+            catch (error) {
+                logger_1.default.error(`Error getting job status for ${req.params.jobId}:`, error);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Error getting job status'
+                });
+            }
+        });
+    }
+    /**
+     * Cancel a job
+     * @param req Request object
+     * @param res Response object
+     */
+    cancelJob(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { jobId } = req.params;
+                const job = yield repositories_1.uploadJobRepository.cancelJob(jobId);
+                if (!job) {
+                    return res.status(404).json({
+                        success: false,
+                        message: 'Job not found'
+                    });
+                }
+                return res.status(200).json({
+                    success: true,
+                    message: 'Job cancelled successfully',
+                    job
+                });
+            }
+            catch (error) {
+                logger_1.default.error(`Error cancelling job ${req.params.jobId}:`, error);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Error cancelling job'
+                });
+            }
+        });
+    }
     /**
      * Upload a file (CSV or XLSX)
      * @param req Request object
@@ -41,10 +101,13 @@ class UploadController {
                 }
                 // Get file details
                 const file = req.file;
-                const userId = req.user.id;
                 const originalName = file.originalname;
                 const fileSize = file.size;
                 const filePath = file.path;
+                // Get header mapping if provided
+                const headerMapping = req.body.headerMapping ? JSON.parse(req.body.headerMapping) : undefined;
+                // Get default offer date if provided
+                const defaultOfferDate = req.body.defaultOfferDate ? new Date(req.body.defaultOfferDate) : undefined;
                 // Determine file type based on extension
                 const fileExtension = path_1.default.extname(originalName).toLowerCase();
                 let fileType = '';
@@ -67,7 +130,6 @@ class UploadController {
                 // Create an upload job record
                 const job = yield repositories_1.uploadJobRepository.createJob({
                     id: jobId,
-                    user_id: userId,
                     filename: originalName,
                     file_type: fileType,
                     status: 'pending',
@@ -76,29 +138,14 @@ class UploadController {
                     updated_records: 0,
                     error_records: 0
                 });
-                // Log the upload activity
-                yield repositories_2.activityLogRepository.log({
-                    user_id: userId,
-                    action: 'upload',
-                    entity_type: 'uploadjob',
-                    entity_id: jobId,
-                    details: {
-                        filename: originalName,
-                        fileSize,
-                        fileType
-                    },
-                    ip_address: req.ip
-                });
                 // Return response immediately with job ID
-                // This allows the user to continue using the application
                 const response = {
                     success: true,
                     jobId,
                     message: 'File upload started. You can check the status using the job ID.'
                 };
                 res.status(202).json(response);
-                // Start processing in the background, after response has been sent
-                // Using setImmediate to ensure this runs in the next event loop iteration
+                // Process in background
                 setImmediate(() => __awaiter(this, void 0, void 0, function* () {
                     try {
                         // Add job to active jobs
@@ -107,10 +154,10 @@ class UploadController {
                         yield repositories_1.uploadJobRepository.updateStatus(jobId, 'processing');
                         // Process the file based on type
                         if (fileType === 'csv') {
-                            yield fileProcessorService.processCsvFile(filePath, jobId, userId);
+                            yield fileProcessorService.processCsvFile(filePath, jobId, headerMapping, defaultOfferDate);
                         }
                         else if (fileType === 'xlsx') {
-                            yield fileProcessorService.processXlsxFile(filePath, jobId, userId);
+                            yield fileProcessorService.processXlsxFile(filePath, jobId, headerMapping, defaultOfferDate);
                         }
                         // Move file to processed directory
                         const fileName = path_1.default.basename(filePath);
@@ -126,19 +173,10 @@ class UploadController {
                         activeJobs.delete(jobId);
                     }
                     catch (error) {
-                        logger_1.default.error(`Error processing file for job ${jobId}:`, error);
+                        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+                        logger_1.default.error(`[Job ${jobId}] Error processing file:`, errorMessage);
                         // Update job status to failed
                         yield repositories_1.uploadJobRepository.updateStatus(jobId, 'failed');
-                        // Log error
-                        yield repositories_2.activityLogRepository.log({
-                            user_id: userId,
-                            action: 'upload_failed',
-                            entity_type: 'uploadjob',
-                            entity_id: jobId,
-                            details: {
-                                error: error instanceof Error ? error.message : 'Unknown error'
-                            }
-                        });
                         // Try to delete the file
                         try {
                             if (fs_1.default.existsSync(filePath)) {
@@ -154,159 +192,11 @@ class UploadController {
                 }));
             }
             catch (error) {
-                logger_1.default.error('Error uploading file:', error);
+                const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+                logger_1.default.error('Error in uploadFile:', errorMessage);
                 return res.status(500).json({
                     success: false,
-                    message: 'Error uploading file'
-                });
-            }
-        });
-    }
-    /**
-     * Get job status
-     * @param req Request object
-     * @param res Response object
-     */
-    getJobStatus(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { jobId } = req.params;
-                // Get job from database
-                const job = yield repositories_1.uploadJobRepository.findById(jobId);
-                if (!job) {
-                    return res.status(404).json({
-                        success: false,
-                        message: 'Job not found'
-                    });
-                }
-                // Check if user has permission to view this job
-                const userId = req.user.id;
-                const userRole = req.user.role;
-                if (job.user_id !== userId && userRole !== 'admin') {
-                    return res.status(403).json({
-                        success: false,
-                        message: 'You do not have permission to view this job'
-                    });
-                }
-                // Determine if job is currently being processed
-                const isActive = activeJobs.has(jobId);
-                // Return job status
-                return res.status(200).json({
-                    success: true,
-                    job: {
-                        id: job.id,
-                        filename: job.filename,
-                        status: job.status,
-                        progress: job.total_records > 0
-                            ? Math.round(((job.new_records + job.updated_records + job.error_records) / job.total_records) * 100)
-                            : 0,
-                        totalRecords: job.total_records,
-                        processedRecords: job.new_records + job.updated_records + job.error_records,
-                        newRecords: job.new_records,
-                        updatedRecords: job.updated_records,
-                        errorRecords: job.error_records,
-                        createdAt: job.created_at,
-                        completedAt: job.completed_at,
-                        isActive: isActive
-                    }
-                });
-            }
-            catch (error) {
-                logger_1.default.error(`Error fetching job status for job ${req.params.jobId}:`, error);
-                return res.status(500).json({
-                    success: false,
-                    message: 'Error fetching job status'
-                });
-            }
-        });
-    }
-    /**
-     * Cancel a job
-     * @param req Request object
-     * @param res Response object
-     */
-    cancelJob(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { jobId } = req.params;
-                // Get job from database
-                const job = yield repositories_1.uploadJobRepository.findById(jobId);
-                if (!job) {
-                    return res.status(404).json({
-                        success: false,
-                        message: 'Job not found'
-                    });
-                }
-                // Check if user has permission to cancel this job
-                const userId = req.user.id;
-                const userRole = req.user.role;
-                if (job.user_id !== userId && userRole !== 'admin') {
-                    return res.status(403).json({
-                        success: false,
-                        message: 'You do not have permission to cancel this job'
-                    });
-                }
-                // Check if job can be cancelled
-                if (job.status !== 'pending' && job.status !== 'processing') {
-                    return res.status(400).json({
-                        success: false,
-                        message: `Job cannot be cancelled because it is already ${job.status}`
-                    });
-                }
-                // Remove job from active jobs
-                activeJobs.delete(jobId);
-                // Cancel the job
-                yield repositories_1.uploadJobRepository.cancelJob(jobId);
-                // Log cancellation
-                yield repositories_2.activityLogRepository.log({
-                    user_id: userId,
-                    action: 'cancel_upload',
-                    entity_type: 'uploadjob',
-                    entity_id: jobId,
-                    ip_address: req.ip
-                });
-                return res.status(200).json({
-                    success: true,
-                    message: 'Job cancelled successfully'
-                });
-            }
-            catch (error) {
-                logger_1.default.error(`Error cancelling job ${req.params.jobId}:`, error);
-                return res.status(500).json({
-                    success: false,
-                    message: 'Error cancelling job'
-                });
-            }
-        });
-    }
-    /**
-     * Get recent jobs for the current user
-     * @param req Request object
-     * @param res Response object
-     */
-    getUserJobs(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const userId = req.user.id;
-                const page = parseInt(req.query.page) || 1;
-                const limit = parseInt(req.query.limit) || 10;
-                // Get jobs from database
-                const result = yield repositories_1.uploadJobRepository.findByUserId(userId, page, limit);
-                // Add active status to each job
-                const jobs = result.rows.map(job => (Object.assign(Object.assign({}, job.toJSON()), { isActive: activeJobs.has(job.id) })));
-                return res.status(200).json({
-                    success: true,
-                    jobs,
-                    total: result.count,
-                    page: result.currentPage,
-                    totalPages: result.totalPages
-                });
-            }
-            catch (error) {
-                logger_1.default.error('Error fetching user jobs:', error);
-                return res.status(500).json({
-                    success: false,
-                    message: 'Error fetching user jobs'
+                    message: 'Error processing file upload'
                 });
             }
         });

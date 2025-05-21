@@ -7,6 +7,7 @@ import { PropertyCreationAttributes } from '../models/Property';
 import { propertyRepository } from '../repositories/PropertyRepository';
 import { uploadJobRepository } from '../repositories/UploadJobRepository';
 import { activityLogRepository } from '../repositories/ActivityLogRepository';
+import { offerHistoryRepository } from '../repositories/OfferHistoryRepository';
 import logger from '../logger';
 
 // Define interfaces for better type safety
@@ -18,7 +19,6 @@ interface ProcessingStats {
 }
 
 // Interface for header mapping
-
 interface HeaderMapping {
   firstName?: string;
   lastName?: string;
@@ -26,7 +26,15 @@ interface HeaderMapping {
   propertyCity?: string;
   propertyState?: string;
   propertyZip?: string;
-  offer?: string;
+  offerAmount?: string;
+  offerDate?: string;
+}
+
+// Interface for transformed row data
+interface TransformedRowData {
+  propertyData: PropertyCreationAttributes;
+  offerAmount?: number;
+  offerDate?: string;
 }
 
 /**
@@ -41,9 +49,11 @@ export class FileProcessorService {
  * Process a CSV file using the Batch Processing Pattern with non-blocking behavior
  * @param filePath Path to the CSV file
  * @param jobId Unique identifier for this processing job
+ * @param headerMapping Optional header mapping object
+ * @param defaultOfferDate Optional default offer date to use if no date is provided in the file
  * @returns Promise with processing statistics
  */
-async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapping): Promise<ProcessingStats> {
+async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapping, defaultOfferDate?: Date): Promise<ProcessingStats> {
   // Update job status to processing
   await uploadJobRepository.updateStatus(jobId, 'processing');
     return new Promise((resolve, reject) => {
@@ -86,16 +96,12 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
                 else if (lowerHeader.includes('zip')) 
                   detectedMapping.propertyZip = header;
                 else if (lowerHeader.includes('offer') || lowerHeader.includes('price') || lowerHeader === 'amount') 
-                  detectedMapping.offer = header;
+                  detectedMapping.offerAmount = header;
+                else if (lowerHeader.includes('date')) 
+                  detectedMapping.offerDate = header;
               });
               
-              // Use detected mapping if any fields were matched
-              if (Object.keys(detectedMapping).length > 0) {
-                headerMapping = detectedMapping;
-                logger.info(`[Job ${jobId}] Auto-detected header mapping: ${JSON.stringify(headerMapping)}`);
-              } else {
-                 logger.warn(`[Job ${jobId}] Could not auto-detect header mapping. Using default fields.`);
-              }
+              headerMapping = detectedMapping;
             }
           }
           
@@ -110,8 +116,8 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
             // Process the batch in a non-blocking way
             setTimeout(async () => {
               try {
-                // Pass headerMapping to processBatch
-                const batchStats = await this.processBatch(batch, jobId, headerMapping); 
+                // Pass headerMapping and defaultOfferDate to processBatch
+                const batchStats = await this.processBatch(batch, jobId, headerMapping, defaultOfferDate); 
                 this.updateStats(stats, batchStats);
                 
                 // Update progress in database
@@ -141,8 +147,8 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
           // Process any remaining records
           if (batch.length > 0) {
             try {
-              // Pass headerMapping to processBatch
-              const batchStats = await this.processBatch(batch, jobId, headerMapping); 
+              // Pass headerMapping and defaultOfferDate to processBatch
+              const batchStats = await this.processBatch(batch, jobId, headerMapping, defaultOfferDate); 
               this.updateStats(stats, batchStats);
               await this.updateJobProgress(jobId, stats);
               this.emitProgress(jobId, stats);
@@ -209,9 +215,11 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
    * Process an XLSX file using the Batch Processing Pattern with non-blocking behavior
    * @param filePath Path to the XLSX file
    * @param jobId Unique identifier for this processing job
+   * @param headerMapping Optional header mapping object
+   * @param defaultOfferDate Optional default offer date to use if no date is provided in the file
    * @returns Promise with processing statistics
    */
-  async processXlsxFile(filePath: string, jobId: string, headerMapping?: HeaderMapping): Promise<ProcessingStats> {
+  async processXlsxFile(filePath: string, jobId: string, headerMapping?: HeaderMapping, defaultOfferDate?: Date): Promise<ProcessingStats> {
     // Update job status to processing
     await uploadJobRepository.updateStatus(jobId, 'processing');
     
@@ -268,16 +276,12 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
             else if (lowerHeader.includes('zip')) 
               detectedMapping.propertyZip = header;
             else if (lowerHeader.includes('offer') || lowerHeader.includes('price') || lowerHeader === 'amount') 
-              detectedMapping.offer = header;
+              detectedMapping.offerAmount = header;
+            else if (lowerHeader.includes('date')) 
+              detectedMapping.offerDate = header;
           });
           
-          // Use detected mapping if any fields were matched
-          if (Object.keys(detectedMapping).length > 0) {
-            headerMapping = detectedMapping;
-            logger.info(`[Job ${jobId}] Auto-detected header mapping: ${JSON.stringify(headerMapping)}`);
-          } else {
-             logger.warn(`[Job ${jobId}] Could not auto-detect header mapping. Using default fields.`);
-          }
+          headerMapping = detectedMapping;
         }
         
         // Collect all rows first to enable batch processing
@@ -306,8 +310,8 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
           await new Promise<void>((batchResolve) => {
             setTimeout(async () => {
               try {
-                // Pass headerMapping to processBatch
-                const batchStats = await this.processBatch(batch, jobId, headerMapping); 
+                // Pass headerMapping and defaultOfferDate to processBatch
+                const batchStats = await this.processBatch(batch, jobId, headerMapping, defaultOfferDate); 
                 this.updateStats(stats, batchStats);
                 
                 // Update progress in database
@@ -370,9 +374,10 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
    * @param batch Array of records to process
    * @param jobId Unique identifier for this processing job
    * @param headerMapping Optional header mapping object
+   * @param defaultOfferDate Optional default offer date to use if no date is provided in the file
    * @returns Promise with batch processing statistics
    */
-  private async processBatch(batch: any[], jobId: string, headerMapping?: HeaderMapping): Promise<ProcessingStats> {
+  private async processBatch(batch: any[], jobId: string, headerMapping?: HeaderMapping, defaultOfferDate?: Date): Promise<ProcessingStats> {
     const stats: ProcessingStats = {
       totalRecords: batch.length,
       newRecords: 0,
@@ -384,24 +389,41 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
     const transaction = await propertyRepository.startTransaction();
     
     try {
-      // Transform all records first, passing the headerMapping
-      const propertiesData = batch.map(row => this.transformRowToPropertyData(row, headerMapping));
+      // Transform all records first, passing the headerMapping and defaultOfferDate
+      const transformedData = batch.map(row => this.transformRowToPropertyData(row, headerMapping, defaultOfferDate));
 
-      // Batch create/update using upsert with conflict resolution
-      const result = await propertyRepository.bulkCreate(
-        propertiesData,
-        transaction,
-        ['offer', 'updated_at'] as (keyof PropertyCreationAttributes)[]
-      );
+      // Process each record individually to handle offer history
+      for (const data of transformedData) {
+        try {
+          // Find or create property
+          const [property, isNew] = await propertyRepository.createOrUpdate(
+            data.propertyData,
+            transaction
+          );
 
-      // Analyze results to count new/updated records
-      result.forEach(property => {
-        if (property.created_at.getTime() === property.updated_at.getTime()) {
-          stats.newRecords++;
-        } else {
-          stats.updatedRecords++;
+          // If we have offer data, create an offer history record
+          if (data.offerAmount && data.offerDate) {
+            await offerHistoryRepository.addOffer(
+              {
+                propertyId: property.id,
+                offerAmount: data.offerAmount,
+                offerDate: data.offerDate
+              },
+              transaction
+            );
+          }
+
+          // Update stats
+          if (isNew) {
+            stats.newRecords++;
+          } else {
+            stats.updatedRecords++;
+          }
+        } catch (error) {
+          logger.error(`[Job ${jobId}] Error processing record:`, error);
+          stats.errorRecords++;
         }
-      });
+      }
 
       await transaction.commit();
     } catch (error: unknown) {
@@ -415,13 +437,14 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
   }
 
   /**
-   * Transform a raw data row into a PropertyCreationAttributes object
+   * Transform a raw data row into a PropertyCreationAttributes object and offer data
    * This method handles data normalization and validation
    * @param row Raw data row
-   * @returns Transformed PropertyCreationAttributes object
+   * @param headerMapping Optional header mapping object
+   * @param defaultOfferDate Optional default offer date to use if no date is provided in the file
+   * @returns Transformed data object containing property data and offer information
    */
-
-  private transformRowToPropertyData(row: any, headerMapping?: HeaderMapping): PropertyCreationAttributes {
+  private transformRowToPropertyData(row: any, headerMapping?: HeaderMapping, defaultOfferDate?: Date): TransformedRowData {
     // Use the mapping if provided, otherwise use default field names
     const mapping = headerMapping || {
       firstName: 'firstName',
@@ -430,7 +453,8 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
       propertyCity: 'propertyCity',
       propertyState: 'propertyState',
       propertyZip: 'propertyZip',
-      offer: 'offer'
+      offerAmount: 'offerAmount',
+      offerDate: 'offerDate'
     };
     
     // Helper function to safely get value using mapping or fallbacks
@@ -455,11 +479,24 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
       property_city: this.normalizeCity(getValue('propertyCity', ['property_city', 'city']) || ''),
       property_state: this.normalizeState(getValue('propertyState', ['property_state', 'state']) || ''),
       property_zip: this.normalizeZip(getValue('propertyZip', ['property_zip', 'zip']) || ''),
-      offer: parseFloat(getValue('offer', ['offer']) || '0'),
       created_at: new Date(),
       updated_at: new Date()
     };
-    return propertyData;
+
+    // Extract offer data
+    const offerAmount = parseFloat(getValue('offerAmount', ['offer_amount', 'offer', 'amount']) || '0');
+    let offerDate = getValue('offerDate', ['offer_date', 'date']);
+
+    // If no offer date is found in the file and a default date is provided, use it
+    if (!offerDate && defaultOfferDate) {
+      offerDate = defaultOfferDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    }
+
+    return {
+      propertyData,
+      offerAmount: offerAmount || undefined,
+      offerDate: offerDate || undefined
+    };
   }
 
   /**

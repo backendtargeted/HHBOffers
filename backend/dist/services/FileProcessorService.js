@@ -19,6 +19,7 @@ const exceljs_1 = __importDefault(require("exceljs"));
 const PropertyRepository_1 = require("../repositories/PropertyRepository");
 const UploadJobRepository_1 = require("../repositories/UploadJobRepository");
 const ActivityLogRepository_1 = require("../repositories/ActivityLogRepository");
+const OfferHistoryRepository_1 = require("../repositories/OfferHistoryRepository");
 const logger_1 = __importDefault(require("../logger"));
 /**
  * Service for processing CSV and XLSX files using the Batch Processing Pattern
@@ -35,21 +36,14 @@ class FileProcessorService {
      * Process a CSV file using the Batch Processing Pattern with non-blocking behavior
      * @param filePath Path to the CSV file
      * @param jobId Unique identifier for this processing job
-     * @param userId ID of the user who initiated the job
+     * @param headerMapping Optional header mapping object
+     * @param defaultOfferDate Optional default offer date to use if no date is provided in the file
      * @returns Promise with processing statistics
      */
-    processCsvFile(filePath, jobId, userId) {
+    processCsvFile(filePath, jobId, headerMapping, defaultOfferDate) {
         return __awaiter(this, void 0, void 0, function* () {
             // Update job status to processing
             yield UploadJobRepository_1.uploadJobRepository.updateStatus(jobId, 'processing');
-            // Log activity
-            yield ActivityLogRepository_1.activityLogRepository.log({
-                user_id: userId,
-                action: 'start_processing',
-                entity_type: 'uploadjob',
-                entity_id: jobId,
-                details: { filePath, fileType: 'csv' }
-            });
             return new Promise((resolve, reject) => {
                 const stats = {
                     totalRecords: 0,
@@ -59,9 +53,40 @@ class FileProcessorService {
                 };
                 let batch = [];
                 let batchCount = 0;
+                let headers = []; // Added to store headers
+                let firstRow = true; // Added flag for first row
                 this.stream = fs_1.default.createReadStream(filePath)
                     .pipe((0, csv_parser_1.default)())
                     .on('data', (row) => {
+                    // Capture headers from the first row if needed
+                    if (firstRow) {
+                        headers = Object.keys(row);
+                        firstRow = false;
+                        // If no explicit mapping is provided, try to detect common patterns
+                        if (!headerMapping) {
+                            const detectedMapping = {};
+                            headers.forEach(header => {
+                                const lowerHeader = header.toLowerCase();
+                                if (lowerHeader.includes('first') && lowerHeader.includes('name'))
+                                    detectedMapping.firstName = header;
+                                else if (lowerHeader.includes('last') && lowerHeader.includes('name'))
+                                    detectedMapping.lastName = header;
+                                else if (lowerHeader.includes('address') || lowerHeader === 'addr')
+                                    detectedMapping.propertyAddress = header;
+                                else if (lowerHeader.includes('city'))
+                                    detectedMapping.propertyCity = header;
+                                else if (lowerHeader.includes('state'))
+                                    detectedMapping.propertyState = header;
+                                else if (lowerHeader.includes('zip'))
+                                    detectedMapping.propertyZip = header;
+                                else if (lowerHeader.includes('offer') || lowerHeader.includes('price') || lowerHeader === 'amount')
+                                    detectedMapping.offerAmount = header;
+                                else if (lowerHeader.includes('date'))
+                                    detectedMapping.offerDate = header;
+                            });
+                            headerMapping = detectedMapping;
+                        }
+                    }
                     batch.push(row);
                     stats.totalRecords++;
                     // When batch size is reached, process the batch
@@ -71,7 +96,8 @@ class FileProcessorService {
                         // Process the batch in a non-blocking way
                         setTimeout(() => __awaiter(this, void 0, void 0, function* () {
                             try {
-                                const batchStats = yield this.processBatch(batch, jobId);
+                                // Pass headerMapping and defaultOfferDate to processBatch
+                                const batchStats = yield this.processBatch(batch, jobId, headerMapping, defaultOfferDate);
                                 this.updateStats(stats, batchStats);
                                 // Update progress in database
                                 yield this.updateJobProgress(jobId, stats);
@@ -97,7 +123,8 @@ class FileProcessorService {
                     // Process any remaining records
                     if (batch.length > 0) {
                         try {
-                            const batchStats = yield this.processBatch(batch, jobId);
+                            // Pass headerMapping and defaultOfferDate to processBatch
+                            const batchStats = yield this.processBatch(batch, jobId, headerMapping, defaultOfferDate);
                             this.updateStats(stats, batchStats);
                             yield this.updateJobProgress(jobId, stats);
                             this.emitProgress(jobId, stats);
@@ -111,7 +138,6 @@ class FileProcessorService {
                             yield UploadJobRepository_1.uploadJobRepository.updateStatus(jobId, 'failed');
                             // Log activity
                             yield ActivityLogRepository_1.activityLogRepository.log({
-                                user_id: userId,
                                 action: 'processing_failed',
                                 entity_type: 'uploadjob',
                                 entity_id: jobId,
@@ -128,7 +154,6 @@ class FileProcessorService {
                     yield UploadJobRepository_1.uploadJobRepository.updateStatus(jobId, 'completed');
                     // Log activity
                     yield ActivityLogRepository_1.activityLogRepository.log({
-                        user_id: userId,
                         action: 'processing_completed',
                         entity_type: 'uploadjob',
                         entity_id: jobId,
@@ -142,7 +167,6 @@ class FileProcessorService {
                     yield UploadJobRepository_1.uploadJobRepository.updateStatus(jobId, 'failed');
                     // Log activity
                     yield ActivityLogRepository_1.activityLogRepository.log({
-                        user_id: userId,
                         action: 'processing_failed',
                         entity_type: 'uploadjob',
                         entity_id: jobId,
@@ -157,16 +181,16 @@ class FileProcessorService {
      * Process an XLSX file using the Batch Processing Pattern with non-blocking behavior
      * @param filePath Path to the XLSX file
      * @param jobId Unique identifier for this processing job
-     * @param userId ID of the user who initiated the job
+     * @param headerMapping Optional header mapping object
+     * @param defaultOfferDate Optional default offer date to use if no date is provided in the file
      * @returns Promise with processing statistics
      */
-    processXlsxFile(filePath, jobId, userId) {
+    processXlsxFile(filePath, jobId, headerMapping, defaultOfferDate) {
         return __awaiter(this, void 0, void 0, function* () {
             // Update job status to processing
             yield UploadJobRepository_1.uploadJobRepository.updateStatus(jobId, 'processing');
             // Log activity
             yield ActivityLogRepository_1.activityLogRepository.log({
-                user_id: userId,
                 action: 'start_processing',
                 entity_type: 'uploadjob',
                 entity_id: jobId,
@@ -193,6 +217,30 @@ class FileProcessorService {
                         var _a;
                         headers[colNumber - 1] = ((_a = cell.value) === null || _a === void 0 ? void 0 : _a.toString()) || '';
                     });
+                    // If no explicit mapping is provided, try to detect common patterns
+                    if (!headerMapping) {
+                        const detectedMapping = {};
+                        headers.forEach(header => {
+                            const lowerHeader = header.toLowerCase();
+                            if (lowerHeader.includes('first') && lowerHeader.includes('name'))
+                                detectedMapping.firstName = header;
+                            else if (lowerHeader.includes('last') && lowerHeader.includes('name'))
+                                detectedMapping.lastName = header;
+                            else if (lowerHeader.includes('address') || lowerHeader === 'addr')
+                                detectedMapping.propertyAddress = header;
+                            else if (lowerHeader.includes('city'))
+                                detectedMapping.propertyCity = header;
+                            else if (lowerHeader.includes('state'))
+                                detectedMapping.propertyState = header;
+                            else if (lowerHeader.includes('zip'))
+                                detectedMapping.propertyZip = header;
+                            else if (lowerHeader.includes('offer') || lowerHeader.includes('price') || lowerHeader === 'amount')
+                                detectedMapping.offerAmount = header;
+                            else if (lowerHeader.includes('date'))
+                                detectedMapping.offerDate = header;
+                        });
+                        headerMapping = detectedMapping;
+                    }
                     // Collect all rows first to enable batch processing
                     const allRows = [];
                     // Skip header row (starting from 2)
@@ -215,7 +263,8 @@ class FileProcessorService {
                         yield new Promise((batchResolve) => {
                             setTimeout(() => __awaiter(this, void 0, void 0, function* () {
                                 try {
-                                    const batchStats = yield this.processBatch(batch, jobId);
+                                    // Pass headerMapping and defaultOfferDate to processBatch
+                                    const batchStats = yield this.processBatch(batch, jobId, headerMapping, defaultOfferDate);
                                     this.updateStats(stats, batchStats);
                                     // Update progress in database
                                     yield this.updateJobProgress(jobId, stats);
@@ -240,7 +289,6 @@ class FileProcessorService {
                     yield UploadJobRepository_1.uploadJobRepository.updateStatus(jobId, 'completed');
                     // Log activity
                     yield ActivityLogRepository_1.activityLogRepository.log({
-                        user_id: userId,
                         action: 'processing_completed',
                         entity_type: 'uploadjob',
                         entity_id: jobId,
@@ -255,7 +303,6 @@ class FileProcessorService {
                     yield UploadJobRepository_1.uploadJobRepository.updateStatus(jobId, 'failed');
                     // Log activity
                     yield ActivityLogRepository_1.activityLogRepository.log({
-                        user_id: userId,
                         action: 'processing_failed',
                         entity_type: 'uploadjob',
                         entity_id: jobId,
@@ -270,9 +317,11 @@ class FileProcessorService {
      * Process a batch of records in batches of 100
      * @param batch Array of records to process
      * @param jobId Unique identifier for this processing job
+     * @param headerMapping Optional header mapping object
+     * @param defaultOfferDate Optional default offer date to use if no date is provided in the file
      * @returns Promise with batch processing statistics
      */
-    processBatch(batch, jobId) {
+    processBatch(batch, jobId, headerMapping, defaultOfferDate) {
         return __awaiter(this, void 0, void 0, function* () {
             const stats = {
                 totalRecords: batch.length,
@@ -283,19 +332,34 @@ class FileProcessorService {
             // Use a transaction for the entire batch
             const transaction = yield PropertyRepository_1.propertyRepository.startTransaction();
             try {
-                // Transform all records first
-                const propertiesData = batch.map(row => this.transformRowToPropertyData(row));
-                // Batch create/update using upsert with conflict resolution
-                const result = yield PropertyRepository_1.propertyRepository.bulkCreate(propertiesData, transaction, ['offer', 'updated_at']);
-                // Analyze results to count new/updated records
-                result.forEach(property => {
-                    if (property.created_at.getTime() === property.updated_at.getTime()) {
-                        stats.newRecords++;
+                // Transform all records first, passing the headerMapping and defaultOfferDate
+                const transformedData = batch.map(row => this.transformRowToPropertyData(row, headerMapping, defaultOfferDate));
+                // Process each record individually to handle offer history
+                for (const data of transformedData) {
+                    try {
+                        // Find or create property
+                        const [property, isNew] = yield PropertyRepository_1.propertyRepository.createOrUpdate(data.propertyData, transaction);
+                        // If we have offer data, create an offer history record
+                        if (data.offerAmount && data.offerDate) {
+                            yield OfferHistoryRepository_1.offerHistoryRepository.addOffer({
+                                propertyId: property.id,
+                                offerAmount: data.offerAmount,
+                                offerDate: data.offerDate
+                            }, transaction);
+                        }
+                        // Update stats
+                        if (isNew) {
+                            stats.newRecords++;
+                        }
+                        else {
+                            stats.updatedRecords++;
+                        }
                     }
-                    else {
-                        stats.updatedRecords++;
+                    catch (error) {
+                        logger_1.default.error(`[Job ${jobId}] Error processing record:`, error);
+                        stats.errorRecords++;
                     }
-                });
+                }
                 yield transaction.commit();
             }
             catch (error) {
@@ -308,25 +372,61 @@ class FileProcessorService {
         });
     }
     /**
-     * Transform a raw data row into a PropertyCreationAttributes object
+     * Transform a raw data row into a PropertyCreationAttributes object and offer data
      * This method handles data normalization and validation
      * @param row Raw data row
-     * @returns Transformed PropertyCreationAttributes object
+     * @param headerMapping Optional header mapping object
+     * @param defaultOfferDate Optional default offer date to use if no date is provided in the file
+     * @returns Transformed data object containing property data and offer information
      */
-    transformRowToPropertyData(row) {
-        // Extract and normalize property data
+    transformRowToPropertyData(row, headerMapping, defaultOfferDate) {
+        // Use the mapping if provided, otherwise use default field names
+        const mapping = headerMapping || {
+            firstName: 'firstName',
+            lastName: 'lastName',
+            propertyAddress: 'propertyAddress',
+            propertyCity: 'propertyCity',
+            propertyState: 'propertyState',
+            propertyZip: 'propertyZip',
+            offerAmount: 'offerAmount',
+            offerDate: 'offerDate'
+        };
+        // Helper function to safely get value using mapping or fallbacks
+        const getValue = (fieldKey, fallbacks) => {
+            const mappedHeader = mapping[fieldKey];
+            if (mappedHeader && row[mappedHeader] !== undefined) {
+                return row[mappedHeader];
+            }
+            for (const fallback of fallbacks) {
+                if (row[fallback] !== undefined) {
+                    return row[fallback];
+                }
+            }
+            return null; // Return null if no value found
+        };
+        // Extract and normalize property data using the mapping safely
         const propertyData = {
-            first_name: row.firstName || row.first_name || null,
-            last_name: row.lastName || row.last_name || null,
-            property_address: this.normalizeAddress(row.propertyAddress || row.property_address || row.address || ''),
-            property_city: this.normalizeCity(row.propertyCity || row.property_city || row.city || ''),
-            property_state: this.normalizeState(row.propertyState || row.property_state || row.state || ''),
-            property_zip: this.normalizeZip(row.propertyZip || row.property_zip || row.zip || ''),
-            offer: parseFloat(row.offer || '0'),
+            first_name: getValue('firstName', ['first_name']),
+            last_name: getValue('lastName', ['last_name']),
+            property_address: this.normalizeAddress(getValue('propertyAddress', ['property_address', 'address']) || ''),
+            property_city: this.normalizeCity(getValue('propertyCity', ['property_city', 'city']) || ''),
+            property_state: this.normalizeState(getValue('propertyState', ['property_state', 'state']) || ''),
+            property_zip: this.normalizeZip(getValue('propertyZip', ['property_zip', 'zip']) || ''),
             created_at: new Date(),
             updated_at: new Date()
         };
-        return propertyData;
+        // Extract offer data
+        const offerAmount = parseFloat(getValue('offerAmount', ['offer_amount', 'offer', 'amount']) || '0');
+        let offerDate = getValue('offerDate', ['offer_date', 'date']);
+        // If no offer date is found in the file and a default date is provided, use it
+        if (!offerDate && defaultOfferDate) {
+            offerDate = defaultOfferDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        }
+        return {
+            propertyData,
+            offerAmount: offerAmount || undefined,
+            offerDate: offerDate || undefined
+        };
     }
     /**
      * Update the overall statistics with batch statistics

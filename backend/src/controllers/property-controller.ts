@@ -6,6 +6,7 @@ import { redisService } from '../services/redis-service';
 import logger from '../logger';
 import { toCamelCase } from '../utils/dataTransformer';
 import { sendResponse } from '../utils/responseHandler';
+import { OfferHistory } from '../models/OfferHistory';
 
 class PropertyController {
   /**
@@ -35,8 +36,14 @@ class PropertyController {
         });
       }
       
-      // If not in cache, get from database
-      const result = await propertyRepository.findPaginated(page, pageSize);
+      // If not in cache, get from database with offer history
+      const result = await propertyRepository.findPaginated(page, pageSize, {
+        include: [{
+          model: OfferHistory,
+          as: 'offerHistories',
+          order: [['offer_date', 'DESC']]
+        }]
+      });
       logger.info(`[PropertyController] getAllProperties result: ${JSON.stringify(result)}`);
       
       // Transform the result to camelCase
@@ -81,8 +88,14 @@ class PropertyController {
         });
       }
       
-      // If not in cache, get from database
-      const property = await propertyRepository.findById(parseInt(id));
+      // If not in cache, get from database with offer history
+      const property = await propertyRepository.findById(parseInt(id), {
+        include: [{
+          model: OfferHistory,
+          as: 'offerHistories',
+          order: [['offer_date', 'DESC']]
+        }]
+      });
       
       if (!property) {
         return sendResponse(res, {
@@ -130,7 +143,6 @@ class PropertyController {
         property_city: req.body.propertyCity,
         property_state: req.body.propertyState,
         property_zip: req.body.propertyZip,
-        offer: req.body.offer,
         created_at: new Date(),
         updated_at: new Date()
       };
@@ -144,9 +156,9 @@ class PropertyController {
       );
       
       if (existingProperty) {
-      return sendResponse(res, {
-        message: 'Property with this address already exists'
-      }, 409);
+        return sendResponse(res, {
+          message: 'Property with this address already exists'
+        }, 409);
       }
       
       // Create property
@@ -209,7 +221,6 @@ class PropertyController {
       if (req.body.propertyCity !== undefined) updateData.property_city = req.body.propertyCity;
       if (req.body.propertyState !== undefined) updateData.property_state = req.body.propertyState;
       if (req.body.propertyZip !== undefined) updateData.property_zip = req.body.propertyZip;
-      if (req.body.offer !== undefined) updateData.offer = req.body.offer;
       
       // Always update the updated_at timestamp
       updateData.updated_at = new Date();
@@ -455,7 +466,6 @@ class PropertyController {
             property_city: property.propertyCity,
             property_state: property.propertyState,
             property_zip: property.propertyZip,
-            offer: property.offer,
             created_at: new Date(),
             updated_at: new Date()
           };
@@ -571,7 +581,6 @@ class PropertyController {
           if (property.propertyCity !== undefined) updateData.property_city = property.propertyCity;
           if (property.propertyState !== undefined) updateData.property_state = property.propertyState;
           if (property.propertyZip !== undefined) updateData.property_zip = property.propertyZip;
-          if (property.offer !== undefined) updateData.offer = property.offer;
           
           // Always update the updated_at timestamp
           updateData.updated_at = new Date();

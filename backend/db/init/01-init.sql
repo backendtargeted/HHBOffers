@@ -12,7 +12,6 @@ SET search_path TO public;
 
 -- Create tables
 
-
 -- Properties Table
 CREATE TABLE IF NOT EXISTS properties (
   id SERIAL PRIMARY KEY,
@@ -22,7 +21,6 @@ CREATE TABLE IF NOT EXISTS properties (
   property_city VARCHAR(100) NOT NULL,
   property_state VARCHAR(2) NOT NULL,
   property_zip VARCHAR(10) NOT NULL,
-  offer DECIMAL(12, 2) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -40,6 +38,20 @@ CREATE INDEX IF NOT EXISTS idx_properties_city ON properties(property_city);
 CREATE INDEX IF NOT EXISTS idx_properties_state ON properties(property_state);
 CREATE INDEX IF NOT EXISTS idx_properties_last_name ON properties(last_name);
 
+-- Offer History Table
+CREATE TABLE IF NOT EXISTS offer_histories (
+  id SERIAL PRIMARY KEY,
+  property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+  offer_amount DECIMAL(12, 2) NOT NULL,
+  offer_date DATE NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create indexes for offer_histories table
+CREATE INDEX IF NOT EXISTS idx_offer_history_property ON offer_histories(property_id);
+CREATE INDEX IF NOT EXISTS idx_offer_history_date ON offer_histories(offer_date);
+
 -- Upload Jobs Table
 CREATE TABLE IF NOT EXISTS upload_jobs (
   id VARCHAR(100) PRIMARY KEY,
@@ -56,8 +68,8 @@ CREATE TABLE IF NOT EXISTS upload_jobs (
   completed_at TIMESTAMP,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-  
 );
+
 CREATE INDEX IF NOT EXISTS idx_upload_jobs_status ON upload_jobs(status);
 
 -- Activity Logs Table
@@ -93,18 +105,6 @@ END$$;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO dbuser;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO dbuser;
 
--- -- Insert some sample properties
--- INSERT INTO properties (
---   first_name, last_name, property_address, property_city, property_state, property_zip, offer, created_at, updated_at
--- ) VALUES
---   ('Sauron', 'The Dark Lord', 'Barad-dûr', 'Mordor', 'HI', '66666', 9999999, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
---   ('Frodo', 'Baggins', 'Bag End', 'The Shire', 'NY', '12345', 500, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
---   ('Aragorn', 'Son of Arathorn', 'The Citadel', 'Minas Tirith', 'NY', '56789', 750000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
---   ('Gandalf', 'The Grey', 'Orthanc Tower', 'Isengard', 'NY', '11111', 1000000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
---   ('Legolas', 'Greenleaf', 'Thranduil’s Halls', 'Mirkwood', 'NY', '22222', 350000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
---   ('Gimli', 'Son of Glóin', 'Glittering Caves', 'Helm’s Deep', 'NY', '33333', 450000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
---   ('Saruman', 'The White', 'Orthanc Tower', 'Isengard', 'NY', '44444', 666666, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
 -- Create a function to automatically update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_timestamp_column()
 RETURNS TRIGGER AS $$
@@ -121,4 +121,8 @@ FOR EACH ROW EXECUTE PROCEDURE update_timestamp_column();
 
 CREATE TRIGGER update_upload_jobs_timestamp 
 BEFORE UPDATE ON upload_jobs
+FOR EACH ROW EXECUTE PROCEDURE update_timestamp_column();
+
+CREATE TRIGGER update_offer_histories_timestamp 
+BEFORE UPDATE ON offer_histories
 FOR EACH ROW EXECUTE PROCEDURE update_timestamp_column();

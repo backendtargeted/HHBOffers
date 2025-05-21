@@ -1,14 +1,19 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PropertyModelOptions = exports.PropertyModelAttributes = exports.Property = void 0;
+exports.initializeAssociations = initializeAssociations;
 const sequelize_1 = require("sequelize");
-const database_1 = __importDefault(require("../config/database"));
-const logger_1 = __importDefault(require("../logger"));
+const OfferHistory_1 = require("./OfferHistory");
+// Define the model
 class Property extends sequelize_1.Model {
+    // Virtual field for full name
+    get fullName() {
+        return [this.first_name, this.last_name].filter(Boolean).join(' ') || 'Unknown';
+    }
 }
-Property.init({
+exports.Property = Property;
+// Define model attributes
+exports.PropertyModelAttributes = {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
         autoIncrement: true,
@@ -55,15 +60,7 @@ Property.init({
         allowNull: false,
         validate: {
             notEmpty: true,
-            is: /^[0-9]{5}(-[0-9]{4})?$/, // 5 digit or 5+4 format
-        },
-    },
-    offer: {
-        type: sequelize_1.DataTypes.DECIMAL(12, 2),
-        allowNull: false,
-        validate: {
-            isDecimal: true,
-            min: 0, // Offer cannot be negative
+            is: /^[0-9]{4,5}(-[0-9]{4})?$/, // Allow 4 or 5 digits, optionally followed by -4 digits
         },
     },
     created_at: {
@@ -76,11 +73,12 @@ Property.init({
         allowNull: false,
         defaultValue: sequelize_1.DataTypes.NOW,
     },
-}, {
-    sequelize: database_1.default,
-    modelName: 'Property',
+};
+// Define model options
+exports.PropertyModelOptions = {
     tableName: 'properties',
-    timestamps: false, // We'll manually manage created_at and updated_at
+    timestamps: true,
+    underscored: true,
     indexes: [
         {
             // Match the index in the DB schema
@@ -93,6 +91,12 @@ Property.init({
             property.updated_at = new Date();
         },
     },
-});
-logger_1.default.info(`Property model initialized with: ${JSON.stringify(Property.getAttributes())}`);
+};
+// Define associations
+function initializeAssociations() {
+    Property.hasMany(OfferHistory_1.OfferHistory, {
+        foreignKey: 'property_id',
+        as: 'offerHistories',
+    });
+}
 exports.default = Property;

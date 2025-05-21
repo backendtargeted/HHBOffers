@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Grid,
   Divider,
   Button,
   Chip,
@@ -24,6 +23,7 @@ import {
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import OfferHistory from './OfferHistory';
 
 // Define validation schema
 const propertyUpdateSchema = yup.object({
@@ -40,10 +40,6 @@ const propertyUpdateSchema = yup.object({
     .string()
     .required('ZIP code is required')
     .matches(/^\d{5}(-\d{4})?$/, 'ZIP code must be valid (e.g., 12345 or 12345-6789)'),
-  offer: yup
-    .number()
-    .required('Offer is required')
-    .min(0, 'Offer cannot be negative'),
   createdAt: yup.string().optional().nullable(),
   updatedAt: yup.string().optional().nullable()
 }).required();
@@ -57,9 +53,15 @@ export interface Property {
   propertyCity: string;
   propertyState: string;
   propertyZip: string;
-  offer: number;
   createdAt?: string | null;
   updatedAt?: string | null;
+  offerHistories?: Array<{
+    id: number;
+    propertyId: number;
+    offerAmount: number;
+    offerDate: string;
+    createdAt: string;
+  }>;
 }
 
 interface PropertyDetailProps {
@@ -96,7 +98,6 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
         propertyCity: prop.property_city || '',
         propertyState: prop.property_state || '',
         propertyZip: prop.property_zip || '',
-        offer: prop.offer || 0,
         createdAt: prop.created_at || null,
         updatedAt: prop.updated_at || null
       };
@@ -154,7 +155,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   };
 
   // Setup form
-  const { control, handleSubmit, formState: { errors } } = useForm<Property>({
+  const { control, handleSubmit, formState: { errors }, reset } = useForm<Property>({
     resolver: yupResolver(propertyUpdateSchema),
     defaultValues: safeProperty
   });
@@ -251,9 +252,9 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
         {isEditing ? (
           // Edit Mode (Apply responsive spacing)
           <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-            <Grid container spacing={isMobile ? 1 : 2}> {/* Updated spacing */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: isMobile ? 1 : 2 }}>
               {/* Form Fields */}
-              <Grid item xs={12} sm={6}>
+              <Box>
                 <Controller
                   name="firstName"
                   control={control}
@@ -263,15 +264,15 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       label="First Name"
                       fullWidth
                       margin="normal"
-                      size={isMobile ? "medium" : "small"} // Add responsive size
+                      size={isMobile ? "medium" : "small"}
                       error={!!errors.firstName}
                       helperText={errors.firstName?.message}
                       value={field.value || ''}
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box>
                 <Controller
                   name="lastName"
                   control={control}
@@ -281,15 +282,15 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       label="Last Name"
                       fullWidth
                       margin="normal"
-                      size={isMobile ? "medium" : "small"} // Add responsive size
+                      size={isMobile ? "medium" : "small"}
                       error={!!errors.lastName}
                       helperText={errors.lastName?.message}
                       value={field.value || ''}
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box sx={{ gridColumn: { xs: '1', sm: '1 / -1' } }}>
                 <Controller
                   name="propertyAddress"
                   control={control}
@@ -300,15 +301,15 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       fullWidth
                       required
                       margin="normal"
-                      size={isMobile ? "medium" : "small"} // Add responsive size
+                      size={isMobile ? "medium" : "small"}
                       error={!!errors.propertyAddress}
                       helperText={errors.propertyAddress?.message}
                       value={field.value || ''}
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box>
                 <Controller
                   name="propertyCity"
                   control={control}
@@ -319,15 +320,15 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       fullWidth
                       required
                       margin="normal"
-                      size={isMobile ? "medium" : "small"} // Add responsive size
+                      size={isMobile ? "medium" : "small"}
                       error={!!errors.propertyCity}
                       helperText={errors.propertyCity?.message}
                       value={field.value || ''}
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={6} sm={3}>
+              </Box>
+              <Box>
                 <Controller
                   name="propertyState"
                   control={control}
@@ -338,7 +339,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       fullWidth
                       required
                       margin="normal"
-                      size={isMobile ? "medium" : "small"} // Add responsive size
+                      size={isMobile ? "medium" : "small"}
                       inputProps={{ maxLength: 2 }}
                       error={!!errors.propertyState}
                       helperText={errors.propertyState?.message}
@@ -346,8 +347,8 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={6} sm={3}>
+              </Box>
+              <Box>
                 <Controller
                   name="propertyZip"
                   control={control}
@@ -358,40 +359,17 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       fullWidth
                       required
                       margin="normal"
-                      size={isMobile ? "medium" : "small"} // Add responsive size
+                      size={isMobile ? "medium" : "small"}
                       error={!!errors.propertyZip}
                       helperText={errors.propertyZip?.message}
                       value={field.value || ''}
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12}>
-                <Controller
-                  name="offer"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Offer Amount"
-                      fullWidth
-                      required
-                      margin="normal"
-                      size={isMobile ? "medium" : "small"} // Add responsive size
-                      type="number"
-                      InputProps={{
-                        startAdornment: <Typography sx={{ mr: 1 }}>$</Typography>
-                      }}
-                      error={!!errors.offer}
-                      helperText={errors.offer?.message}
-                      value={field.value || 0}
-                    />
-                  )}
-                />
-              </Grid>
+              </Box>
 
               {/* Action Buttons */}
-              <Grid item xs={12}>
+              <Box sx={{ gridColumn: { xs: '1', sm: '1 / -1' } }}>
                 <Box sx={{
                   display: 'flex',
                   flexDirection: { xs: 'column', sm: 'row' },
@@ -399,111 +377,87 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                   mt: 2
                 }}>
                   <Button
+                    type="submit"
+                    variant="contained"
+                    startIcon={<SaveIcon />}
+                    fullWidth={isMobile}
+                    sx={mobileStyles.button}
+                  >
+                    Save Changes
+                  </Button>
+                  <Button
                     variant="outlined"
                     startIcon={<CancelIcon />}
-                    onClick={() => setIsEditing(false)}
-                    disabled={isLoading}
-                    fullWidth={isMobile} // Use isMobile here
+                    onClick={() => {
+                      setIsEditing(false);
+                      reset(safeProperty);
+                    }}
+                    fullWidth={isMobile}
+                    sx={mobileStyles.button}
                   >
                     Cancel
                   </Button>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    startIcon={isLoading ? <CircularProgress size={20} /> : <SaveIcon />}
-                    disabled={isLoading}
-                    fullWidth={isMobile} // Use isMobile here
-                  >
-                    Save
-                  </Button>
                 </Box>
-              </Grid>
-            </Grid> {/* End Form Fields Grid */}
+              </Box>
+            </Box>
 
             {updateError && (
               <Box sx={{ mt: 2 }}>
                 <Typography color="error">{updateError}</Typography>
               </Box>
             )}
-          </Box> // End Edit Mode Box
+          </Box>
         ) : (
           /* View Mode */
-          /* Replace existing Box with Grid structure from plan */
-          <Grid item xs={12}>
-            <Grid container spacing={isMobile ? 1 : 2}> {/* Responsive spacing */}
-              {/* Property Information */}
-              <Grid item xs={12}>
-                <Typography variant={isMobile ? "body1" : "h6"}> {/* Responsive variant */}
+          <Box>
+            <Stack spacing={2}>
+              {/* Property Details */}
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary" sx={mobileStyles.sectionTitle}>
+                  Property Details
+                </Typography>
+                <Typography variant="body1" sx={mobileStyles.sectionContent}>
                   {safeProperty.propertyAddress}
                 </Typography>
-                <Typography variant="body2" color="textSecondary"> {/* Use body2 as per plan */}
-                  {safeProperty.propertyCity}, {safeProperty.propertyState} {safeProperty.propertyZip}
+                <Typography variant="body1" sx={mobileStyles.sectionContent}>
+                  {`${safeProperty.propertyCity}, ${safeProperty.propertyState} ${safeProperty.propertyZip}`}
                 </Typography>
-              </Grid>
+              </Box>
 
-              <Grid item xs={12}><Divider sx={{ my: 1 }} /></Grid> {/* Add divider */}
-
-              {/* Owner Info */}
-              <Grid item xs={12} sm={6}>
-                <Typography variant="caption" color="textSecondary" display="block" gutterBottom>
-                  Owner
+              {/* Owner Information */}
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary" sx={mobileStyles.sectionTitle}>
+                  Owner Information
                 </Typography>
-                <Typography variant="body1">
-                  {(safeProperty.firstName || safeProperty.lastName) ?
-                    `${safeProperty.firstName || ''} ${safeProperty.lastName || ''}`.trim() :
-                    'Current Homeowner'}
+                <Typography variant="body1" sx={mobileStyles.sectionContent}>
+                  {safeProperty.firstName || safeProperty.lastName
+                    ? `${safeProperty.firstName || ''} ${safeProperty.lastName || ''}`.trim()
+                    : 'Not provided'}
                 </Typography>
-              </Grid>
+              </Box>
 
-              {/* Offer Amount */}
-              <Grid item xs={12} sm={6}>
-                <Typography variant="caption" color="textSecondary" display="block" gutterBottom>
-                  Offer Amount
+              {/* Offer History */}
+              <Box>
+                <OfferHistory propertyId={safeProperty.id} isMobile={isMobile} />
+              </Box>
+
+              {/* Timestamps */}
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary" sx={mobileStyles.sectionTitle}>
+                  Last Updated
                 </Typography>
-                <Box sx={{ mt: 0.5 }}>
-                  <Chip
-                    label={formatCurrency(safeProperty.offer)}
-                    color={safeProperty.offer === 0 ? "default" : "primary"}
-                    size={isMobile ? "medium" : "small"}
-                    sx={{
-                      height: 'auto',
-                      '& .MuiChip-label': {
-                        display: 'block',
-                        py: 1,
-                        px: 2,
-                        fontSize: isMobile ? '1.1rem' : '1rem',
-                        fontWeight: 500
-                      }
-                    }}
-                  />
-                </Box>
-              </Grid>
-
-              {/* Dates */}
-              {safeProperty.createdAt && (
-                <>
-                  <Grid item xs={12}><Divider sx={{ my: 1 }} /></Grid>
-                  <Grid item xs={6}>
-                    <Typography variant="caption" color="textSecondary">Created</Typography>
-                    <Typography variant={isMobile ? "body2" : "body2"}> {/* Consistent body2 */}
-                      {new Date(safeProperty.createdAt).toLocaleDateString('en-US')}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography variant="caption" color="textSecondary">Last Updated</Typography>
-                    <Typography variant={isMobile ? "body2" : "body2"}> {/* Consistent body2 */}
-                      {safeProperty.updatedAt ? new Date(safeProperty.updatedAt).toLocaleDateString('en-US') : 'N/A'}
-                    </Typography>
-                  </Grid>
-                </>
-              )}
-            </Grid> {/* End Inner View Mode Grid */}
-          </Grid> // End Outer View Mode Grid Item
-        )} {/* End isEditing ternary */}
+                <Typography variant="body2" color="text.secondary">
+                  {safeProperty.updatedAt
+                    ? new Date(safeProperty.updatedAt).toLocaleString()
+                    : 'Not available'}
+                </Typography>
+              </Box>
+            </Stack>
+          </Box>
+        )}
       </CardContent>
     </Card>
-  ); // End return statement
-}; // End component function
+  );
+};
 
 export default PropertyDetail;

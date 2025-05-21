@@ -1,6 +1,6 @@
 import { Transaction, Op, WhereOptions } from 'sequelize';
 import BaseRepository from './BaseRepository';
-import UploadJob, { UploadJobAttributes, UploadJobCreationAttributes } from '../models/UploadJob';
+import { UploadJob, UploadJobAttributes, UploadJobCreationAttributes } from '../models/UploadJob';
 
 /**
  * Repository class for UploadJob model

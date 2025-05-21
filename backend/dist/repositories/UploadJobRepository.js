@@ -15,15 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.uploadJobRepository = void 0;
 const sequelize_1 = require("sequelize");
 const BaseRepository_1 = __importDefault(require("./BaseRepository"));
-const UploadJob_1 = __importDefault(require("../models/UploadJob"));
-const User_1 = __importDefault(require("../models/User"));
+const UploadJob_1 = require("../models/UploadJob");
 /**
  * Repository class for UploadJob model
  * Extends BaseRepository with UploadJob-specific query methods
  */
 class UploadJobRepository extends BaseRepository_1.default {
     constructor() {
-        super(UploadJob_1.default);
+        super(UploadJob_1.UploadJob);
     }
     /**
      * Create a new upload job
@@ -74,28 +73,6 @@ class UploadJobRepository extends BaseRepository_1.default {
         });
     }
     /**
-     * Find jobs by user ID
-     * @param userId - User ID
-     * @param page - Page number
-     * @param pageSize - Page size
-     * @returns Paginated jobs for the specified user
-     */
-    findByUserId(userId_1) {
-        return __awaiter(this, arguments, void 0, function* (userId, page = 1, pageSize = 20) {
-            return this.findPaginated(page, pageSize, {
-                where: { user_id: userId },
-                order: [['created_at', 'DESC']],
-                include: [
-                    {
-                        model: User_1.default,
-                        as: 'user',
-                        attributes: ['id', 'name', 'email'],
-                    },
-                ],
-            });
-        });
-    }
-    /**
      * Find jobs by status
      * @param status - Job status
      * @param page - Page number
@@ -107,52 +84,19 @@ class UploadJobRepository extends BaseRepository_1.default {
             return this.findPaginated(page, pageSize, {
                 where: { status },
                 order: [['created_at', 'DESC']],
-                include: [
-                    {
-                        model: User_1.default,
-                        as: 'user',
-                        attributes: ['id', 'name', 'email'],
-                    },
-                ],
-            });
-        });
-    }
-    /**
-     * Find jobs by user ID and status
-     * @param userId - User ID
-     * @param status - Job status
-     * @param page - Page number
-     * @param pageSize - Page size
-     * @returns Paginated jobs for the specified user with the specified status
-     */
-    findByUserAndStatus(userId_1, status_1) {
-        return __awaiter(this, arguments, void 0, function* (userId, status, page = 1, pageSize = 20) {
-            return this.findPaginated(page, pageSize, {
-                where: {
-                    user_id: userId,
-                    status,
-                },
-                order: [['created_at', 'DESC']],
             });
         });
     }
     /**
      * Get recent jobs with details
      * @param limit - Maximum number of jobs to return
-     * @returns Recent jobs with user details
+     * @returns Recent jobs
      */
     getRecentJobs() {
         return __awaiter(this, arguments, void 0, function* (limit = 10) {
             return this.findAll({
                 limit,
                 order: [['created_at', 'DESC']],
-                include: [
-                    {
-                        model: User_1.default,
-                        as: 'user',
-                        attributes: ['id', 'name', 'email'],
-                    },
-                ],
             });
         });
     }

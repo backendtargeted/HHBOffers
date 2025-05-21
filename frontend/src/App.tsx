@@ -144,9 +144,9 @@ function App() {
   };
 
   // Handle file upload
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (file: File, headerMapping?: Record<string, string>, offerDate?: Date) => {
     try {
-      const response = await uploadAPI.uploadFile(file);
+      const response = await uploadAPI.uploadFile(file, headerMapping, offerDate);
       if (response.success) {
         setNotification({
           message: 'File upload started. You can check the status using the job ID.',

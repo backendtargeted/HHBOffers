@@ -14,15 +14,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const logger_1 = __importDefault(require("../logger"));
+const models_1 = require("../models");
 /**
  * Database configuration with connection pooling to mitigate
  * connection failures during high traffic
  */
-const sequelize = new sequelize_1.Sequelize(process.env.DB_NAME || 'direct_mail_db', process.env.DB_USER || 'dbuser', process.env.DB_PASSWORD || 'dbpassword', {
-    host: process.env.DB_HOST || 'postgres', // Use 'postgres' as the host in Docker
-    port: parseInt(process.env.DB_PORT || '5432'),
+const sequelize = new sequelize_1.Sequelize({
     dialect: 'postgres',
-    logging: process.env.NODE_ENV === 'development' ? (msg) => logger_1.default.debug(msg) : false,
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432'),
+    username: process.env.DB_USER || 'dbuser',
+    password: process.env.DB_PASSWORD || 'dbpassword',
+    database: process.env.DB_NAME || 'hhboffers',
+    logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    define: {
+        timestamps: true,
+        underscored: true,
+    },
     pool: {
         max: 10, // Maximum number of connection in pool
         min: 2, // Minimum number of connection in pool
@@ -49,17 +57,36 @@ const sequelize = new sequelize_1.Sequelize(process.env.DB_NAME || 'direct_mail_
         backoffExponent: 1.1, // Exponent to increase backoff each try
     }
 });
+// Initialize model associations with the sequelize instance
+(0, models_1.initializeModelAssociations)(sequelize);
 /**
- * Test the database connection and log the result
+ * Test the database connection and sync models
  * This runs when the module is first imported
  */
 (() => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield sequelize.authenticate();
         logger_1.default.info('Database connection has been established successfully.');
+        // Drop and recreate the public schema
+        yield sequelize.query('DROP SCHEMA IF EXISTS public CASCADE;');
+        yield sequelize.query('CREATE SCHEMA public;');
+        yield sequelize.query('GRANT ALL ON SCHEMA public TO postgres;');
+        yield sequelize.query('GRANT ALL ON SCHEMA public TO public;');
+        logger_1.default.info('Database schema reset successfully.');
+        // Create all tables fresh
+        yield sequelize.sync({ force: true });
+        logger_1.default.info('Database tables created successfully.');
     }
     catch (error) {
         logger_1.default.error('Unable to connect to the database:', error);
+        // Log more details about the error
+        if (error instanceof Error) {
+            logger_1.default.error('Error details:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
+        }
     }
 }))();
 exports.default = sequelize;

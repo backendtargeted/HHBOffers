@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.batchPropertyCreationRules = exports.batchPropertyValidationRules = exports.loginValidationRules = exports.userValidationRules = exports.fileUploadValidationRules = exports.propertyValidationRules = exports.searchValidationRules = exports.validateInput = void 0;
+exports.batchPropertyCreationRules = exports.batchPropertyValidationRules = exports.fileUploadValidationRules = exports.propertyValidationRules = exports.searchValidationRules = exports.validateInput = void 0;
 const express_validator_1 = require("express-validator");
 const logger_1 = __importDefault(require("../logger"));
 /**
@@ -67,36 +67,6 @@ const fileUploadValidationRules = () => [
         .withMessage('File type must be csv or xlsx')
 ];
 exports.fileUploadValidationRules = fileUploadValidationRules;
-/**
- * User creation validation rules
- * Used for user registration endpoint
- */
-const userValidationRules = () => [
-    (0, express_validator_1.body)('email').isEmail().normalizeEmail()
-        .withMessage('Must be a valid email address'),
-    (0, express_validator_1.body)('password').isLength({ min: 8 })
-        .withMessage('Password must be at least 8 characters long')
-        .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
-        .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
-        .matches(/[0-9]/).withMessage('Password must contain at least one number')
-        .matches(/[^A-Za-z0-9]/).withMessage('Password must contain at least one special character'),
-    (0, express_validator_1.body)('name').notEmpty().trim().escape()
-        .withMessage('Name is required'),
-    (0, express_validator_1.body)('role').optional().isIn(['admin', 'user'])
-        .withMessage('Role must be either admin or user')
-];
-exports.userValidationRules = userValidationRules;
-/**
- * Login validation rules
- * Used for the login endpoint
- */
-const loginValidationRules = () => [
-    (0, express_validator_1.body)('email').isEmail().normalizeEmail()
-        .withMessage('Must be a valid email address'),
-    (0, express_validator_1.body)('password').notEmpty()
-        .withMessage('Password is required')
-];
-exports.loginValidationRules = loginValidationRules;
 /**
  * Batch property update validation rules
  */
@@ -184,5 +154,3 @@ exports.batchPropertyCreationRules = batchPropertyCreationRules;
 // app.get('/api/properties/search', searchValidationRules(), validateInput, searchController.autocomplete);
 // app.post('/api/properties', propertyValidationRules(), validateInput, propertiesController.create);
 // app.post('/api/uploads', fileUploadValidationRules(), validateInput, uploadsController.upload);
-// app.post('/api/users', userValidationRules(), validateInput, usersController.create);
-// app.post('/api/auth/login', loginValidationRules(), validateInput, authController.login);

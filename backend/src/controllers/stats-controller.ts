@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { propertyRepository, uploadJobRepository, activityLogRepository } from '../repositories';
 import { redisService } from '../services/redis-service';
 import logger from '../logger';
-import ActivityLog from '../models/ActivityLog';
+import { ActivityLog } from '../models/ActivityLog';
 
 /**
  * Controller for statistics and dashboard data

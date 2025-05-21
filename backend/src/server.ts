@@ -2,12 +2,11 @@ import express, { Request, Response, NextFunction, ErrorRequestHandler } from 'e
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
-import dotenv from 'dotenv';
 import { rateLimit } from 'express-rate-limit';
 import path from 'path';
 
 // Load environment variables
-dotenv.config();
+require('dotenv').config();
 
 // Import routes and middleware
 import apiRoutes from './routes/api-routes';

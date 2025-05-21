@@ -1,5 +1,4 @@
 import { Model, DataTypes, Optional } from 'sequelize';
-import sequelize from '../config/database';
 
 // UploadJob attributes interface
 export interface UploadJobAttributes {
@@ -21,7 +20,7 @@ export interface UploadJobCreationAttributes extends Optional<UploadJobAttribute
   'id' | 'created_at' | 'updated_at' | 'completed_at' | 
   'total_records' | 'new_records' | 'updated_records' | 'error_records'> {}
 
-class UploadJob extends Model<UploadJobAttributes, UploadJobCreationAttributes> implements UploadJobAttributes {
+export class UploadJob extends Model<UploadJobAttributes, UploadJobCreationAttributes> implements UploadJobAttributes {
   public id!: string;
   public filename!: string;
   public file_type!: string;
@@ -87,81 +86,81 @@ class UploadJob extends Model<UploadJobAttributes, UploadJobCreationAttributes> 
   }
 }
 
-UploadJob.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-    },
-    filename: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-      },
-    },
-    file_type: {
-      type: DataTypes.STRING(10),
-      allowNull: false,
-      validate: {
-        isIn: [['csv', 'xlsx']],
-      },
-    },
-    status: {
-      type: DataTypes.STRING(20),
-      allowNull: false,
-      defaultValue: 'pending',
-      validate: {
-        isIn: [['pending', 'processing', 'completed', 'failed', 'cancelled']],
-      },
-    },
-    total_records: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-    },
-    new_records: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-    },
-    updated_records: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-    },
-    error_records: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    completed_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
+// Define model attributes
+export const UploadJobModelAttributes = {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+  },
+  filename: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    validate: {
+      notEmpty: true,
     },
   },
-  {
-    sequelize,
-    modelName: 'UploadJob',
-    tableName: 'upload_jobs',
-    timestamps: false, // We'll manually manage created_at and updated_at
-    hooks: {
-      beforeUpdate: (uploadJob: UploadJob) => {
-        uploadJob.updated_at = new Date();
-      },
+  file_type: {
+    type: DataTypes.STRING(10),
+    allowNull: false,
+    validate: {
+      isIn: [['csv', 'xlsx']],
     },
-  }
-);
+  },
+  status: {
+    type: DataTypes.STRING(20),
+    allowNull: false,
+    defaultValue: 'pending',
+    validate: {
+      isIn: [['pending', 'processing', 'completed', 'failed', 'cancelled']],
+    },
+  },
+  total_records: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  },
+  new_records: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  },
+  updated_records: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  },
+  error_records: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+  completed_at: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+};
+
+// Define model options
+export const UploadJobModelOptions = {
+  modelName: 'UploadJob',
+  tableName: 'upload_jobs',
+  timestamps: false, // We'll manually manage created_at and updated_at
+  hooks: {
+    beforeUpdate: (uploadJob: UploadJob) => {
+      uploadJob.updated_at = new Date();
+    },
+  },
+};
 
 export default UploadJob;

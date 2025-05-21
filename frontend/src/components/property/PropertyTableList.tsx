@@ -41,10 +41,30 @@ const PropertyTableList: React.FC<PropertyTableListProps> = ({
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
 
+  // Format currency function
+  const formatCurrency = (amount: number) => {
+    if (amount === 0) {
+      return 'Please Call';
+    }
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+
+  // Get latest offer amount
+  const getLatestOffer = (property: Property) => {
+    if (!property.offerHistories || property.offerHistories.length === 0) {
+      return 0;
+    }
+    return property.offerHistories[0].offerAmount;
+  };
+
   // Fetch properties when page or limit changes
   useEffect(() => {
     fetchProperties(page, limit);
-  }, [page, limit, getAllProperties]);
+  }, [page, limit]);
 
   // Function to fetch properties
   const fetchProperties = async (page: number, limit: number) => {
@@ -84,23 +104,11 @@ const PropertyTableList: React.FC<PropertyTableListProps> = ({
     setPage(value);
   };
 
-  // Handle property row click
-  const handleRowClick = (property: Property) => {
+  // Handle property selection
+  const handlePropertySelect = (property: Property) => {
     if (onSelectProperty) {
       onSelectProperty(property);
     }
-  };
-
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    if (amount === 0) {
-      return 'Please Call';
-    }
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0
-    }).format(amount);
   };
 
   return (
@@ -140,7 +148,7 @@ const PropertyTableList: React.FC<PropertyTableListProps> = ({
                       <TableCell>State</TableCell>
                       <TableCell>ZIP</TableCell>
                       <TableCell>Owner</TableCell>
-                      <TableCell align="right">Offer</TableCell>
+                      <TableCell align="right">Latest Offer</TableCell>
                       <TableCell align="center">Action</TableCell>
                     </TableRow>
                   </TableHead>
@@ -165,13 +173,13 @@ const PropertyTableList: React.FC<PropertyTableListProps> = ({
                           {!property.firstName && !property.lastName && 'N/A'}
                         </TableCell>
                         <TableCell align="right">
-                          {property.offer === 0.00 ? "Please Call" : formatCurrency(property.offer)}
+                          {formatCurrency(getLatestOffer(property))}
                         </TableCell>
                         <TableCell align="center">
                           <Button 
                             variant="contained" 
                             size="small" 
-                            onClick={() => handleRowClick(property)}
+                            onClick={() => handlePropertySelect(property)}
                             color="primary"
                           >
                             View

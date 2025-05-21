@@ -1,6 +1,6 @@
 import { QueryTypes } from 'sequelize';
 import BaseRepository from './BaseRepository';
-import ActivityLog, {ActivityLogCreationAttributes, logActivity } from '../models/ActivityLog';
+import { ActivityLog, ActivityLogCreationAttributes, logActivity } from '../models/ActivityLog';
 
 
 /**

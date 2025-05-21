@@ -18,6 +18,7 @@ const redis_service_1 = require("../services/redis-service");
 const logger_1 = __importDefault(require("../logger"));
 const dataTransformer_1 = require("../utils/dataTransformer");
 const responseHandler_1 = require("../utils/responseHandler");
+const OfferHistory_1 = require("../models/OfferHistory");
 class PropertyController {
     /**
      * Get all properties with pagination
@@ -40,8 +41,14 @@ class PropertyController {
                         : cachedData;
                     return (0, responseHandler_1.sendResponse)(res, Object.assign(Object.assign({}, parsedCachedData), { fromCache: true }));
                 }
-                // If not in cache, get from database
-                const result = yield repositories_1.propertyRepository.findPaginated(page, pageSize);
+                // If not in cache, get from database with offer history
+                const result = yield repositories_1.propertyRepository.findPaginated(page, pageSize, {
+                    include: [{
+                            model: OfferHistory_1.OfferHistory,
+                            as: 'offerHistories',
+                            order: [['offer_date', 'DESC']]
+                        }]
+                });
                 logger_1.default.info(`[PropertyController] getAllProperties result: ${JSON.stringify(result)}`);
                 // Transform the result to camelCase
                 const camelCaseResult = (0, dataTransformer_1.toCamelCase)(JSON.parse(JSON.stringify(result)));
@@ -65,7 +72,6 @@ class PropertyController {
      */
     getPropertyById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
             try {
                 const { id } = req.params;
                 // Cache key
@@ -82,8 +88,14 @@ class PropertyController {
                         fromCache: true
                     });
                 }
-                // If not in cache, get from database
-                const property = yield repositories_1.propertyRepository.findById(parseInt(id));
+                // If not in cache, get from database with offer history
+                const property = yield repositories_1.propertyRepository.findById(parseInt(id), {
+                    include: [{
+                            model: OfferHistory_1.OfferHistory,
+                            as: 'offerHistories',
+                            order: [['offer_date', 'DESC']]
+                        }]
+                });
                 if (!property) {
                     return (0, responseHandler_1.sendResponse)(res, {
                         message: 'Property not found'
@@ -95,16 +107,12 @@ class PropertyController {
                 // Store camelCase version in cache for 10 minutes
                 yield redis_service_1.redisService.set(cacheKey, JSON.stringify(camelCaseProperty), 600);
                 // Log view activity
-                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
-                if (userId) {
-                    yield repositories_2.activityLogRepository.log({
-                        user_id: userId,
-                        action: 'view',
-                        entity_type: 'property',
-                        entity_id: id,
-                        ip_address: req.ip
-                    });
-                }
+                yield repositories_2.activityLogRepository.log({
+                    action: 'view',
+                    entity_type: 'property',
+                    entity_id: id,
+                    ip_address: req.ip
+                });
                 return (0, responseHandler_1.sendResponse)(res, {
                     property: camelCaseProperty
                 });
@@ -124,7 +132,6 @@ class PropertyController {
      */
     createProperty(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
             try {
                 const propertyData = {
                     first_name: req.body.firstName,
@@ -133,7 +140,6 @@ class PropertyController {
                     property_city: req.body.propertyCity,
                     property_state: req.body.propertyState,
                     property_zip: req.body.propertyZip,
-                    offer: req.body.offer,
                     created_at: new Date(),
                     updated_at: new Date()
                 };
@@ -147,9 +153,7 @@ class PropertyController {
                 // Create property
                 const property = yield repositories_1.propertyRepository.create(propertyData);
                 // Log creation activity
-                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
                 yield repositories_2.activityLogRepository.log({
-                    user_id: userId,
                     action: 'create',
                     entity_type: 'property',
                     entity_id: property.id.toString(),
@@ -180,7 +184,6 @@ class PropertyController {
      */
     updateProperty(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
             try {
                 const { id } = req.params;
                 const propertyId = parseInt(id);
@@ -206,8 +209,6 @@ class PropertyController {
                     updateData.property_state = req.body.propertyState;
                 if (req.body.propertyZip !== undefined)
                     updateData.property_zip = req.body.propertyZip;
-                if (req.body.offer !== undefined)
-                    updateData.offer = req.body.offer;
                 // Always update the updated_at timestamp
                 updateData.updated_at = new Date();
                 // If changing address, check for duplicates
@@ -236,9 +237,7 @@ class PropertyController {
                     });
                 }
                 // Log update activity
-                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
                 yield repositories_2.activityLogRepository.log({
-                    user_id: userId,
                     action: 'update',
                     entity_type: 'property',
                     entity_id: id,
@@ -270,7 +269,6 @@ class PropertyController {
      */
     deleteProperty(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
             try {
                 const { id } = req.params;
                 const propertyId = parseInt(id);
@@ -291,9 +289,7 @@ class PropertyController {
                     });
                 }
                 // Log deletion activity
-                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
                 yield repositories_2.activityLogRepository.log({
-                    user_id: userId,
                     action: 'delete',
                     entity_type: 'property',
                     entity_id: id,
@@ -329,7 +325,6 @@ class PropertyController {
      */
     searchProperties(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
             try {
                 const query = req.query.q || '';
                 const page = parseInt(req.query.page) || 1;
@@ -370,16 +365,12 @@ class PropertyController {
                 // Cache results for 5 minutes
                 yield redis_service_1.redisService.set(cacheKey, JSON.stringify(response), 300);
                 // Log search activity
-                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
-                if (userId) {
-                    yield repositories_2.activityLogRepository.log({
-                        user_id: userId,
-                        action: 'search',
-                        entity_type: 'property',
-                        details: { query, page, limit, resultsCount: results.length },
-                        ip_address: req.ip
-                    });
-                }
+                yield repositories_2.activityLogRepository.log({
+                    action: 'search',
+                    entity_type: 'property',
+                    details: { query, page, limit, resultsCount: results.length },
+                    ip_address: req.ip
+                });
                 return res.status(200).json(Object.assign({ success: true }, response));
             }
             catch (error) {
@@ -398,7 +389,6 @@ class PropertyController {
      */
     batchCreateProperties(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
             try {
                 const { properties } = req.body;
                 if (!Array.isArray(properties) || properties.length === 0) {
@@ -412,7 +402,6 @@ class PropertyController {
                     failed: 0,
                     errors: []
                 };
-                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
                 const createdProperties = [];
                 // Process each property
                 for (let i = 0; i < properties.length; i++) {
@@ -426,7 +415,6 @@ class PropertyController {
                             property_city: property.propertyCity,
                             property_state: property.propertyState,
                             property_zip: property.propertyZip,
-                            offer: property.offer,
                             created_at: new Date(),
                             updated_at: new Date()
                         };
@@ -444,7 +432,6 @@ class PropertyController {
                         const newProperty = yield repositories_1.propertyRepository.create(propertyData);
                         // Log creation
                         yield repositories_2.activityLogRepository.log({
-                            user_id: userId,
                             action: 'batch_create',
                             entity_type: 'property',
                             entity_id: newProperty.id.toString(),
@@ -485,7 +472,6 @@ class PropertyController {
      */
     batchUpdateProperties(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
             try {
                 const { properties } = req.body;
                 if (!Array.isArray(properties) || properties.length === 0) {
@@ -500,7 +486,6 @@ class PropertyController {
                     failed: 0,
                     errors: []
                 };
-                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
                 // Process each property update
                 for (const property of properties) {
                     try {
@@ -531,8 +516,6 @@ class PropertyController {
                             updateData.property_state = property.propertyState;
                         if (property.propertyZip !== undefined)
                             updateData.property_zip = property.propertyZip;
-                        if (property.offer !== undefined)
-                            updateData.offer = property.offer;
                         // Always update the updated_at timestamp
                         updateData.updated_at = new Date();
                         // If changing address, check for duplicates
@@ -563,7 +546,6 @@ class PropertyController {
                         }
                         // Log update activity
                         yield repositories_2.activityLogRepository.log({
-                            user_id: userId,
                             action: 'batch_update',
                             entity_type: 'property',
                             entity_id: propertyId.toString(),

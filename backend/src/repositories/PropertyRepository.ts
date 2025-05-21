@@ -1,14 +1,22 @@
-import { Transaction, Op, WhereOptions, Sequelize, QueryTypes } from 'sequelize';
+import { Model, Op, Sequelize, Transaction, WhereOptions, QueryTypes } from 'sequelize';
 import BaseRepository from './BaseRepository';
-import Property, { PropertyAttributes, PropertyCreationAttributes } from '../models/Property';
+import { Property, PropertyAttributes, PropertyCreationAttributes } from '../models/Property';
 import sequelize from '../config/database';
+import { OfferHistory } from '../models/OfferHistory';
 import logger from '../logger';
+
+interface StatsResult {
+  state?: string;
+  city?: string;
+  count: string;
+  avgOffer: string;
+}
 
 /**
  * Repository class for Property model
  * Extends BaseRepository with Property-specific query methods
  */
-export default class PropertyRepository extends BaseRepository<Property> {
+export class PropertyRepository extends BaseRepository<Property> {
   constructor() {
     super(Property);
   }
@@ -78,7 +86,7 @@ export default class PropertyRepository extends BaseRepository<Property> {
   }
 
   override async bulkCreate(
-    records: PropertyCreationAttributes[],
+    records: PropertyAttributes[],
     transaction?: Transaction,
     updateOnDuplicate?: (keyof PropertyAttributes)[]
   ): Promise<Property[]> {
@@ -94,30 +102,30 @@ export default class PropertyRepository extends BaseRepository<Property> {
     transaction?: Transaction
   ): Promise<[Property, boolean]> {
     logger.info(`[PropertyRepository] createOrUpdate called with propertyData: ${JSON.stringify(propertyData)}`);
-    // Check if property already exists based on address
     const existingProperty = await this.findByAddressCombination(
       propertyData.property_address,
       propertyData.property_city,
       propertyData.property_state,
       propertyData.property_zip
     );
-
     if (existingProperty) {
       logger.info(`[PropertyRepository] Found existing property: ${JSON.stringify(existingProperty)}`);
-      // Update the offer amount if it changed
-      if (existingProperty.offer !== propertyData.offer) {
-        const [, updatedProperties] = await this.update(
-          existingProperty.id,
-          { offer: propertyData.offer as any },
-          transaction
-        );
-        return [updatedProperties[0] || existingProperty, false];
-      }
-      return [existingProperty, false];
+      const [, updatedProperties] = await this.update(
+        existingProperty.id,
+        {
+          first_name: propertyData.first_name,
+          last_name: propertyData.last_name,
+          property_address: propertyData.property_address,
+          property_city: propertyData.property_city,
+          property_state: propertyData.property_state,
+          property_zip: propertyData.property_zip
+        },
+        transaction
+      );
+      return [updatedProperties[0] || existingProperty, false];
     }
 
     logger.info(`[PropertyRepository] Creating new property: ${JSON.stringify(propertyData)}`);
-    // Create new property if it doesn't exist
     const newProperty = await this.create(propertyData, transaction);
     return [newProperty, true];
   }
@@ -208,30 +216,6 @@ export default class PropertyRepository extends BaseRepository<Property> {
   }
 
   /**
-   * Find properties with offers in a specific range
-   * @param minOffer - Minimum offer amount
-   * @param maxOffer - Maximum offer amount
-   * @param page - Page number
-   * @param pageSize - Page size
-   * @returns Paginated properties with offers in the specified range
-   */
-  async findByOfferRange(
-    minOffer: number,
-    maxOffer: number,
-    page: number = 1,
-    pageSize: number = 20
-  ): Promise<{ rows: Property[]; count: number; totalPages: number; currentPage: number }> {
-    return this.findPaginated(page, pageSize, {
-      where: {
-        offer: {
-          [Op.between]: [minOffer, maxOffer],
-        },
-      },
-      order: [['offer', 'DESC']],
-    });
-  }
-
-  /**
    * Search properties with multiple criteria
    * @param query - Search query string
    * @param limit - Maximum number of results
@@ -297,88 +281,90 @@ export default class PropertyRepository extends BaseRepository<Property> {
    * @returns Count of properties added today
    */
   async getPropertiesAddedToday(): Promise<number> {
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  
-  return this.count({
-    where: {
-      created_at: {
-        [Op.gte]: todayStart
-      }
-    }
-  });
-}
-
-/**
- * Get properties updated today (excluding newly created ones)
- * @returns Count of properties updated today
- */
-async getPropertiesUpdatedToday(): Promise<number> {
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  
-  return this.count({
-    where: {
-      updated_at: {
-        [Op.gte]: todayStart
-      },
-      created_at: {
-        [Op.lt]: todayStart
-      }
-    }
-  });
-}
-
-  /**
-   * Get property statistics by state
-   * @returns Array of state statistics with count and average offer
-   */
-  async getStatsByState(): Promise<Array<{ state: string; count: number; averageOffer: number }>> {
-    type StatsResult = { state: string; count: string; averageOffer: string };
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
     
-    const results = await sequelize.query<StatsResult>(`
-      SELECT 
-        property_state as state, 
-        COUNT(*) as count, 
-        AVG(offer) as "averageOffer"
-      FROM properties 
-      GROUP BY property_state 
-      ORDER BY COUNT(*) DESC
-    `, { type: QueryTypes.SELECT });
-
-    return results.map(result => ({
-      state: result.state,
-      count: parseInt(result.count, 10),
-      averageOffer: parseFloat(result.averageOffer) || 0
-    }));
+    return this.count({
+      where: {
+        created_at: {
+          [Op.gte]: todayStart
+        }
+      }
+    });
   }
 
   /**
-   * Get property statistics by city for a specific state
-   * @param state - State code to filter by
-   * @returns Array of city statistics with count and average offer
+   * Get properties updated today (excluding newly created ones)
+   * @returns Count of properties updated today
    */
-  async getStatsByCity(state: string): Promise<Array<{ city: string; count: number; averageOffer: number }>> {
-    type StatsResult = { city: string; count: string; averageOffer: string };
+  async getPropertiesUpdatedToday(): Promise<number> {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
     
-    const results = await sequelize.query<StatsResult>(`
-      SELECT 
-        property_city as city, 
-        COUNT(*) as count, 
-        AVG(offer) as "averageOffer"
-      FROM properties 
-      WHERE property_state = :state
-      GROUP BY property_city 
-      ORDER BY COUNT(*) DESC
-    `, { 
-      replacements: { state: state.toUpperCase() },
-      type: QueryTypes.SELECT 
+    return this.count({
+      where: {
+        updated_at: {
+          [Op.gte]: todayStart
+        },
+        created_at: {
+          [Op.lt]: todayStart
+        }
+      }
     });
+  }
 
-    return results.map(result => ({
-      city: result.city,
-      count: parseInt(result.count, 10),
-      averageOffer: parseFloat(result.averageOffer) || 0
+  async getStatsByState(): Promise<Array<{ state: string; count: number; avgOffer: number }>> {
+    const stats = await this.model.findAll({
+      attributes: [
+        ['property_state', 'state'],
+        [sequelize.fn('COUNT', sequelize.col('id')), 'count'],
+        [
+          sequelize.literal(`(
+            SELECT AVG(offer_amount)
+            FROM offer_histories
+            WHERE offer_histories.property_id = properties.id
+          )`),
+          'avgOffer'
+        ]
+      ],
+      group: ['property_state'],
+      order: [[sequelize.literal('count'), 'DESC']],
+      raw: true
+    }) as unknown as StatsResult[];
+
+    return stats.map(stat => ({
+      state: stat.state || '',
+      count: parseInt(stat.count),
+      avgOffer: parseFloat(stat.avgOffer) || 0
+    }));
+  }
+
+  async getStatsByCity(state: string): Promise<Array<{ city: string; count: number; avgOffer: number }>> {
+    const stats = await this.model.findAll({
+      attributes: [
+        'property_city',
+        [sequelize.fn('COUNT', sequelize.col('id')), 'count'],
+        [
+          sequelize.literal(`(
+            SELECT AVG(offer_amount)
+            FROM offer_histories
+            WHERE offer_histories.property_id = properties.id
+          )`),
+          'avgOffer'
+        ]
+      ],
+      where: {
+        property_state: state
+      },
+      group: ['property_city'],
+      order: [[sequelize.literal('count'), 'DESC']],
+      raw: true
+    }) as unknown as StatsResult[];
+
+    return stats.map(stat => ({
+      city: stat.city || '',
+      count: parseInt(stat.count),
+      avgOffer: parseFloat(stat.avgOffer) || 0
     }));
   }
 }

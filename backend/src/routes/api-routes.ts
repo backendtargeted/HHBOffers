@@ -3,6 +3,7 @@ import propertyRoutes from './property-routes';
 import uploadRoutes from './upload-routes';
 import statsRoutes from './stats-routes';
 import docsRoutes from './docs-routes';
+import offerHistoryRoutes from './offer-history-routes';
 import logger from '../logger';
 
 const router = Router();
@@ -26,6 +27,7 @@ router.use('/docs', docsRoutes);
 router.use('/properties', propertyRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/stats', statsRoutes);
+router.use('/offers', offerHistoryRoutes);
 
 // 404 handler for API routes
 router.use('*', (_req: Request, res: Response) => {

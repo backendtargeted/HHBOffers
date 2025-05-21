@@ -8,13 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.UploadJobModelOptions = exports.UploadJobModelAttributes = exports.UploadJob = void 0;
 const sequelize_1 = require("sequelize");
-const database_1 = __importDefault(require("../config/database"));
-const User_1 = __importDefault(require("./User"));
 class UploadJob extends sequelize_1.Model {
     // Virtual field for calculating processing time
     get processingTime() {
@@ -71,19 +67,13 @@ class UploadJob extends sequelize_1.Model {
         });
     }
 }
-UploadJob.init({
+exports.UploadJob = UploadJob;
+// Define model attributes
+exports.UploadJobModelAttributes = {
     id: {
         type: sequelize_1.DataTypes.UUID,
         defaultValue: sequelize_1.DataTypes.UUIDV4,
         primaryKey: true,
-    },
-    user_id: {
-        type: sequelize_1.DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'users',
-            key: 'id',
-        },
     },
     filename: {
         type: sequelize_1.DataTypes.STRING(255),
@@ -141,8 +131,9 @@ UploadJob.init({
         type: sequelize_1.DataTypes.DATE,
         allowNull: true,
     },
-}, {
-    sequelize: database_1.default,
+};
+// Define model options
+exports.UploadJobModelOptions = {
     modelName: 'UploadJob',
     tableName: 'upload_jobs',
     timestamps: false, // We'll manually manage created_at and updated_at
@@ -151,7 +142,5 @@ UploadJob.init({
             uploadJob.updated_at = new Date();
         },
     },
-});
-// Set up the association with the User model
-UploadJob.belongsTo(User_1.default, { foreignKey: 'user_id', as: 'user' });
+};
 exports.default = UploadJob;

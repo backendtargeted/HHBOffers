@@ -39,8 +39,8 @@ interface UploadedFile {
 }
 
 interface FileUploadProps {
-  // Update onUpload signature to accept headerMapping
-  onUpload: (file: File, headerMapping?: Record<string, string>) => Promise<{ jobId: string; message: string }>; 
+  // Update onUpload signature to accept headerMapping and offerDate
+  onUpload: (file: File, headerMapping?: Record<string, string>, offerDate?: Date) => Promise<{ jobId: string; message: string }>; 
   acceptedFileTypes?: string[];
   maxFileSize?: number; // in bytes
   maxFiles?: number;
@@ -189,8 +189,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
   };
 
-  // Modify uploadFile to include header mapping
-  const uploadFile = async (id: string, currentMapping: Record<string, string>) => {
+  // Modify uploadFile to include header mapping and offer date
+  const uploadFile = async (id: string, currentMapping: Record<string, string>, offerDate?: Date) => {
     const fileToUpload = files.find(file => file.id === id);
     if (!fileToUpload || fileToUpload.status === 'uploading' || fileToUpload.status === 'completed') return;
 
@@ -217,8 +217,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
         ));
       }, 300);
 
-      // Actual upload with header mapping
-      const result = await onUpload(fileToUpload.file, headerMapping); // Pass headerMapping
+      // Actual upload with header mapping and offer date
+      const result = await onUpload(fileToUpload.file, currentMapping, offerDate);
       
       if (progressInterval) clearInterval(progressInterval);
 
@@ -251,13 +251,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   // Add a handler for header mapping confirmation
-  const handleMappingConfirm = (mapping: Record<string, string>) => {
+  const handleMappingConfirm = (mapping: Record<string, string>, offerDate?: Date) => {
     setHeaderMapping(mapping); // Store the confirmed mapping
     setShowMappingDialog(false);
     
     // Upload the file that was waiting for mapping
     if (fileToMap) {
-      uploadFile(fileToMap.id, mapping); // Pass the confirmed mapping directly
+      uploadFile(fileToMap.id, mapping, offerDate); // Pass the confirmed mapping and offer date
       setFileToMap(null); // Clear the file waiting for mapping
     }
   };

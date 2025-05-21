@@ -20,6 +20,7 @@ import {
   Update as UpdateIcon,
   Add as AddIcon
 } from '@mui/icons-material';
+import type { GridProps } from '@mui/material/Grid';
 
 // Define TypeScript interfaces for the data
 interface ActivityItem {
@@ -159,65 +160,61 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchStats }) => {
       </Typography>
       
       {/* Stats Summary */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mb: 4 }}>
         {/* Property Stats */}
-        <Grid item xs={12} md={6}>
-          <Card elevation={3}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Properties
-              </Typography>
-              <Typography variant="h3" color="primary">
-                {stats?.properties.total.toLocaleString() || 0}
-              </Typography>
-              <Divider sx={{ my: 2 }} />
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle2" color="textSecondary">Added Today</Typography>
-                  <Typography variant="h6" color="success.main">
-                    {stats?.properties.addedToday.toLocaleString() || 0}
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle2" color="textSecondary">Updated Today</Typography>
-                  <Typography variant="h6" color="warning.main">
-                    {stats?.properties.updatedToday.toLocaleString() || 0}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
+        <Card elevation={3}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Properties
+            </Typography>
+            <Typography variant="h3" color="primary">
+              {stats?.properties.total.toLocaleString() || 0}
+            </Typography>
+            <Divider sx={{ my: 2 }} />
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+              <Box>
+                <Typography variant="subtitle2" color="textSecondary">Added Today</Typography>
+                <Typography variant="h6" color="success.main">
+                  {stats?.properties.addedToday.toLocaleString() || 0}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="subtitle2" color="textSecondary">Updated Today</Typography>
+                <Typography variant="h6" color="warning.main">
+                  {stats?.properties.updatedToday.toLocaleString() || 0}
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
         
         {/* Upload Stats */}
-        <Grid item xs={12} md={6}>
-          <Card elevation={3}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                File Uploads (Last 30 Days)
-              </Typography>
-              <Typography variant="h3" color="primary">
-                {stats?.uploads.total.toLocaleString() || 0}
-              </Typography>
-              <Divider sx={{ my: 2 }} />
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle2" color="textSecondary">Completed</Typography>
-                  <Typography variant="h6" color="success.main">
-                    {stats?.uploads.completed.toLocaleString() || 0}
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle2" color="textSecondary">Records Processed</Typography>
-                  <Typography variant="h6">
-                    {stats?.uploads.recordsProcessed.toLocaleString() || 0}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+        <Card elevation={3}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              File Uploads (Last 30 Days)
+            </Typography>
+            <Typography variant="h3" color="primary">
+              {stats?.uploads.total.toLocaleString() || 0}
+            </Typography>
+            <Divider sx={{ my: 2 }} />
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+              <Box>
+                <Typography variant="subtitle2" color="textSecondary">Completed</Typography>
+                <Typography variant="h6" color="success.main">
+                  {stats?.uploads.completed.toLocaleString() || 0}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="subtitle2" color="textSecondary">Records Processed</Typography>
+                <Typography variant="h6">
+                  {stats?.uploads.recordsProcessed.toLocaleString() || 0}
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
       
       {/* Recent Activity */}
       <Paper elevation={3} sx={{ p: 2, mb: 4 }}>
@@ -258,62 +255,59 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchStats }) => {
       </Paper>
       
       {/* Upload Statistics */}
-      <Paper elevation={3} sx={{ p: 2 }}>
+      <Paper sx={{ p: 3, mt: 4 }}>
         <Typography variant="h6" gutterBottom>
           Upload Statistics
         </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-              <Typography variant="subtitle2" color="textSecondary">Processing Status</Typography>
-              <Grid container spacing={2} sx={{ mt: 1 }}>
-                <Grid item xs={4}>
-                  <Typography variant="body2" color="textSecondary">Completed</Typography>
-                  <Typography variant="h6" color="success.main">
-                    {stats?.uploads.completed || 0}
-                  </Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body2" color="textSecondary">Failed</Typography>
-                  <Typography variant="h6" color="error.main">
-                    {stats?.uploads.failed || 0}
-                  </Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body2" color="textSecondary">Processing</Typography>
-                  <Typography variant="h6" color="warning.main">
-                    {stats?.uploads.processing || 0}
-                  </Typography>
-                </Grid>
-              </Grid>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+          <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+            <Typography variant="subtitle2" color="textSecondary">Processing Status</Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 2, mt: 1 }}>
+              <Box>
+                <Typography variant="body2" color="textSecondary">Completed</Typography>
+                <Typography variant="h6" color="success.main">
+                  {stats?.uploads.completed || 0}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="textSecondary">Failed</Typography>
+                <Typography variant="h6" color="error.main">
+                  {stats?.uploads.failed || 0}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="textSecondary">Processing</Typography>
+                <Typography variant="h6" color="warning.main">
+                  {stats?.uploads.processing || 0}
+                </Typography>
+              </Box>
             </Box>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-              <Typography variant="subtitle2" color="textSecondary">Record Processing</Typography>
-              <Grid container spacing={2} sx={{ mt: 1 }}>
-                <Grid item xs={4}>
-                  <Typography variant="body2" color="textSecondary">Created</Typography>
-                  <Typography variant="h6" color="success.main">
-                    {stats?.uploads.recordsCreated.toLocaleString() || 0}
-                  </Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body2" color="textSecondary">Updated</Typography>
-                  <Typography variant="h6" color="warning.main">
-                    {stats?.uploads.recordsUpdated.toLocaleString() || 0}
-                  </Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body2" color="textSecondary">Errors</Typography>
-                  <Typography variant="h6" color="error.main">
-                    {stats?.uploads.recordsErrored.toLocaleString() || 0}
-                  </Typography>
-                </Grid>
-              </Grid>
+          </Box>
+          
+          <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+            <Typography variant="subtitle2" color="textSecondary">Record Processing</Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 2, mt: 1 }}>
+              <Box>
+                <Typography variant="body2" color="textSecondary">Created</Typography>
+                <Typography variant="h6" color="success.main">
+                  {stats?.uploads.recordsCreated.toLocaleString() || 0}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="textSecondary">Updated</Typography>
+                <Typography variant="h6" color="warning.main">
+                  {stats?.uploads.recordsUpdated.toLocaleString() || 0}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="textSecondary">Errors</Typography>
+                <Typography variant="h6" color="error.main">
+                  {stats?.uploads.recordsErrored.toLocaleString() || 0}
+                </Typography>
+              </Box>
             </Box>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Paper>
     </Box>
   );

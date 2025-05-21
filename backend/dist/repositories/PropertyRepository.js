@@ -12,10 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.propertyRepository = void 0;
+exports.propertyRepository = exports.PropertyRepository = void 0;
 const sequelize_1 = require("sequelize");
 const BaseRepository_1 = __importDefault(require("./BaseRepository"));
-const Property_1 = __importDefault(require("../models/Property"));
+const Property_1 = require("../models/Property");
 const database_1 = __importDefault(require("../config/database"));
 const logger_1 = __importDefault(require("../logger"));
 /**
@@ -24,7 +24,7 @@ const logger_1 = __importDefault(require("../logger"));
  */
 class PropertyRepository extends BaseRepository_1.default {
     constructor() {
-        super(Property_1.default);
+        super(Property_1.Property);
     }
     /**
      * Find a property by its exact address combination
@@ -99,19 +99,20 @@ class PropertyRepository extends BaseRepository_1.default {
     createOrUpdate(propertyData, transaction) {
         return __awaiter(this, void 0, void 0, function* () {
             logger_1.default.info(`[PropertyRepository] createOrUpdate called with propertyData: ${JSON.stringify(propertyData)}`);
-            // Check if property already exists based on address
             const existingProperty = yield this.findByAddressCombination(propertyData.property_address, propertyData.property_city, propertyData.property_state, propertyData.property_zip);
             if (existingProperty) {
                 logger_1.default.info(`[PropertyRepository] Found existing property: ${JSON.stringify(existingProperty)}`);
-                // Update the offer amount if it changed
-                if (existingProperty.offer !== propertyData.offer) {
-                    const [, updatedProperties] = yield this.update(existingProperty.id, { offer: propertyData.offer }, transaction);
-                    return [updatedProperties[0] || existingProperty, false];
-                }
-                return [existingProperty, false];
+                const [, updatedProperties] = yield this.update(existingProperty.id, {
+                    first_name: propertyData.first_name,
+                    last_name: propertyData.last_name,
+                    property_address: propertyData.property_address,
+                    property_city: propertyData.property_city,
+                    property_state: propertyData.property_state,
+                    property_zip: propertyData.property_zip
+                }, transaction);
+                return [updatedProperties[0] || existingProperty, false];
             }
             logger_1.default.info(`[PropertyRepository] Creating new property: ${JSON.stringify(propertyData)}`);
-            // Create new property if it doesn't exist
             const newProperty = yield this.create(propertyData, transaction);
             return [newProperty, true];
         });
@@ -185,26 +186,6 @@ class PropertyRepository extends BaseRepository_1.default {
                     ['last_name', 'ASC'],
                     ['first_name', 'ASC'],
                 ],
-            });
-        });
-    }
-    /**
-     * Find properties with offers in a specific range
-     * @param minOffer - Minimum offer amount
-     * @param maxOffer - Maximum offer amount
-     * @param page - Page number
-     * @param pageSize - Page size
-     * @returns Paginated properties with offers in the specified range
-     */
-    findByOfferRange(minOffer_1, maxOffer_1) {
-        return __awaiter(this, arguments, void 0, function* (minOffer, maxOffer, page = 1, pageSize = 20) {
-            return this.findPaginated(page, pageSize, {
-                where: {
-                    offer: {
-                        [sequelize_1.Op.between]: [minOffer, maxOffer],
-                    },
-                },
-                order: [['offer', 'DESC']],
             });
         });
     }
@@ -302,56 +283,62 @@ class PropertyRepository extends BaseRepository_1.default {
             });
         });
     }
-    /**
-     * Get property statistics by state
-     * @returns Array of state statistics with count and average offer
-     */
     getStatsByState() {
         return __awaiter(this, void 0, void 0, function* () {
-            const results = yield database_1.default.query(`
-      SELECT 
-        property_state as state, 
-        COUNT(*) as count, 
-        AVG(offer) as "averageOffer"
-      FROM properties 
-      GROUP BY property_state 
-      ORDER BY COUNT(*) DESC
-    `, { type: sequelize_1.QueryTypes.SELECT });
-            return results.map(result => ({
-                state: result.state,
-                count: parseInt(result.count, 10),
-                averageOffer: parseFloat(result.averageOffer) || 0
+            const stats = yield this.model.findAll({
+                attributes: [
+                    ['property_state', 'state'],
+                    [database_1.default.fn('COUNT', database_1.default.col('id')), 'count'],
+                    [
+                        database_1.default.literal(`(
+            SELECT AVG(offer_amount)
+            FROM offer_histories
+            WHERE offer_histories.property_id = properties.id
+          )`),
+                        'avgOffer'
+                    ]
+                ],
+                group: ['property_state'],
+                order: [[database_1.default.literal('count'), 'DESC']],
+                raw: true
+            });
+            return stats.map(stat => ({
+                state: stat.state || '',
+                count: parseInt(stat.count),
+                avgOffer: parseFloat(stat.avgOffer) || 0
             }));
         });
     }
-    /**
-     * Get property statistics by city for a specific state
-     * @param state - State code to filter by
-     * @returns Array of city statistics with count and average offer
-     */
     getStatsByCity(state) {
         return __awaiter(this, void 0, void 0, function* () {
-            const results = yield database_1.default.query(`
-      SELECT 
-        property_city as city, 
-        COUNT(*) as count, 
-        AVG(offer) as "averageOffer"
-      FROM properties 
-      WHERE property_state = :state
-      GROUP BY property_city 
-      ORDER BY COUNT(*) DESC
-    `, {
-                replacements: { state: state.toUpperCase() },
-                type: sequelize_1.QueryTypes.SELECT
+            const stats = yield this.model.findAll({
+                attributes: [
+                    'property_city',
+                    [database_1.default.fn('COUNT', database_1.default.col('id')), 'count'],
+                    [
+                        database_1.default.literal(`(
+            SELECT AVG(offer_amount)
+            FROM offer_histories
+            WHERE offer_histories.property_id = properties.id
+          )`),
+                        'avgOffer'
+                    ]
+                ],
+                where: {
+                    property_state: state
+                },
+                group: ['property_city'],
+                order: [[database_1.default.literal('count'), 'DESC']],
+                raw: true
             });
-            return results.map(result => ({
-                city: result.city,
-                count: parseInt(result.count, 10),
-                averageOffer: parseFloat(result.averageOffer) || 0
+            return stats.map(stat => ({
+                city: stat.city || '',
+                count: parseInt(stat.count),
+                avgOffer: parseFloat(stat.avgOffer) || 0
             }));
         });
     }
 }
-exports.default = PropertyRepository;
+exports.PropertyRepository = PropertyRepository;
 // Export a singleton instance
 exports.propertyRepository = new PropertyRepository();

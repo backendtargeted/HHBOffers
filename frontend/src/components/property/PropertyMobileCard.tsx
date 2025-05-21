@@ -6,8 +6,7 @@ import {
   CardContent,
   Typography,
   Button,
-  Box,
-  Chip
+  Box
 } from '@mui/material';
 import { Property } from './PropertyDetail';
 
@@ -17,15 +16,6 @@ interface PropertyMobileCardProps {
 }
 
 const PropertyMobileCard: React.FC<PropertyMobileCardProps> = ({ property, onSelect }) => {
-  const formatCurrency = (amount: number) => {
-    if (amount === 0) return 'Please Call';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
-
   return (
     <Card sx={{ mb: 2 }}>
       <CardContent>
@@ -37,12 +27,7 @@ const PropertyMobileCard: React.FC<PropertyMobileCardProps> = ({ property, onSel
           {property.propertyCity}, {property.propertyState} {property.propertyZip}
         </Typography>
 
-        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Chip 
-            label={formatCurrency(property.offer)}
-            color="primary"
-            sx={{ fontSize: '1.1rem' }}
-          />
+        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
           <Button 
             variant="contained"
             onClick={() => onSelect(property)}
