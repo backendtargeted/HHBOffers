@@ -11,6 +11,8 @@ import {
   useMediaQuery
 } from '@mui/material';
 import { green } from '@mui/material/colors';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 // Import components
 import Dashboard from './components/dashboard/Dashboard';
@@ -186,80 +188,77 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <Navigation />
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flex: 1 }}>
-            <Routes>
-              <Route
-                path="/"
-                element={<Navigate to="/search" />}
-              />
-              <Route
-                path="/dashboard"
-                element={<Dashboard fetchStats={fetchSystemStats} />}
-              />
-              <Route
-                path="/search"
-                element={
-                  <Box>
-                    <PropertySearch
-                      onSearch={searchProperties}
-                      onSelectProperty={handlePropertySelect}
-                    />
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <CssBaseline />
+        <Router>
+          <Navigation />
+          <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flex: 1 }}>
+              <Routes>
+                <Route
+                  path="/"
+                  element={<Navigate to="/search" />}
+                />
+                <Route
+                  path="/dashboard"
+                  element={<Dashboard fetchStats={fetchSystemStats} />}
+                />
+                <Route
+                  path="/search"
+                  element={
+                    <Box>
+                      <PropertySearch
+                        onSearch={searchProperties}
+                        onSelectProperty={handlePropertySelect}
+                      />
 
-                    {selectedProperty ? (
-                      <Box mt={isMobile ? 2 : 4}> {/* Adjusted margin top */}
-                        <PropertyDetail
-                          property={selectedProperty}
-                          onUpdate={updateProperty}
-                          onBack={() => setSelectedProperty(null)}
-                          editable={true}
-                          isLoading={isLoading}
-                          isMobile={isMobile} // Pass isMobile prop
-                        />
-                      </Box>
-                    ) : (
-                      // Show property table list on both mobile and desktop for consistency
-                      <Box mt={isMobile ? 2 : 4}> {/* Adjusted margin top */}
-                        <PropertyTableList
-                          getAllProperties={propertyAPI.getAllProperties}
-                          onSelectProperty={handlePropertySelect}
-                          limit={20}
-                        />
-                      </Box>
-                    )}
-                  </Box>
-                }
-              />
-              <Route
-                path="/upload"
-                element={<FileUpload onUpload={handleFileUpload} />}
-              />
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </Container>
-        </Box>
-      </Router>
+                      {selectedProperty ? (
+                        <Box mt={isMobile ? 2 : 4}> {/* Adjusted margin top */}
+                          <PropertyDetail
+                            property={selectedProperty}
+                            onUpdate={updateProperty}
+                            onBack={() => setSelectedProperty(null)}
+                            editable={true}
+                            isLoading={isLoading}
+                            isMobile={isMobile} // Pass isMobile prop
+                          />
+                        </Box>
+                      ) : (
+                        // Show property table list on both mobile and desktop for consistency
+                        <Box mt={isMobile ? 2 : 4}> {/* Adjusted margin top */}
+                          <PropertyTableList
+                            getAllProperties={propertyAPI.getAllProperties}
+                            onSelectProperty={handlePropertySelect}
+                            limit={20}
+                          />
+                        </Box>
+                      )}
+                    </Box>
+                  }
+                />
+                <Route
+                  path="/upload"
+                  element={<FileUpload onUpload={handleFileUpload} />}
+                />
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </Container>
+          </Box>
+        </Router>
 
-      {/* Notification */}
-      <Snackbar
-        open={notification !== null}
-        autoHideDuration={6000}
-        onClose={handleCloseNotification}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        {notification ? (
-          <Alert
-            onClose={handleCloseNotification}
-            severity={notification.type}
-            sx={{ width: '100%' }}
-          >
-            {notification.message}
-          </Alert>
-        ) : undefined}
-      </Snackbar>
+        {/* Notification */}
+        <Snackbar
+          open={notification !== null}
+          autoHideDuration={6000}
+          onClose={handleCloseNotification}
+        >
+          {notification ? (
+            <Alert onClose={handleCloseNotification} severity={notification.type}>
+              {notification.message}
+            </Alert>
+          ) : undefined}
+        </Snackbar>
+      </LocalizationProvider>
     </ThemeProvider>
   );
 }

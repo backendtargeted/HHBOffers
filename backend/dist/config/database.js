@@ -52,7 +52,7 @@ const sequelize = new sequelize_1.Sequelize({
             /ECONNREFUSED/,
             /ENOTFOUND/
         ],
-        max: 5, // Maximum retries
+        max: 5, // Maximum retriess
         backoffBase: 100, // Initial backoff duration in ms
         backoffExponent: 1.1, // Exponent to increase backoff each try
     }
@@ -70,7 +70,7 @@ const sequelize = new sequelize_1.Sequelize({
         // Drop and recreate the public schema
         yield sequelize.query('DROP SCHEMA IF EXISTS public CASCADE;');
         yield sequelize.query('CREATE SCHEMA public;');
-        yield sequelize.query('GRANT ALL ON SCHEMA public TO postgres;');
+        yield sequelize.query('GRANT ALL ON SCHEMA public TO dbuser;');
         yield sequelize.query('GRANT ALL ON SCHEMA public TO public;');
         logger_1.default.info('Database schema reset successfully.');
         // Create all tables fresh

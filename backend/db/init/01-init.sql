@@ -42,7 +42,7 @@ CREATE INDEX IF NOT EXISTS idx_properties_last_name ON properties(last_name);
 CREATE TABLE IF NOT EXISTS offer_histories (
   id SERIAL PRIMARY KEY,
   property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
-  offer_amount DECIMAL(12, 2) NOT NULL,
+  offer_amount TEXT NOT NULL,
   offer_date DATE NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

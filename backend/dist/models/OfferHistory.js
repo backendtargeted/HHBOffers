@@ -28,12 +28,8 @@ exports.OfferHistoryModelAttributes = {
         },
     },
     offer_amount: {
-        type: sequelize_1.DataTypes.DECIMAL(12, 2),
+        type: sequelize_1.DataTypes.TEXT,
         allowNull: false,
-        validate: {
-            isDecimal: true,
-            min: 0, // Offer cannot be negative
-        },
     },
     offer_date: {
         type: sequelize_1.DataTypes.DATEONLY,

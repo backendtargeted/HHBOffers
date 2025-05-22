@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.offerHistoryRepository = void 0;
 const OfferHistory_1 = require("../models/OfferHistory");
 const BaseRepository_1 = __importDefault(require("./BaseRepository"));
+const logger_1 = __importDefault(require("../logger"));
 class OfferHistoryRepository extends BaseRepository_1.default {
     constructor() {
         super(OfferHistory_1.OfferHistory);
@@ -29,6 +30,7 @@ class OfferHistoryRepository extends BaseRepository_1.default {
                 offer_amount: data.offerAmount,
                 offer_date: new Date(data.offerDate),
             };
+            logger_1.default.info('[OfferHistory] Data for offer creation:', { offerAmount: data.offerAmount, offerDate: data.offerDate });
             return yield this.create(offerData, transaction);
         });
     }

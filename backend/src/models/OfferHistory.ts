@@ -5,7 +5,7 @@ import { Property } from './Property';
 interface OfferHistoryAttributes {
   id: number;
   property_id: number;
-  offer_amount: number;
+  offer_amount: string;
   offer_date: Date;
   created_at: Date;
 }
@@ -17,7 +17,7 @@ interface OfferHistoryCreationAttributes extends Optional<OfferHistoryAttributes
 class OfferHistory extends Model<OfferHistoryAttributes, OfferHistoryCreationAttributes> implements OfferHistoryAttributes {
   public id!: number;
   public property_id!: number;
-  public offer_amount!: number;
+  public offer_amount!: string;
   public offer_date!: Date;
   public created_at!: Date;
 
@@ -47,12 +47,8 @@ export const OfferHistoryModelAttributes = {
     },
   },
   offer_amount: {
-    type: DataTypes.DECIMAL(12, 2),
+    type: DataTypes.TEXT,
     allowNull: false,
-    validate: {
-      isDecimal: true,
-      min: 0, // Offer cannot be negative
-    },
   },
   offer_date: {
     type: DataTypes.DATEONLY,

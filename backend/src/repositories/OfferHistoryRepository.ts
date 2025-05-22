@@ -1,6 +1,7 @@
 import { Transaction } from 'sequelize';
 import { OfferHistory, OfferHistoryCreationAttributes } from '../models/OfferHistory';
 import BaseRepository from './BaseRepository';
+import logger from '../logger';
 
 class OfferHistoryRepository extends BaseRepository<OfferHistory> {
   constructor() {
@@ -13,7 +14,7 @@ class OfferHistoryRepository extends BaseRepository<OfferHistory> {
   async addOffer(
     data: { 
       propertyId: number; 
-      offerAmount: number; 
+      offerAmount: string; 
       offerDate: string; 
     }, 
     transaction?: Transaction
@@ -23,6 +24,8 @@ class OfferHistoryRepository extends BaseRepository<OfferHistory> {
       offer_amount: data.offerAmount,
       offer_date: new Date(data.offerDate),
     };
+
+    logger.info('[OfferHistory] Data for offer creation:', { offerAmount: data.offerAmount, offerDate: data.offerDate });
 
     return await this.create(offerData, transaction);
   }

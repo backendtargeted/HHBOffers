@@ -339,13 +339,39 @@ class FileProcessorService {
                     try {
                         // Find or create property
                         const [property, isNew] = yield PropertyRepository_1.propertyRepository.createOrUpdate(data.propertyData, transaction);
-                        // If we have offer data, create an offer history record
-                        if (data.offerAmount && data.offerDate) {
-                            yield OfferHistoryRepository_1.offerHistoryRepository.addOffer({
-                                propertyId: property.id,
+                        // Add log for debugging offerAmount and offerDate
+                        logger_1.default.info('[OfferHistory] Checking data:', {
+                            propertyId: property.id,
+                            propertyAddress: property.property_address,
+                            offerAmount: data.offerAmount,
+                            offerAmountType: typeof data.offerAmount,
+                            offerDate: data.offerDate
+                        });
+                        // Create offer history if offer amount and date are present
+                        if (data.offerAmount !== undefined && data.offerDate) {
+                            logger_1.default.info(`[FileProcessorService] Creating offer for property ${property.id}:`, {
+                                propertyAddress: property.property_address,
                                 offerAmount: data.offerAmount,
                                 offerDate: data.offerDate
-                            }, transaction);
+                            });
+                            try {
+                                yield OfferHistoryRepository_1.offerHistoryRepository.addOffer({
+                                    propertyId: property.id,
+                                    offerAmount: data.offerAmount,
+                                    offerDate: data.offerDate
+                                }, transaction);
+                                logger_1.default.info(`[FileProcessorService] Successfully created offer for property ${property.id}`);
+                            }
+                            catch (error) {
+                                logger_1.default.error(`[FileProcessorService] Error creating offer for property ${property.id}:`, error);
+                                throw error; // Re-throw to trigger transaction rollback
+                            }
+                        }
+                        else {
+                            logger_1.default.info(`[FileProcessorService] Skipping offer creation for property ${property.id} - missing data:`, {
+                                hasOfferAmount: data.offerAmount !== undefined,
+                                hasOfferDate: !!data.offerDate
+                            });
                         }
                         // Update stats
                         if (isNew) {
@@ -380,29 +406,36 @@ class FileProcessorService {
      * @returns Transformed data object containing property data and offer information
      */
     transformRowToPropertyData(row, headerMapping, defaultOfferDate) {
+        // Debug log the raw row data
+        logger_1.default.info('[FileProcessorService] Raw CSV row:', row);
         // Use the mapping if provided, otherwise use default field names
         const mapping = headerMapping || {
-            firstName: 'firstName',
-            lastName: 'lastName',
-            propertyAddress: 'propertyAddress',
-            propertyCity: 'propertyCity',
-            propertyState: 'propertyState',
-            propertyZip: 'propertyZip',
-            offerAmount: 'offerAmount',
-            offerDate: 'offerDate'
+            firstName: 'First Name',
+            lastName: 'Last Name',
+            propertyAddress: 'ADDRESS',
+            propertyCity: 'CITY',
+            propertyState: 'STATE',
+            propertyZip: 'ZIP',
+            offerAmount: 'Offer',
+            offerDate: 'Offer Date'
         };
+        // Debug log the header mapping
+        logger_1.default.info('[FileProcessorService] Using header mapping:', mapping);
         // Helper function to safely get value using mapping or fallbacks
         const getValue = (fieldKey, fallbacks) => {
             const mappedHeader = mapping[fieldKey];
             if (mappedHeader && row[mappedHeader] !== undefined) {
+                logger_1.default.info(`[FileProcessorService] Found value for ${fieldKey} using mapped header ${mappedHeader}:`, row[mappedHeader]);
                 return row[mappedHeader];
             }
             for (const fallback of fallbacks) {
                 if (row[fallback] !== undefined) {
+                    logger_1.default.info(`[FileProcessorService] Found value for ${fieldKey} using fallback ${fallback}:`, row[fallback]);
                     return row[fallback];
                 }
             }
-            return null; // Return null if no value found
+            logger_1.default.info(`[FileProcessorService] No value found for ${fieldKey}`);
+            return null;
         };
         // Extract and normalize property data using the mapping safely
         const propertyData = {
@@ -415,18 +448,34 @@ class FileProcessorService {
             created_at: new Date(),
             updated_at: new Date()
         };
-        // Extract offer data
-        const offerAmount = parseFloat(getValue('offerAmount', ['offer_amount', 'offer', 'amount']) || '0');
-        let offerDate = getValue('offerDate', ['offer_date', 'date']);
+        // Extract offer data - keep as string
+        const rawOfferAmount = getValue('offerAmount', ['Offer', 'offer_amount', 'offer', 'amount', 'Offer Amount', 'OFFER AMOUNT']);
+        let offerAmount;
+        if (rawOfferAmount !== null && rawOfferAmount !== '') {
+            // Keep the original string format, just trim whitespace
+            offerAmount = String(rawOfferAmount).trim();
+            logger_1.default.info(`[FileProcessorService] Raw offer amount: "${rawOfferAmount}", processed to: "${offerAmount}"`);
+        }
+        let offerDate = getValue('offerDate', ['offer_date', 'date', 'Offer Date', 'OFFER DATE']);
+        if (offerDate) {
+            logger_1.default.info(`[FileProcessorService] Found offer date: "${offerDate}"`);
+        }
         // If no offer date is found in the file and a default date is provided, use it
         if (!offerDate && defaultOfferDate) {
             offerDate = defaultOfferDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+            logger_1.default.info(`[FileProcessorService] Using default offer date: "${offerDate}"`);
         }
-        return {
+        const result = {
             propertyData,
-            offerAmount: offerAmount || undefined,
+            offerAmount,
             offerDate: offerDate || undefined
         };
+        logger_1.default.info(`[FileProcessorService] Transformed row data:`, {
+            propertyAddress: result.propertyData.property_address,
+            offerAmount: result.offerAmount,
+            offerDate: result.offerDate
+        });
+        return result;
     }
     /**
      * Update the overall statistics with batch statistics
