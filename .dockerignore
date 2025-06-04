@@ -9,8 +9,8 @@ build/
 out/
 
 # Frontend build
-frontend/frontend/build/
-frontend/frontend/node_modules/
+frontend/build/
+frontend/node_modules/
 
 # Backend build
 backend/dist/

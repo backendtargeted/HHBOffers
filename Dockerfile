@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copy package files and install dependencies for frontend
 COPY frontend/package*.json ./frontend/
-RUN cd frontend && npm install
+RUN cd frontend && npm ci --verbose
 
 # Copy frontend source and build it
 COPY frontend ./frontend
@@ -12,7 +12,7 @@ RUN cd frontend && npm run build
 
 # Copy package files and install dependencies for backend
 COPY backend/package*.json ./backend/
-RUN cd frontend && npm ci --verbose
+RUN cd backend && npm ci --verbose
 
 # Copy backend source and build it
 COPY backend ./backend
