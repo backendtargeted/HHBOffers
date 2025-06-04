@@ -12,7 +12,7 @@ RUN cd frontend && npm run build
 
 # Copy package files and install dependencies for backend
 COPY backend/package*.json ./backend/
-RUN cd backend && npm install
+RUN cd frontend && npm ci --verbose
 
 # Copy backend source and build it
 COPY backend ./backend
