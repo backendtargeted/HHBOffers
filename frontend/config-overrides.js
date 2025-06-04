@@ -10,5 +10,16 @@ module.exports = function override(config, env) {
     url: require.resolve("url/"),
   };
 
+  // Modify module resolution for MUI
+  config.resolve.mainFields = ['browser', 'module', 'main'];
+  
+  // Add a rule to handle MUI imports
+  config.module.rules.push({
+    test: /\.m?js/,
+    resolve: {
+      fullySpecified: false
+    }
+  });
+
   return config;
 };
