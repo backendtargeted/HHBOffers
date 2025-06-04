@@ -25,9 +25,7 @@ WORKDIR /app
 
 # Copy package files for production install
 COPY backend/package*.json ./
-# RUN npm install --only=production
-RUN npm ci --verbose
-
+RUN npm install --only=production
 
 # Copy backend build output
 COPY --from=builder /app/backend/dist ./
