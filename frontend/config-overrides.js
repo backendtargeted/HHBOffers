@@ -10,5 +10,24 @@ module.exports = function override(config, env) {
     url: require.resolve("url/"),
   };
 
+  // Configure module resolution
+  config.resolve = {
+    ...config.resolve,
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.mjs', '.json'],
+    mainFields: ['browser', 'module', 'main'],
+    alias: {
+      ...config.resolve.alias,
+      '@mui/material/styles': '@mui/material/styles/index.js',
+    }
+  };
+
+  // Add a rule to handle .mjs files
+  config.module.rules.push({
+    test: /\.m?js/,
+    resolve: {
+      fullySpecified: false
+    }
+  });
+
   return config;
 };

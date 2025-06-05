@@ -207,12 +207,14 @@ const HeaderMappingDialog: React.FC<HeaderMappingDialogProps> = ({
 
           {useDefaultDate && (
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DatePicker
-                label="Default Offer Date"
-                value={defaultDate}
-                onChange={(newDate) => newDate && setDefaultDate(newDate)}
-                sx={{ mt: 2, width: '100%' }}
-              />
+              <Box sx={{ mt: 2, width: '100%' }}>
+                <DatePicker
+                  label="Default Offer Date"
+                  value={defaultDate}
+                  onChange={(newDate: Date | null) => newDate && setDefaultDate(newDate)}
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                />
+              </Box>
             </LocalizationProvider>
           )}
 

@@ -26,6 +26,7 @@ interface HeaderMapping {
   propertyCity?: string;
   propertyState?: string;
   propertyZip?: string;
+  offer?: string;
   offerAmount?: string;
   offerDate?: string;
 }
@@ -519,7 +520,7 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
     };
 
     // Extract offer data - keep as string
-    const rawOfferAmount = getValue('offerAmount', ['Offer', 'offer_amount', 'offer', 'amount', 'Offer Amount', 'OFFER AMOUNT']);
+    const rawOfferAmount = getValue('offer', ['estimated_offer', 'Offer', 'offer_amount', 'offer', 'amount', 'Offer Amount', 'OFFER AMOUNT']);
     let offerAmount: string | undefined;
     
     if (rawOfferAmount !== null && rawOfferAmount !== '') {
