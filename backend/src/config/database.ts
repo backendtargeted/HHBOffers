@@ -57,12 +57,12 @@ initializeModelAssociations(sequelize);
     await sequelize.authenticate();
     logger.info('Database connection has been established successfully.');
     
-    // Drop and recreate the public schema
-    await sequelize.query('DROP SCHEMA IF EXISTS public CASCADE;');
-    await sequelize.query('CREATE SCHEMA public;');
-    await sequelize.query('GRANT ALL ON SCHEMA public TO dbuser;');
-    await sequelize.query('GRANT ALL ON SCHEMA public TO public;');
-    logger.info('Database schema reset successfully.');
+    // // Drop and recreate the public schema
+    // await sequelize.query('DROP SCHEMA IF EXISTS public CASCADE;');
+    // await sequelize.query('CREATE SCHEMA public;');
+    // await sequelize.query('GRANT ALL ON SCHEMA public TO dbuser;');
+    // await sequelize.query('GRANT ALL ON SCHEMA public TO public;');
+    // logger.info('Database schema reset successfully.');
     
     // Create all tables fresh
     await sequelize.sync({ force: true });
