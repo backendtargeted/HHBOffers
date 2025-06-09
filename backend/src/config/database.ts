@@ -64,9 +64,9 @@ initializeModelAssociations(sequelize);
     // await sequelize.query('GRANT ALL ON SCHEMA public TO public;');
     // logger.info('Database schema reset successfully.');
     
-    // Create all tables fresh
-    await sequelize.sync({ force: true });
-    logger.info('Database tables created successfully.');
+    // Create tables if they don't exist
+    await sequelize.sync();
+    logger.info('Database tables synchronized successfully.');
   } catch (error) {
     logger.error('Unable to connect to the database:', error);
     // Log more details about the error

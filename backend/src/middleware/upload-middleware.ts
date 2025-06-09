@@ -17,7 +17,7 @@ const processedDir = path.join(uploadDir, 'processed');
   }
 });
 
-// Configure storage
+// Configure storage with streaming support
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
     cb(null, tempDir);
@@ -51,13 +51,14 @@ const fileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCall
   }
 };
 
-// Configure multer
+// Configure multer with increased limits
 const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 500 * 1024 * 1024, // 50MB limit
-    files: 1 // Only allow 1 file at a time
+    fileSize: 1024 * 1024 * 1024, // 1GB limit
+    files: 1, // Only allow 1 file at a time
+    fieldSize: 1024 * 1024 * 1024 // 1GB limit for fields
   }
 });
 
@@ -68,7 +69,7 @@ export const handleUploadErrors = (err: any, req: Request, res: Response, next: 
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         success: false,
-        message: 'File size exceeds the 50MB limit'
+        message: 'File size exceeds the 1GB limit'
       });
     }
     
@@ -76,6 +77,13 @@ export const handleUploadErrors = (err: any, req: Request, res: Response, next: 
       return res.status(400).json({
         success: false,
         message: 'Too many files. Only one file can be uploaded at a time'
+      });
+    }
+
+    if (err.code === 'LIMIT_FIELD_VALUE') {
+      return res.status(400).json({
+        success: false,
+        message: 'Field size exceeds the 1GB limit'
       });
     }
     

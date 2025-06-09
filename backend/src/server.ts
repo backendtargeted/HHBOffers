@@ -31,8 +31,8 @@ app.use(helmet({
 }));
 app.use(cors()); // Enable CORS
 app.use(compression()); // Compress responses
-app.use(express.json()); // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(express.json({ limit: '1gb' }));
+app.use(express.urlencoded({ extended: true, limit: '1gb' }));
 
 // Apply rate limiting
 const limiter = rateLimit({
