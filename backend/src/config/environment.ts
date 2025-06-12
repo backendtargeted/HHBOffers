@@ -33,7 +33,7 @@ export const env = {
   RATE_LIMIT_MAX: parseInt(process.env.RATE_LIMIT_MAX || '100'), // 100 requests per window
   
   // File uploads
-  MAX_FILE_SIZE: parseInt(process.env.MAX_FILE_SIZE || '50') * 1024 * 1024, // 50MB
+  MAX_FILE_SIZE: parseInt(process.env.MAX_FILE_SIZE || '1024') * 1024 * 1024, // 1GB default
   
   // Logging
   LOG_LEVEL: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug'),

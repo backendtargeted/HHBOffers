@@ -6,9 +6,9 @@ import { v4 as uuidv4 } from 'uuid';
 import logger from '../logger';
 
 // Define upload directories
-const uploadDir = path.join(__dirname, '../../uploads');
-const tempDir = path.join(uploadDir, 'temp');
-const processedDir = path.join(uploadDir, 'processed');
+export const uploadDir = path.join(__dirname, '../../uploads');
+export const tempDir = path.join(uploadDir, 'temp');
+export const processedDir = path.join(uploadDir, 'processed');
 
 // Ensure directories exist
 [uploadDir, tempDir, processedDir].forEach(dir => {
@@ -18,15 +18,7 @@ const processedDir = path.join(uploadDir, 'processed');
 });
 
 // Configure storage with streaming support
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, tempDir);
-  },
-  filename: (_req, file, cb) => {
-    const uniquePrefix = uuidv4();
-    cb(null, `${uniquePrefix}-${file.originalname}`);
-  }
-});
+const storage = multer.memoryStorage();
 
 // File filter
 const fileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
@@ -51,7 +43,7 @@ const fileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCall
   }
 };
 
-// Configure multer with increased limits
+// Configure multer with increased limits and memory storage
 const upload = multer({
   storage,
   fileFilter,

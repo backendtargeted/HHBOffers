@@ -6,6 +6,7 @@ import { uploadJobRepository } from '../repositories';
 import { activityLogRepository } from '../repositories';
 import FileProcessorService from '../services/FileProcessorService';
 import logger from '../logger';
+import { tempDir } from '../middleware/upload-middleware';
 
 // Initialize file processor service
 const fileProcessorService = new FileProcessorService();
@@ -94,7 +95,14 @@ class UploadController {
       const file = req.file;
       const originalName = file.originalname;
       const fileSize = file.size;
-      const filePath = file.path;
+      
+      // Generate a unique filename
+      const uniquePrefix = uuidv4();
+      const filename = `${uniquePrefix}-${originalName}`;
+      const filePath = path.join(tempDir, filename);
+      
+      // Stream the file buffer to disk
+      await fs.promises.writeFile(filePath, file.buffer);
       
       // Get header mapping if provided
       const headerMapping = req.body.headerMapping ? JSON.parse(req.body.headerMapping) : undefined;
@@ -112,7 +120,7 @@ class UploadController {
         fileType = 'xlsx';
       } else {
         // Delete the uploaded file if it's not a supported type
-        fs.unlinkSync(filePath);
+        await fs.promises.unlink(filePath);
         
         return res.status(400).json({
           success: false,
