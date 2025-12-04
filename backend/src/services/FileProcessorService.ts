@@ -8,6 +8,7 @@ import { propertyRepository } from '../repositories/PropertyRepository';
 import { uploadJobRepository } from '../repositories/UploadJobRepository';
 import { activityLogRepository } from '../repositories/ActivityLogRepository';
 import { offerHistoryRepository } from '../repositories/OfferHistoryRepository';
+import { redisService } from './redis-service';
 import logger from '../logger';
 
 // Define interfaces for better type safety
@@ -386,6 +387,9 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
       errorRecords: 0
     };
 
+    // Track property IDs that had offers added for cache invalidation
+    const propertiesWithOffers = new Set<number>();
+
     // Use a transaction for the entire batch
     const transaction = await propertyRepository.startTransaction();
     
@@ -428,6 +432,8 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
                 },
                 transaction
               );
+              // Track this property for cache invalidation
+              propertiesWithOffers.add(property.id);
               logger.info(`[FileProcessorService] Successfully created offer for property ${property.id}`);
             } catch (error) {
               logger.error(`[FileProcessorService] Error creating offer for property ${property.id}:`, error);
@@ -453,6 +459,19 @@ async processCsvFile(filePath: string, jobId: string, headerMapping?: HeaderMapp
       }
 
       await transaction.commit();
+      
+      // Invalidate cache for properties that had offers added (after successful commit)
+      if (propertiesWithOffers.size > 0) {
+        const cacheInvalidationPromises = Array.from(propertiesWithOffers).map(propertyId => {
+          const cacheKey = `property:${propertyId}:offers`;
+          logger.debug(`[FileProcessorService] Invalidating cache for property ${propertyId}`);
+          return redisService.delete(cacheKey).catch(error => {
+            logger.error(`[FileProcessorService] Error invalidating cache for property ${propertyId}:`, error);
+          });
+        });
+        await Promise.all(cacheInvalidationPromises);
+        logger.info(`[FileProcessorService] Invalidated cache for ${propertiesWithOffers.size} properties`);
+      }
     } catch (error: unknown) {
       await transaction.rollback();
       stats.errorRecords = batch.length;

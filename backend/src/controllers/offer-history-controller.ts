@@ -15,6 +15,13 @@ class OfferHistoryController {
   async getPropertyOffers(req: Request, res: Response) {
     try {
       const { propertyId } = req.params;
+      const propertyIdNum = parseInt(propertyId);
+      
+      if (isNaN(propertyIdNum)) {
+        return sendResponse(res, {
+          message: 'Invalid property ID'
+        }, 400);
+      }
       
       // Cache key
       const cacheKey = `property:${propertyId}:offers`;
@@ -22,14 +29,30 @@ class OfferHistoryController {
       // Try to get from cache first
       const cachedOffers = await redisService.get(cacheKey);
       if (cachedOffers) {
-        return sendResponse(res, {
-          offers: cachedOffers,
-          fromCache: true
-        });
+        // Handle cached data - it might be a string that needs parsing
+        let parsedOffers = cachedOffers;
+        if (typeof cachedOffers === 'string') {
+          try {
+            parsedOffers = JSON.parse(cachedOffers);
+          } catch (e) {
+            logger.warn(`Failed to parse cached offers for property ${propertyId}, fetching from database`);
+            parsedOffers = null;
+          }
+        }
+        
+        if (parsedOffers !== null && parsedOffers !== undefined) {
+          logger.debug(`Returning cached offers for property ${propertyId}, count: ${Array.isArray(parsedOffers) ? parsedOffers.length : 'N/A'}`);
+          return sendResponse(res, {
+            offers: Array.isArray(parsedOffers) ? parsedOffers : [],
+            fromCache: true
+          });
+        }
       }
       
       // Get offers from database
-      const offers = await offerHistoryRepository.findByPropertyId(parseInt(propertyId));
+      logger.debug(`Fetching offers from database for property ${propertyId}`);
+      const offers = await offerHistoryRepository.findByPropertyId(propertyIdNum);
+      logger.debug(`Found ${offers.length} offers in database for property ${propertyId}`);
       
       // Transform to camelCase
       const camelCaseOffers = toCamelCase(JSON.parse(JSON.stringify(offers)));
@@ -123,13 +146,21 @@ class OfferHistoryController {
         }, 400);
       }
       
-      // Update offer
-      const [numUpdated, [updatedOffer]] = await offerHistoryRepository.update(
+      // Get the offer first to get property_id for cache invalidation
+      const existingOffer = await offerHistoryRepository.findById(parseInt(offerId));
+      if (!existingOffer) {
+        return sendResponse(res, {
+          message: 'Offer not found'
+        }, 404);
+      }
+      
+      // Update offer with snake_case field names for database
+      const [numUpdated, updatedOffers] = await offerHistoryRepository.update(
         parseInt(offerId),
         {
-          offerAmount,
-          offerDate
-        }
+          offer_amount: offerAmount.toString(),
+          offer_date: new Date(offerDate)
+        } as any
       );
       
       if (numUpdated === 0) {
@@ -138,14 +169,22 @@ class OfferHistoryController {
         }, 404);
       }
       
+      // Get the updated offer
+      const updatedOffer = await offerHistoryRepository.findById(parseInt(offerId));
+      if (!updatedOffer) {
+        return sendResponse(res, {
+          message: 'Error retrieving updated offer'
+        }, 500);
+      }
+      
       // Invalidate cache for the property
-      await redisService.delete(`property:${updatedOffer.property_id}:offers`);
+      await redisService.delete(`property:${existingOffer.property_id}:offers`);
       
       // Log activity
       await activityLogRepository.log({
         action: 'update_offer',
         entity_type: 'property',
-        entity_id: updatedOffer.property_id.toString(),
+        entity_id: existingOffer.property_id.toString(),
         details: { offerAmount, offerDate },
         ip_address: req.ip
       });
