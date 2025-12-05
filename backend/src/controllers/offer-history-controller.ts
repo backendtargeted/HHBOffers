@@ -108,7 +108,7 @@ class OfferHistoryController {
         entity_id: propertyId,
         ip_address: req.ip
       });
-      
+      logger.info(`Sending offers for property ${propertyId}:`, JSON.stringify(camelCaseOffers.slice(0, 2), null, 2));
       return sendResponse(res, {
         offers: camelCaseOffers
       });
