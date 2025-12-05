@@ -167,11 +167,13 @@ const OfferHistory: React.FC<OfferHistoryProps> = ({ propertyId, isMobile = fals
     const dateOnly = dateString.split('T')[0];
     const [year, month, day] = dateOnly.split('-').map(Number);
     
-    // Use UTC date to avoid timezone conversion issues
-    return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString('en-US', {
+    // Use UTC date and explicitly format in UTC timezone to avoid conversion issues
+    const utcDate = new Date(Date.UTC(year, month - 1, day));
+    return utcDate.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: 'UTC' // Explicitly use UTC timezone
     });
   };
 

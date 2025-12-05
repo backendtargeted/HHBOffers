@@ -41,9 +41,18 @@ class OfferHistoryController {
         }
         
         if (parsedOffers !== null && parsedOffers !== undefined) {
-          logger.debug(`Returning cached offers for property ${propertyId}, count: ${Array.isArray(parsedOffers) ? parsedOffers.length : 'N/A'}`);
+          // Format dates in cached data as date-only strings to ensure consistency
+          const formattedCachedOffers = Array.isArray(parsedOffers) ? parsedOffers.map((offer: any) => ({
+            ...offer,
+            offerDate: offer.offerDate ? (typeof offer.offerDate === 'string' 
+              ? offer.offerDate.split('T')[0] 
+              : new Date(offer.offerDate).toISOString().split('T')[0]) 
+            : offer.offerDate
+          })) : [];
+          
+          logger.debug(`Returning cached offers for property ${propertyId}, count: ${formattedCachedOffers.length}`);
           return sendResponse(res, {
-            offers: Array.isArray(parsedOffers) ? parsedOffers : [],
+            offers: formattedCachedOffers,
             fromCache: true
           });
         }
@@ -54,8 +63,14 @@ class OfferHistoryController {
       const offers = await offerHistoryRepository.findByPropertyId(propertyIdNum);
       logger.debug(`Found ${offers.length} offers in database for property ${propertyId}`);
       
-      // Transform to camelCase
-      const camelCaseOffers = toCamelCase(JSON.parse(JSON.stringify(offers)));
+      // Transform to camelCase and format dates as date-only strings (YYYY-MM-DD) to avoid timezone issues
+      const camelCaseOffers = toCamelCase(JSON.parse(JSON.stringify(offers))).map((offer: any) => ({
+        ...offer,
+        offerDate: offer.offerDate ? (typeof offer.offerDate === 'string' 
+          ? offer.offerDate.split('T')[0] 
+          : new Date(offer.offerDate).toISOString().split('T')[0]) 
+        : offer.offerDate
+      }));
       
       // Cache for 5 minutes
       await redisService.set(cacheKey, camelCaseOffers, 300);
