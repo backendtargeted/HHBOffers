@@ -64,13 +64,39 @@ class OfferHistoryController {
       logger.debug(`Found ${offers.length} offers in database for property ${propertyId}`);
       
       // Transform to camelCase and format dates as date-only strings (YYYY-MM-DD) to avoid timezone issues
-      const camelCaseOffers = toCamelCase(JSON.parse(JSON.stringify(offers))).map((offer: any) => ({
-        ...offer,
-        offerDate: offer.offerDate ? (typeof offer.offerDate === 'string' 
-          ? offer.offerDate.split('T')[0] 
-          : new Date(offer.offerDate).toISOString().split('T')[0]) 
-        : offer.offerDate
-      }));
+      // Use Sequelize's toJSON and then format the date properly
+      const camelCaseOffers = offers.map((offer: any) => {
+        // Convert to plain object first
+        const offerObj = offer.toJSON ? offer.toJSON() : offer;
+        
+        // Get the offer_date value - prefer the raw string from database if available
+        let rawOfferDate = offerObj.offer_date_string || // Raw string from SQL TO_CHAR
+                          offerObj.offer_date || 
+                          offerObj.offerDate || 
+                          (offer.dataValues && (offer.dataValues.offer_date_string || offer.dataValues.offer_date)) || 
+                          offer.offer_date;
+        
+        // Format the date as YYYY-MM-DD string
+        let formattedDate: string = '';
+        if (rawOfferDate) {
+          if (typeof rawOfferDate === 'string') {
+            // If it's already a string, extract just the date part (YYYY-MM-DD)
+            formattedDate = rawOfferDate.split('T')[0].split(' ')[0];
+          } else if (rawOfferDate instanceof Date) {
+            // Use toISOString and extract date part - this ensures UTC
+            formattedDate = rawOfferDate.toISOString().split('T')[0];
+          } else {
+            formattedDate = String(rawOfferDate).split('T')[0].split(' ')[0];
+          }
+        }
+        
+        logger.debug(`Offer ${offerObj.id || 'unknown'}: raw date = ${rawOfferDate}, formatted = ${formattedDate}`);
+        
+        return {
+          ...toCamelCase(offerObj),
+          offerDate: formattedDate
+        };
+      });
       
       // Cache for 5 minutes
       await redisService.set(cacheKey, camelCaseOffers, 300);

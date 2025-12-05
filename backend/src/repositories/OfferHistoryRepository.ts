@@ -1,7 +1,8 @@
-import { Transaction } from 'sequelize';
+import { Transaction, Sequelize } from 'sequelize';
 import { OfferHistory, OfferHistoryCreationAttributes } from '../models/OfferHistory';
 import BaseRepository from './BaseRepository';
 import logger from '../logger';
+import sequelize from '../config/database';
 
 class OfferHistoryRepository extends BaseRepository<OfferHistory> {
   constructor() {
@@ -32,6 +33,7 @@ class OfferHistoryRepository extends BaseRepository<OfferHistory> {
 
   /**
    * Find all offers for a property, ordered by offer date (desc) and creation date (desc)
+   * Uses raw date formatting to avoid timezone conversion issues
    */
   async findByPropertyId(propertyId: number): Promise<OfferHistory[]> {
     return await this.findAll({
@@ -39,7 +41,14 @@ class OfferHistoryRepository extends BaseRepository<OfferHistory> {
       order: [
         ['offer_date', 'DESC'],
         ['created_at', 'DESC']
-      ]
+      ],
+      attributes: {
+        include: [
+          // Format offer_date as string directly from database to avoid timezone conversion
+          [sequelize.literal("TO_CHAR(offer_date, 'YYYY-MM-DD')"), 'offer_date_string']
+        ]
+      },
+      raw: false
     });
   }
 
