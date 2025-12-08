@@ -163,10 +163,11 @@ const OfferHistory: React.FC<OfferHistoryProps> = ({ propertyId, isMobile = fals
 
   // Format date - handle date-only values correctly to avoid timezone issues
   const formatDate = (dateString: string) => {
+    console.log('formatDate input:', dateString);
     // Extract just the date part (YYYY-MM-DD) if it includes time
     const dateOnly = dateString.split('T')[0];
     const [year, month, day] = dateOnly.split('-').map(Number);
-    
+
     // Use UTC date and explicitly format in UTC timezone to avoid conversion issues
     const utcDate = new Date(Date.UTC(year, month - 1, day));
     return utcDate.toLocaleDateString('en-US', {
@@ -395,4 +396,4 @@ const OfferHistory: React.FC<OfferHistoryProps> = ({ propertyId, isMobile = fals
   );
 };
 
-export default OfferHistory; 
+export default OfferHistory;
