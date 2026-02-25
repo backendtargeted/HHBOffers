@@ -53,7 +53,11 @@ async function ensureSchemaUpToDate() {
   // Safe to run repeatedly thanks to IF NOT EXISTS.
   await sequelize.query(`
     ALTER TABLE IF EXISTS properties
-      ADD COLUMN IF NOT EXISTS salesforce_id VARCHAR(32),
+      ADD COLUMN IF NOT EXISTS salesforce_id VARCHAR(32)
+  `);
+
+  await sequelize.query(`
+    ALTER TABLE IF EXISTS properties
       ADD COLUMN IF NOT EXISTS zestimate NUMERIC(14,2)
   `);
 
