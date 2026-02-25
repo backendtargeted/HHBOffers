@@ -185,3 +185,57 @@ sudo docker-compose restart nginx
 - Test HTTPS: Visit https://offers.handsomehomebuyer.com
 - Check certificate: Visit https://www.ssllabs.com/ssltest/
 - Test HTTP redirect: Visit http://offers.handsomehomebuyer.com (should redirect to HTTPS)
+
+## Postgres Backup & Restore (Docker Volume)
+
+### Backup the `hhboffers` database
+
+From the server (in `~/HHBOffers`), create a logical SQL backup using `pg_dump`:
+
+```bash
+docker exec -t hhboffers-postgres-1 \
+  pg_dump -U dbuser -d hhboffers \
+  > hhboffers-$(date +%Y%m%d-%H%M%S).sql
+```
+
+Optional: compress the dump:
+
+```bash
+gzip hhboffers-20260225-111400.sql
+```
+
+Adjust the filename/date as needed.
+
+### Download backup to your machine
+
+From your local machine (PowerShell on Windows):
+
+```powershell
+scp root@147.93.144.178:/root/HHBOffers/hhboffers-20260225-111400.sql.gz .
+```
+
+### Restore from a backup
+
+On the server (replace with your filename):
+
+```bash
+gunzip hhboffers-20260225-111400.sql.gz  # if compressed
+
+cat hhboffers-20260225-111400.sql | \
+  docker exec -i hhboffers-postgres-1 \
+  psql -U dbuser -d hhboffers
+```
+
+### (Optional) Snapshot the raw Postgres volume
+
+If you ever need a raw volume snapshot instead of a logical SQL dump:
+
+```bash
+docker run --rm \
+  --volumes-from hhboffers-postgres-1 \
+  -v $(pwd):/backup \
+  alpine sh -c \
+  "cd /var/lib/postgresql && tar czf /backup/postgres-volume-$(date +%Y%m%d-%H%M%S).tar.gz data"
+```
+
+Prefer the `pg_dump` backups for portability and easier restores.
