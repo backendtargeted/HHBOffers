@@ -32,8 +32,8 @@ app.use((0, helmet_1.default)({
 }));
 app.use((0, cors_1.default)()); // Enable CORS
 app.use((0, compression_1.default)()); // Compress responses
-app.use(express_1.default.json()); // Parse JSON bodies
-app.use(express_1.default.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(express_1.default.json({ limit: '1gb' }));
+app.use(express_1.default.urlencoded({ extended: true, limit: '1gb' }));
 // Apply rate limiting
 const limiter = (0, express_rate_limit_1.rateLimit)({
     windowMs: 15 * 60 * 1000, // 15 minutes

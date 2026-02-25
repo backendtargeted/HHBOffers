@@ -28,20 +28,74 @@ class OfferHistoryController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { propertyId } = req.params;
+                const propertyIdNum = parseInt(propertyId);
+                if (isNaN(propertyIdNum)) {
+                    return (0, responseHandler_1.sendResponse)(res, {
+                        message: 'Invalid property ID'
+                    }, 400);
+                }
                 // Cache key
                 const cacheKey = `property:${propertyId}:offers`;
                 // Try to get from cache first
                 const cachedOffers = yield redis_service_1.redisService.get(cacheKey);
                 if (cachedOffers) {
-                    return (0, responseHandler_1.sendResponse)(res, {
-                        offers: cachedOffers,
-                        fromCache: true
-                    });
+                    // Handle cached data - it might be a string that needs parsing
+                    let parsedOffers = cachedOffers;
+                    if (typeof cachedOffers === 'string') {
+                        try {
+                            parsedOffers = JSON.parse(cachedOffers);
+                        }
+                        catch (e) {
+                            logger_1.default.warn(`Failed to parse cached offers for property ${propertyId}, fetching from database`);
+                            parsedOffers = null;
+                        }
+                    }
+                    if (parsedOffers !== null && parsedOffers !== undefined) {
+                        // Format dates in cached data as date-only strings to ensure consistency
+                        const formattedCachedOffers = Array.isArray(parsedOffers) ? parsedOffers.map((offer) => (Object.assign(Object.assign({}, offer), { offerDate: offer.offerDate ? (typeof offer.offerDate === 'string'
+                                ? offer.offerDate.split('T')[0]
+                                : new Date(offer.offerDate).toISOString().split('T')[0])
+                                : offer.offerDate }))) : [];
+                        logger_1.default.debug(`Returning cached offers for property ${propertyId}, count: ${formattedCachedOffers.length}`);
+                        return (0, responseHandler_1.sendResponse)(res, {
+                            offers: formattedCachedOffers,
+                            fromCache: true
+                        });
+                    }
                 }
                 // Get offers from database
-                const offers = yield repositories_1.offerHistoryRepository.findByPropertyId(parseInt(propertyId));
-                // Transform to camelCase
-                const camelCaseOffers = (0, dataTransformer_1.toCamelCase)(JSON.parse(JSON.stringify(offers)));
+                logger_1.default.debug(`Fetching offers from database for property ${propertyId}`);
+                const offers = yield repositories_1.offerHistoryRepository.findByPropertyId(propertyIdNum);
+                logger_1.default.debug(`Found ${offers.length} offers in database for property ${propertyId}`);
+                // Transform to camelCase and format dates as date-only strings (YYYY-MM-DD) to avoid timezone issues
+                // Use Sequelize's toJSON and then format the date properly
+                const camelCaseOffers = offers.map((offer) => {
+                    // Convert to plain object first
+                    const offerObj = offer.toJSON ? offer.toJSON() : offer;
+                    // Get the offer_date value - prefer the raw string from database if available
+                    let rawOfferDate = offerObj.offer_date_string || // Raw string from SQL TO_CHAR
+                        offerObj.offer_date ||
+                        offerObj.offerDate ||
+                        (offer.dataValues && (offer.dataValues.offer_date_string || offer.dataValues.offer_date)) ||
+                        offer.offer_date;
+                    // Format the date as YYYY-MM-DD string
+                    let formattedDate = '';
+                    if (rawOfferDate) {
+                        if (typeof rawOfferDate === 'string') {
+                            // If it's already a string, extract just the date part (YYYY-MM-DD)
+                            formattedDate = rawOfferDate.split('T')[0].split(' ')[0];
+                        }
+                        else if (rawOfferDate instanceof Date) {
+                            // Use toISOString and extract date part - this ensures UTC
+                            formattedDate = rawOfferDate.toISOString().split('T')[0];
+                        }
+                        else {
+                            formattedDate = String(rawOfferDate).split('T')[0].split(' ')[0];
+                        }
+                    }
+                    logger_1.default.debug(`Offer ${offerObj.id || 'unknown'}: raw date = ${rawOfferDate}, formatted = ${formattedDate}`);
+                    return Object.assign(Object.assign({}, (0, dataTransformer_1.toCamelCase)(offerObj)), { offerDate: formattedDate });
+                });
                 // Cache for 5 minutes
                 yield redis_service_1.redisService.set(cacheKey, camelCaseOffers, 300);
                 // Log activity
@@ -51,6 +105,7 @@ class OfferHistoryController {
                     entity_id: propertyId,
                     ip_address: req.ip
                 });
+                logger_1.default.info(`Sending offers for property ${propertyId}:`, JSON.stringify(camelCaseOffers.slice(0, 2), null, 2));
                 return (0, responseHandler_1.sendResponse)(res, {
                     offers: camelCaseOffers
                 });
@@ -125,23 +180,37 @@ class OfferHistoryController {
                         message: 'Offer amount and date are required'
                     }, 400);
                 }
-                // Update offer
-                const [numUpdated, [updatedOffer]] = yield repositories_1.offerHistoryRepository.update(parseInt(offerId), {
-                    offerAmount,
-                    offerDate
+                // Get the offer first to get property_id for cache invalidation
+                const existingOffer = yield repositories_1.offerHistoryRepository.findById(parseInt(offerId));
+                if (!existingOffer) {
+                    return (0, responseHandler_1.sendResponse)(res, {
+                        message: 'Offer not found'
+                    }, 404);
+                }
+                // Update offer with snake_case field names for database
+                const [numUpdated, updatedOffers] = yield repositories_1.offerHistoryRepository.update(parseInt(offerId), {
+                    offer_amount: offerAmount.toString(),
+                    offer_date: new Date(offerDate)
                 });
                 if (numUpdated === 0) {
                     return (0, responseHandler_1.sendResponse)(res, {
                         message: 'Offer not found'
                     }, 404);
                 }
+                // Get the updated offer
+                const updatedOffer = yield repositories_1.offerHistoryRepository.findById(parseInt(offerId));
+                if (!updatedOffer) {
+                    return (0, responseHandler_1.sendResponse)(res, {
+                        message: 'Error retrieving updated offer'
+                    }, 500);
+                }
                 // Invalidate cache for the property
-                yield redis_service_1.redisService.delete(`property:${updatedOffer.property_id}:offers`);
+                yield redis_service_1.redisService.delete(`property:${existingOffer.property_id}:offers`);
                 // Log activity
                 yield repositories_2.activityLogRepository.log({
                     action: 'update_offer',
                     entity_type: 'property',
-                    entity_id: updatedOffer.property_id.toString(),
+                    entity_id: existingOffer.property_id.toString(),
                     details: { offerAmount, offerDate },
                     ip_address: req.ip
                 });

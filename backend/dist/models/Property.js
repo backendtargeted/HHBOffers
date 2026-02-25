@@ -63,6 +63,10 @@ exports.PropertyModelAttributes = {
             is: /^[0-9]{4,5}(-[0-9]{4})?$/, // Allow 4 or 5 digits, optionally followed by -4 digits
         },
     },
+    salesforce_id: {
+        type: sequelize_1.DataTypes.STRING(32),
+        allowNull: true,
+    },
     created_at: {
         type: sequelize_1.DataTypes.DATE,
         allowNull: false,
@@ -84,6 +88,10 @@ exports.PropertyModelOptions = {
             // Match the index in the DB schema
             name: 'idx_properties_address',
             fields: ['property_address', 'property_city', 'property_state', 'property_zip'],
+        },
+        {
+            name: 'idx_properties_salesforce_id',
+            fields: ['salesforce_id'],
         },
     ],
     hooks: {

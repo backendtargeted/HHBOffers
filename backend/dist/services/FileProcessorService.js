@@ -20,6 +20,7 @@ const PropertyRepository_1 = require("../repositories/PropertyRepository");
 const UploadJobRepository_1 = require("../repositories/UploadJobRepository");
 const ActivityLogRepository_1 = require("../repositories/ActivityLogRepository");
 const OfferHistoryRepository_1 = require("../repositories/OfferHistoryRepository");
+const redis_service_1 = require("./redis-service");
 const logger_1 = __importDefault(require("../logger"));
 /**
  * Service for processing CSV and XLSX files using the Batch Processing Pattern
@@ -329,6 +330,8 @@ class FileProcessorService {
                 updatedRecords: 0,
                 errorRecords: 0
             };
+            // Track property IDs that had offers added for cache invalidation
+            const propertiesWithOffers = new Set();
             // Use a transaction for the entire batch
             const transaction = yield PropertyRepository_1.propertyRepository.startTransaction();
             try {
@@ -360,6 +363,8 @@ class FileProcessorService {
                                     offerAmount: data.offerAmount,
                                     offerDate: data.offerDate
                                 }, transaction);
+                                // Track this property for cache invalidation
+                                propertiesWithOffers.add(property.id);
                                 logger_1.default.info(`[FileProcessorService] Successfully created offer for property ${property.id}`);
                             }
                             catch (error) {
@@ -387,6 +392,18 @@ class FileProcessorService {
                     }
                 }
                 yield transaction.commit();
+                // Invalidate cache for properties that had offers added (after successful commit)
+                if (propertiesWithOffers.size > 0) {
+                    const cacheInvalidationPromises = Array.from(propertiesWithOffers).map(propertyId => {
+                        const cacheKey = `property:${propertyId}:offers`;
+                        logger_1.default.debug(`[FileProcessorService] Invalidating cache for property ${propertyId}`);
+                        return redis_service_1.redisService.delete(cacheKey).catch(error => {
+                            logger_1.default.error(`[FileProcessorService] Error invalidating cache for property ${propertyId}:`, error);
+                        });
+                    });
+                    yield Promise.all(cacheInvalidationPromises);
+                    logger_1.default.info(`[FileProcessorService] Invalidated cache for ${propertiesWithOffers.size} properties`);
+                }
             }
             catch (error) {
                 yield transaction.rollback();
@@ -449,7 +466,7 @@ class FileProcessorService {
             updated_at: new Date()
         };
         // Extract offer data - keep as string
-        const rawOfferAmount = getValue('offerAmount', ['Offer', 'offer_amount', 'offer', 'amount', 'Offer Amount', 'OFFER AMOUNT']);
+        const rawOfferAmount = getValue('offer', ['estimated_offer', 'Offer', 'offer_amount', 'offer', 'amount', 'Offer Amount', 'OFFER AMOUNT']);
         let offerAmount;
         if (rawOfferAmount !== null && rawOfferAmount !== '') {
             // Keep the original string format, just trim whitespace

@@ -18,6 +18,7 @@ const path_1 = __importDefault(require("path"));
 const repositories_1 = require("../repositories");
 const FileProcessorService_1 = __importDefault(require("../services/FileProcessorService"));
 const logger_1 = __importDefault(require("../logger"));
+const upload_middleware_1 = require("../middleware/upload-middleware");
 // Initialize file processor service
 const fileProcessorService = new FileProcessorService_1.default();
 // Keep track of active processing jobs
@@ -103,7 +104,12 @@ class UploadController {
                 const file = req.file;
                 const originalName = file.originalname;
                 const fileSize = file.size;
-                const filePath = file.path;
+                // Generate a unique filename
+                const uniquePrefix = (0, uuid_1.v4)();
+                const filename = `${uniquePrefix}-${originalName}`;
+                const filePath = path_1.default.join(upload_middleware_1.tempDir, filename);
+                // Stream the file buffer to disk
+                yield fs_1.default.promises.writeFile(filePath, file.buffer);
                 // Get header mapping if provided
                 const headerMapping = req.body.headerMapping ? JSON.parse(req.body.headerMapping) : undefined;
                 // Get default offer date if provided
@@ -119,7 +125,7 @@ class UploadController {
                 }
                 else {
                     // Delete the uploaded file if it's not a supported type
-                    fs_1.default.unlinkSync(filePath);
+                    yield fs_1.default.promises.unlink(filePath);
                     return res.status(400).json({
                         success: false,
                         message: 'Unsupported file type. Only CSV and Excel files are allowed.'

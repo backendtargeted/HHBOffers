@@ -11,13 +11,13 @@ export interface PropertyAttributes {
   property_city: string;
   property_state: string;
   property_zip: string;
-  salesforce_id?: string | null;
+  salesforce_id: string | null;
   created_at: Date;
   updated_at: Date;
 }
 
 // Define the attributes for creating a new Property
-export interface PropertyCreationAttributes extends Optional<PropertyAttributes, 'id' | 'created_at' | 'updated_at'> {}
+export interface PropertyCreationAttributes extends Optional<PropertyAttributes, 'id' | 'created_at' | 'updated_at' | 'salesforce_id'> {}
 
 // Define the model
 export class Property extends Model<PropertyAttributes, PropertyCreationAttributes> implements PropertyAttributes {
@@ -28,7 +28,7 @@ export class Property extends Model<PropertyAttributes, PropertyCreationAttribut
   public property_city!: string;
   public property_state!: string;
   public property_zip!: string;
-   public salesforce_id!: string | null;
+  public salesforce_id!: string | null;
   public created_at!: Date;
   public updated_at!: Date;
 

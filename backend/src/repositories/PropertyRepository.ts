@@ -119,8 +119,8 @@ export class PropertyRepository extends BaseRepository<Property> {
           property_city: propertyData.property_city,
           property_state: propertyData.property_state,
           property_zip: propertyData.property_zip,
-          salesforce_id: propertyData.salesforce_id
-        },
+          salesforce_id: propertyData.salesforce_id ?? null,
+        } as any,
         transaction
       );
       return [updatedProperties[0] || existingProperty, false];

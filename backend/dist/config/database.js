@@ -67,15 +67,15 @@ const sequelize = new sequelize_1.Sequelize({
     try {
         yield sequelize.authenticate();
         logger_1.default.info('Database connection has been established successfully.');
-        // Drop and recreate the public schema
-        yield sequelize.query('DROP SCHEMA IF EXISTS public CASCADE;');
-        yield sequelize.query('CREATE SCHEMA public;');
-        yield sequelize.query('GRANT ALL ON SCHEMA public TO dbuser;');
-        yield sequelize.query('GRANT ALL ON SCHEMA public TO public;');
-        logger_1.default.info('Database schema reset successfully.');
-        // Create all tables fresh
-        yield sequelize.sync({ force: true });
-        logger_1.default.info('Database tables created successfully.');
+        // // Drop and recreate the public schema
+        // await sequelize.query('DROP SCHEMA IF EXISTS public CASCADE;');
+        // await sequelize.query('CREATE SCHEMA public;');
+        // await sequelize.query('GRANT ALL ON SCHEMA public TO dbuser;');
+        // await sequelize.query('GRANT ALL ON SCHEMA public TO public;');
+        // logger.info('Database schema reset successfully.');
+        // Create tables if they don't exist
+        yield sequelize.sync();
+        logger_1.default.info('Database tables synchronized successfully.');
     }
     catch (error) {
         logger_1.default.error('Unable to connect to the database:', error);

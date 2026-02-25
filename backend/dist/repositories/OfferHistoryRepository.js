@@ -16,6 +16,7 @@ exports.offerHistoryRepository = void 0;
 const OfferHistory_1 = require("../models/OfferHistory");
 const BaseRepository_1 = __importDefault(require("./BaseRepository"));
 const logger_1 = __importDefault(require("../logger"));
+const database_1 = __importDefault(require("../config/database"));
 class OfferHistoryRepository extends BaseRepository_1.default {
     constructor() {
         super(OfferHistory_1.OfferHistory);
@@ -36,6 +37,7 @@ class OfferHistoryRepository extends BaseRepository_1.default {
     }
     /**
      * Find all offers for a property, ordered by offer date (desc) and creation date (desc)
+     * Uses raw date formatting to avoid timezone conversion issues
      */
     findByPropertyId(propertyId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -44,7 +46,14 @@ class OfferHistoryRepository extends BaseRepository_1.default {
                 order: [
                     ['offer_date', 'DESC'],
                     ['created_at', 'DESC']
-                ]
+                ],
+                attributes: {
+                    include: [
+                        // Format offer_date as string directly from database to avoid timezone conversion
+                        [database_1.default.literal("TO_CHAR(offer_date, 'YYYY-MM-DD')"), 'offer_date_string']
+                    ]
+                },
+                raw: false
             });
         });
     }
