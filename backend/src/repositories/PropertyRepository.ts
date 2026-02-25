@@ -118,7 +118,8 @@ export class PropertyRepository extends BaseRepository<Property> {
           property_address: propertyData.property_address,
           property_city: propertyData.property_city,
           property_state: propertyData.property_state,
-          property_zip: propertyData.property_zip
+          property_zip: propertyData.property_zip,
+          salesforce_id: propertyData.salesforce_id
         },
         transaction
       );
@@ -128,6 +129,18 @@ export class PropertyRepository extends BaseRepository<Property> {
     logger.info(`[PropertyRepository] Creating new property: ${JSON.stringify(propertyData)}`);
     const newProperty = await this.create(propertyData, transaction);
     return [newProperty, true];
+  }
+
+  /**
+   * Find properties by Salesforce ID
+   * Note: salesforce_id is non-unique, so this can return multiple properties
+   * @param salesforceId - Salesforce ID to search for
+   */
+  async findBySalesforceId(salesforceId: string): Promise<Property[]> {
+    return this.findAll({
+      where: { salesforce_id: salesforceId },
+      order: [['updated_at', 'DESC']],
+    });
   }
 
   /**

@@ -11,6 +11,7 @@ export interface PropertyAttributes {
   property_city: string;
   property_state: string;
   property_zip: string;
+  salesforce_id?: string | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -27,6 +28,7 @@ export class Property extends Model<PropertyAttributes, PropertyCreationAttribut
   public property_city!: string;
   public property_state!: string;
   public property_zip!: string;
+   public salesforce_id!: string | null;
   public created_at!: Date;
   public updated_at!: Date;
 
@@ -91,6 +93,10 @@ export const PropertyModelAttributes = {
       is: /^[0-9]{4,5}(-[0-9]{4})?$/, // Allow 4 or 5 digits, optionally followed by -4 digits
     },
   },
+  salesforce_id: {
+    type: DataTypes.STRING(32),
+    allowNull: true,
+  },
   created_at: {
     type: DataTypes.DATE,
     allowNull: false,
@@ -113,6 +119,10 @@ export const PropertyModelOptions = {
       // Match the index in the DB schema
       name: 'idx_properties_address',
       fields: ['property_address', 'property_city', 'property_state', 'property_zip'],
+    },
+    {
+      name: 'idx_properties_salesforce_id',
+      fields: ['salesforce_id'],
     },
   ],
   hooks: {

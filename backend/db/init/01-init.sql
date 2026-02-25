@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS properties (
   property_city VARCHAR(100) NOT NULL,
   property_state VARCHAR(2) NOT NULL,
   property_zip VARCHAR(10) NOT NULL,
+  salesforce_id VARCHAR(32),
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -37,6 +38,7 @@ CREATE INDEX IF NOT EXISTS idx_properties_address ON properties(property_address
 CREATE INDEX IF NOT EXISTS idx_properties_city ON properties(property_city);
 CREATE INDEX IF NOT EXISTS idx_properties_state ON properties(property_state);
 CREATE INDEX IF NOT EXISTS idx_properties_last_name ON properties(last_name);
+CREATE INDEX IF NOT EXISTS idx_properties_salesforce_id ON properties(salesforce_id);
 
 -- Offer History Table
 CREATE TABLE IF NOT EXISTS offer_histories (
