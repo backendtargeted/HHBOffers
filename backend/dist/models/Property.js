@@ -67,6 +67,10 @@ exports.PropertyModelAttributes = {
         type: sequelize_1.DataTypes.STRING(32),
         allowNull: true,
     },
+    zestimate: {
+        type: sequelize_1.DataTypes.DECIMAL(14, 2),
+        allowNull: true,
+    },
     created_at: {
         type: sequelize_1.DataTypes.DATE,
         allowNull: false,

@@ -98,7 +98,7 @@ class PropertyRepository extends BaseRepository_1.default {
     }
     createOrUpdate(propertyData, transaction) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b, _c;
             logger_1.default.info(`[PropertyRepository] createOrUpdate called with propertyData: ${JSON.stringify(propertyData)}`);
             const existingProperty = yield this.findByAddressCombination(propertyData.property_address, propertyData.property_city, propertyData.property_state, propertyData.property_zip);
             if (existingProperty) {
@@ -111,6 +111,7 @@ class PropertyRepository extends BaseRepository_1.default {
                     property_state: propertyData.property_state,
                     property_zip: propertyData.property_zip,
                     salesforce_id: (_a = propertyData.salesforce_id) !== null && _a !== void 0 ? _a : null,
+                    zestimate: (_c = (_b = propertyData.zestimate) !== null && _b !== void 0 ? _b : existingProperty.get('zestimate')) !== null && _c !== void 0 ? _c : null,
                 }, transaction);
                 return [updatedProperties[0] || existingProperty, false];
             }

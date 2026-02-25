@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS properties (
   property_state VARCHAR(2) NOT NULL,
   property_zip VARCHAR(10) NOT NULL,
   salesforce_id VARCHAR(32),
+  zestimate NUMERIC(14,2),
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

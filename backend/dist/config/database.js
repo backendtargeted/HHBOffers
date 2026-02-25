@@ -59,6 +59,21 @@ const sequelize = new sequelize_1.Sequelize({
 });
 // Initialize model associations with the sequelize instance
 (0, models_1.initializeModelAssociations)(sequelize);
+function ensureSchemaUpToDate() {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Ensure properties has salesforce_id and zestimate, and the salesforce_id index exists.
+        // Safe to run repeatedly thanks to IF NOT EXISTS.
+        yield sequelize.query(`
+    ALTER TABLE IF EXISTS properties
+      ADD COLUMN IF NOT EXISTS salesforce_id VARCHAR(32),
+      ADD COLUMN IF NOT EXISTS zestimate NUMERIC(14,2)
+  `);
+        yield sequelize.query(`
+    CREATE INDEX IF NOT EXISTS idx_properties_salesforce_id
+      ON properties(salesforce_id)
+  `);
+    });
+}
 /**
  * Test the database connection and sync models
  * This runs when the module is first imported
@@ -67,6 +82,8 @@ const sequelize = new sequelize_1.Sequelize({
     try {
         yield sequelize.authenticate();
         logger_1.default.info('Database connection has been established successfully.');
+        // Make sure schema changes are applied even for existing databases
+        yield ensureSchemaUpToDate();
         // // Drop and recreate the public schema
         // await sequelize.query('DROP SCHEMA IF EXISTS public CASCADE;');
         // await sequelize.query('CREATE SCHEMA public;');

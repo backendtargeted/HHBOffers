@@ -12,12 +12,13 @@ export interface PropertyAttributes {
   property_state: string;
   property_zip: string;
   salesforce_id: string | null;
+  zestimate: number | null;
   created_at: Date;
   updated_at: Date;
 }
 
 // Define the attributes for creating a new Property
-export interface PropertyCreationAttributes extends Optional<PropertyAttributes, 'id' | 'created_at' | 'updated_at' | 'salesforce_id'> {}
+export interface PropertyCreationAttributes extends Optional<PropertyAttributes, 'id' | 'created_at' | 'updated_at' | 'salesforce_id' | 'zestimate'> {}
 
 // Define the model
 export class Property extends Model<PropertyAttributes, PropertyCreationAttributes> implements PropertyAttributes {
@@ -29,6 +30,7 @@ export class Property extends Model<PropertyAttributes, PropertyCreationAttribut
   public property_state!: string;
   public property_zip!: string;
   public salesforce_id!: string | null;
+  public zestimate!: number | null;
   public created_at!: Date;
   public updated_at!: Date;
 
@@ -95,6 +97,10 @@ export const PropertyModelAttributes = {
   },
   salesforce_id: {
     type: DataTypes.STRING(32),
+    allowNull: true,
+  },
+  zestimate: {
+    type: DataTypes.DECIMAL(14, 2),
     allowNull: true,
   },
   created_at: {

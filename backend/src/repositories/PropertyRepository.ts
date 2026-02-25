@@ -120,6 +120,7 @@ export class PropertyRepository extends BaseRepository<Property> {
           property_state: propertyData.property_state,
           property_zip: propertyData.property_zip,
           salesforce_id: propertyData.salesforce_id ?? null,
+          zestimate: propertyData.zestimate ?? existingProperty.get('zestimate') ?? null,
         } as any,
         transaction
       );
